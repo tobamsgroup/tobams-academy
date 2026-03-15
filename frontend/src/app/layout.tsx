@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Nunito_Sans } from 'next/font/google'
 import './globals.css'
+import { Providers } from '@/components/providers'
 
 const nunitoSans = Nunito_Sans({
   subsets: ['latin'],
@@ -23,7 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className={`${nunitoSans.variable} font-body antialiased`}>
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   )
