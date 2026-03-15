@@ -42,4 +42,15 @@ describe('MailService', () => {
       service.sendPasswordResetEmail('a@b.com', 'Alice', 'resettoken'),
     ).resolves.not.toThrow();
   });
+
+  it('send rethrows when mailjet request fails', async () => {
+    const mockPost = {
+      request: jest.fn().mockRejectedValue(new Error('mailjet error')),
+    };
+    (service as any).client = { post: jest.fn().mockReturnValue(mockPost) };
+    await expect(
+      service.sendVerificationEmail('a@b.com', 'Alice', 'tok'),
+    ).rejects.toThrow('mailjet error');
+  });
+
 });

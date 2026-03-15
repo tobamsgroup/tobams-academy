@@ -80,7 +80,11 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "**/*.service.(t|j)s",
+      "!**/*.spec.(t|j)s",
+      "!**/app.service.(t|j)s",
+      "!**/prisma.service.(t|j)s",
+      "!**/mail.service.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",

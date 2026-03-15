@@ -95,10 +95,10 @@ Enrollment button
 
 2.3 Course Structure
 Each course must follow a hierarchical structure:
-Course → Module → Lesson → Learning Materials
+Course→ Module→ Lesson→ Learning Materials
 Example:
 Course: Strategic Thinking for Competitive Advantage
-Module 1: Introduction to Strategic Thinking Lesson 1: What is Strategy? Lesson 2: Why Strategy Matters Lesson 3: Strategic Thinking in Organisations
+Module 1: Introduction to Strategic ThinkingLesson 1: What is Strategy?Lesson 2: Why Strategy MattersLesson 3: Strategic Thinking in Organisations
 Each lesson may contain:
 Video lecture
 Presentation slides
@@ -146,10 +146,10 @@ Course Progress: 45% Complete
 Within a course, users should see:
 Course Sidebar
 Displays:
-Modules Lessons
+ModulesLessons
 Example:
-Module 1 Lesson 1 Lesson 2 Lesson 3
-Module 2 Lesson 1 Lesson 2
+Module 1Lesson 1Lesson 2Lesson 3
+Module 2Lesson 1Lesson 2
 Users must be able to easily jump between lessons.
 
 2.7 Downloadable Learning Materials
@@ -223,19 +223,19 @@ Step 2: Account Creation
 New users click:
 Sign Up
 They enter:
-Name Email Password
+NameEmailPassword
 System sends email verification.
 
 Step 3: Login to Dashboard
 After login, users are redirected to their personal dashboard.
 Dashboard shows:
-My Courses Recommended Courses Progress Overview
+My CoursesRecommended CoursesProgress Overview
 
 Step 4: Browse Courses
 Users navigate to:
 Course Catalogue
 They can:
-Search courses Filter by category
+Search coursesFilter by category
 
 Step 5: View Course Details
 User clicks on a course.
@@ -250,12 +250,12 @@ Enroll in Course
 Step 6: Access the Course
 After enrollment, the user enters the course learning environment.
 They see:
-Course menu Modules Lessons
+Course menuModulesLessons
 
 Step 7: Start Learning
 User opens Lesson 1.
 Lesson page includes:
-Video lecture Slides PDF materials Notes
+Video lectureSlidesPDF materialsNotes
 
 Step 8: Complete Lessons
 User watches the video and reads materials.
@@ -279,7 +279,7 @@ Simplicity
 Navigation must be simple and intuitive.
 Clear Learning Flow
 Users must always know:
-Where they are What they completed What comes next
+Where they areWhat they completedWhat comes next
 Mobile Friendly
 Platform must work smoothly on:
 Desktop
@@ -312,7 +312,7 @@ Leaderboards
 Learning analytics dashboards
 
 Three core design layers:
-1️⃣ Content Layer Courses, modules, lessons, materials.
-2️⃣ Experience Layer Navigation, progress tracking, user dashboard.
-3️⃣ Administration Layer Course creation, learner management, reporting.
+1️⃣ Content LayerCourses, modules, lessons, materials.
+2️⃣ Experience LayerNavigation, progress tracking, user dashboard.
+3️⃣ Administration LayerCourse creation, learner management, reporting.
 This structure prevents the platform from becoming chaotic later.
