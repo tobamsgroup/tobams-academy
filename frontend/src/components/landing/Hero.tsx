@@ -11,29 +11,29 @@ export function Hero() {
   useEffect(() => setMounted(true), [])
 
   return (
-    <section className="flex min-h-[520px]">
+    <section className="flex min-h-[520px] flex-col md:flex-row">
       {/* Left */}
-      <div className={`flex flex-1 flex-col justify-center px-12 py-16 transition-all duration-700 ${mounted ? 'translate-x-0 opacity-100' : '-translate-x-8 opacity-0'}`}>
+      <div className={`flex flex-1 flex-col justify-center px-5 py-12 transition-all duration-700 md:px-12 md:py-16 ${mounted ? 'translate-x-0 opacity-100' : '-translate-x-8 opacity-0'}`}>
         <p className="mb-3 text-xs font-extrabold uppercase tracking-[2px] text-[#EF4353]">
           ✦ Professional Training Platform
         </p>
-        <h1 className="mb-4 text-5xl font-bold leading-tight text-slate-900">
+        <h1 className="mb-4 text-3xl font-bold leading-tight text-slate-900 sm:text-4xl md:text-5xl">
           Grow Faster.<br />
           Learn <span className="text-[#EF4353]">Smarter.</span>
         </h1>
         <p className="mb-8 max-w-md text-base leading-relaxed text-slate-500">
           Join thousands of professionals mastering in-demand skills with structured, expert-designed courses. Progress at your pace, earn recognised certificates.
         </p>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-3">
           <Link
             href="/register"
-            className="rounded-xl bg-gradient-to-r from-[#571244] to-[#EF4353] px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#EF4353]/30 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-[#EF4353]/40"
+            className="rounded-xl bg-gradient-to-r from-[#571244] to-[#EF4353] px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#EF4353]/30 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-[#EF4353]/40"
           >
             Start Free Trial →
           </Link>
           <Link
             href="/courses"
-            className="rounded-xl border-2 border-slate-200 px-7 py-3.5 text-sm font-semibold text-slate-600 transition-all hover:border-[#571244] hover:text-[#571244]"
+            className="rounded-xl border-2 border-slate-200 px-6 py-3.5 text-sm font-semibold text-slate-600 transition-all hover:border-[#571244] hover:text-[#571244]"
           >
             Browse Courses
           </Link>
@@ -56,8 +56,8 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Right — gradient panel */}
-      <div className="relative flex w-80 flex-shrink-0 flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-[#571244] via-[#8b2252] to-[#EF4353]">
+      {/* Right — gradient panel (hidden on small screens) */}
+      <div className="relative hidden w-72 flex-shrink-0 flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-[#571244] via-[#8b2252] to-[#EF4353] md:flex lg:w-80">
         {/* Decorative circles */}
         <div className="absolute -top-20 -right-16 h-64 w-64 rounded-full bg-white/[0.06]" />
         <div className="absolute -bottom-12 -left-10 h-44 w-44 rounded-full bg-white/[0.05]" />

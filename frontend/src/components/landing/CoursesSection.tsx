@@ -14,10 +14,10 @@ export function CoursesSection() {
   const [active, setActive] = useState('All')
 
   return (
-    <section className="bg-slate-50 px-12 py-12">
+    <section className="bg-slate-50 px-5 py-10 md:px-12 md:py-12">
       <div className="mb-5 flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-slate-900">Featured Courses</h2>
-        <button className="text-sm font-semibold text-[#EF4353] hover:underline">See all courses →</button>
+        <h2 className="text-xl font-bold text-slate-900 md:text-2xl">Featured Courses</h2>
+        <button className="text-sm font-semibold text-[#EF4353] hover:underline">See all →</button>
       </div>
 
       {/* Category pills */}
@@ -37,8 +37,8 @@ export function CoursesSection() {
         ))}
       </div>
 
-      {/* Course grid */}
-      <div className="grid grid-cols-3 gap-5">
+      {/* Course grid — 1 col on mobile, 2 on sm, 3 on lg */}
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {courses.map((c) => (
           <div
             key={c.title}

@@ -24,18 +24,18 @@ const links = {
 export function Footer() {
   return (
     <footer className="bg-slate-900 text-slate-400">
-      <div className="mx-auto max-w-7xl px-8 py-14">
-        <div className="grid grid-cols-4 gap-10">
-          {/* Brand */}
-          <div>
+      <div className="mx-auto max-w-7xl px-5 py-12 md:px-8 md:py-14">
+        {/* Top grid — stacks on mobile */}
+        <div className="grid grid-cols-2 gap-8 sm:grid-cols-2 md:grid-cols-4">
+          {/* Brand — full width on mobile */}
+          <div className="col-span-2 md:col-span-1">
             <Link href="/" className="text-xl font-bold text-white">
               Tobams<span className="text-[#EF4353]">.</span>Academy
             </Link>
             <p className="mt-3 text-sm leading-relaxed text-slate-400">
               Empowering professionals with expert-designed courses to advance their careers.
             </p>
-            <div className="mt-5 flex gap-3">
-              {/* Social icons as simple text links */}
+            <div className="mt-5 flex flex-wrap gap-2">
               {['Twitter', 'LinkedIn', 'YouTube'].map((s) => (
                 <a
                   key={s}
@@ -70,7 +70,8 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="mt-12 flex items-center justify-between border-t border-slate-800 pt-6">
+        {/* Bottom bar */}
+        <div className="mt-10 flex flex-col items-center gap-2 border-t border-slate-800 pt-6 text-center sm:flex-row sm:justify-between sm:text-left">
           <p className="text-xs text-slate-500">
             © {new Date().getFullYear()} Tobams Academy. All rights reserved.
           </p>

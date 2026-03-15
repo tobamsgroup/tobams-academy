@@ -7,11 +7,15 @@ const stats = [
 
 export function StatsBar() {
   return (
-    <div className="flex bg-[#571244]">
+    <div className="grid grid-cols-2 bg-[#571244] sm:grid-cols-4">
       {stats.map((s, i) => (
         <div
           key={s.label}
-          className={`flex-1 py-4 text-center transition-colors hover:bg-white/5 ${i < stats.length - 1 ? 'border-r border-white/10' : ''}`}
+          className={`py-5 text-center transition-colors hover:bg-white/5 ${
+            i % 2 === 0 ? 'border-r border-white/10 sm:border-r' : 'sm:border-r'
+          } ${i < 2 ? 'border-b border-white/10 sm:border-b-0' : ''} ${
+            i === stats.length - 1 ? 'sm:border-r-0' : ''
+          }`}
         >
           <p className="text-2xl font-bold text-white">{s.value}</p>
           <p className="mt-0.5 text-xs text-white/55">{s.label}</p>
