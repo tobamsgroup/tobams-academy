@@ -3,6 +3,8 @@ import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 
 @ApiTags('auth')
@@ -26,21 +28,21 @@ export class AuthController {
   }
 
   @Post('forgot-password')
-  forgotPassword(@Body('email') email: string) {
-    return this.authService.forgotPassword(email);
+  forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto.email);
   }
 
   @Post('reset-password')
   resetPassword(
     @Query('token') token: string,
-    @Body('password') password: string,
+    @Body() dto: ResetPasswordDto,
   ) {
-    return this.authService.resetPassword(token, password);
+    return this.authService.resetPassword(token, dto.password);
   }
 
   @Post('refresh')
   @UseGuards(JwtRefreshGuard)
-  refresh(@Request() req) {
+  refresh(@Request() req: { user: { id: string; email: string; role: string } }) {
     const { id, email, role } = req.user;
     return this.authService.refresh(id, email, role);
   }
