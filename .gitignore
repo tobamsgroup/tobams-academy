@@ -5,3 +5,4 @@ dist/
 .next/
 .superpowers/
 *.log
+.worktrees/
