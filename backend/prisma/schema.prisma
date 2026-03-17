@@ -18,6 +18,7 @@ model User {
   resetTokenExpiry DateTime?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
+  courses          Course[]
 
   @@map("users")
 }
@@ -27,12 +28,67 @@ model Category {
   name      String   @unique
   slug      String   @unique
   createdAt DateTime @default(now())
+  courses   Course[]
 
   @@map("categories")
+}
+
+model Course {
+  id           String         @id @default(uuid())
+  title        String
+  slug         String         @unique
+  description  String
+  thumbnail    String?
+  level        CourseLevel    @default(BEGINNER)
+  status       CourseStatus   @default(DRAFT)
+  isFeatured   Boolean        @default(false)
+  price        Decimal?       @db.Decimal(10, 2)
+  categoryId   String
+  instructorId String
+  category     Category       @relation(fields: [categoryId], references: [id])
+  instructor   User           @relation(fields: [instructorId], references: [id])
+  modules      CourseModule[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@map("courses")
+}
+
+model CourseModule {
+  id       String   @id @default(uuid())
+  title    String
+  position Int
+  courseId String
+  course   Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons  Lesson[]
+
+  @@map("course_modules")
+}
+
+model Lesson {
+  id       String       @id @default(uuid())
+  title    String
+  position Int
+  duration Int?
+  moduleId String
+  module   CourseModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@map("lessons")
 }
 
 enum Role {
   LEARNER
   INSTRUCTOR
   ADMIN
+}
+
+enum CourseLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
 }
