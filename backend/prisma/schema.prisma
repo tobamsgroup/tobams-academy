@@ -51,6 +51,10 @@ model Course {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 
+  @@index([categoryId])
+  @@index([instructorId])
+  @@index([status])
+  @@index([isFeatured])
   @@map("courses")
 }
 
@@ -62,6 +66,7 @@ model CourseModule {
   course   Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   lessons  Lesson[]
 
+  @@index([courseId])
   @@map("course_modules")
 }
 
@@ -73,6 +78,7 @@ model Lesson {
   moduleId String
   module   CourseModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
 
+  @@index([moduleId])
   @@map("lessons")
 }
 
