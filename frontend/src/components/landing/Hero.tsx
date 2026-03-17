@@ -8,7 +8,10 @@ const floatingIcons = [BookOpen, Trophy, Lightbulb]
 
 export function Hero() {
   const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
+  useEffect(() => {
+    const mount = async () => setMounted(true)
+    void mount()
+  }, [])
 
   return (
     <section className="flex min-h-[520px] flex-col md:flex-row">

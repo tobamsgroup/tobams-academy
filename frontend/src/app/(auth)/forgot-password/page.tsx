@@ -36,7 +36,7 @@ export default function ForgotPasswordPage() {
   return (
     <>
       <h1 className="mb-1 text-2xl font-bold text-slate-900">Reset password</h1>
-      <p className="mb-6 text-sm text-slate-500">We'll send a reset link to your email</p>
+      <p className="mb-6 text-sm text-slate-500">We&apos;ll send a reset link to your email</p>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         <Button type="submit" loading={loading} className="w-full">Send Reset Link</Button>

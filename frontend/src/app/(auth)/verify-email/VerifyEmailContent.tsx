@@ -11,10 +11,16 @@ export function VerifyEmailContent() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
 
   useEffect(() => {
-    if (!token) { setStatus('error'); return }
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify-email?token=${token}`, { method: 'POST' })
-      .then((r) => setStatus(r.ok ? 'success' : 'error'))
-      .catch(() => setStatus('error'))
+    const verify = async () => {
+      if (!token) { setStatus('error'); return }
+      try {
+        const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify-email?token=${token}`, { method: 'POST' })
+        setStatus(r.ok ? 'success' : 'error')
+      } catch {
+        setStatus('error')
+      }
+    }
+    void verify()
   }, [token])
 
   return (

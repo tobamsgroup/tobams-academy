@@ -3,6 +3,14 @@ import Credentials from 'next-auth/providers/credentials'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1'
 
+interface ExtendedUser {
+  id: string
+  name: string
+  email: string
+  role: 'LEARNER' | 'INSTRUCTOR' | 'ADMIN'
+  accessToken: string
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Credentials({
@@ -22,7 +30,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (!res.ok) return null
 
-        const { data } = await res.json()
+        const { data } = await res.json() as { data: { user: { id: string; name: string; email: string; role: string }; accessToken: string } }
         return {
           id: data.user.id,
           name: data.user.name,
@@ -37,8 +45,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     jwt({ token, user }) {
       if (user) {
         token.id = user.id
-        token.role = (user as any).role
-        token.accessToken = (user as any).accessToken
+        const extUser = user as unknown as ExtendedUser
+        token.role = extUser.role
+        token.accessToken = extUser.accessToken
       }
       return token
     },
