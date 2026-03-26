@@ -39,7 +39,7 @@ export function CertificationPathsSection() {
             Our expertly crafted courses are designed to cover a variety of key areas, some of which
             are TGA-certified. Gain the following benefits:
           </p>
-          <ul className="mb-8 flex flex-col gap-4">
+          <ul className="mb-8 list-disc list-inside flex flex-col gap-4">
             {BENEFITS.map((b) => (
               <li key={b.title} className="text-sm text-slate-700">
                 <strong className="text-slate-900">{b.title}:</strong> {b.body}
