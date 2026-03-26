@@ -1,3 +1,4 @@
+
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getAllCourses, getCourseBySlug } from '@/lib/courseData'
@@ -93,34 +94,34 @@ export default function CourseDetailPage({ params }: Props) {
 
               <ul className="mt-5 space-y-3 text-sm text-slate-600">
                 <li className="flex items-center gap-2">
-                  <span>📅</span>
+                  <span aria-hidden="true">📅</span>
                   <span>
                     <span className="font-medium">Course Duration:</span>{' '}
                     {course.duration}
                   </span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span>📋</span>
+                  <span aria-hidden="true">📋</span>
                   <span>
-                    <span className="font-medium">Lessons:</span>{' '}
+                    <span className="font-medium">Curriculum:</span>{' '}
                     {course.curriculum.length} weeks
                   </span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span>📹</span>
+                  <span aria-hidden="true">📹</span>
                   <span>
                     <span className="font-medium">Videos:</span> Included
                   </span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span>👥</span>
+                  <span aria-hidden="true">👥</span>
                   <span>
                     <span className="font-medium">Students Enrolled:</span>{' '}
                     {course.studentsEnrolled}
                   </span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span>🏆</span>
+                  <span aria-hidden="true">🏆</span>
                   <span>
                     <span className="font-medium">Certificate:</span> Awarded on
                     completion

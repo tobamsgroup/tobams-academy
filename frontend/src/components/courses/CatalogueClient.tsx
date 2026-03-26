@@ -12,7 +12,7 @@ interface Props {
 }
 
 const LEVELS = ['Beginner', 'Intermediate', 'Advanced'] as const
-const RATING_OPTIONS = [5, 4, 3, 2] as const
+const RATING_OPTIONS = [4, 3, 2] as const
 
 export function CatalogueClient({ courses, categories }: Props) {
   const [search, setSearch] = useState('')
@@ -75,12 +75,6 @@ export function CatalogueClient({ courses, categories }: Props) {
             />
           </div>
 
-          {/* Trending dropdown */}
-          <select className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 outline-none">
-            <option>Trending</option>
-            <option>Newest</option>
-            <option>Most Popular</option>
-          </select>
         </div>
       </div>
 
@@ -93,17 +87,19 @@ export function CatalogueClient({ courses, categories }: Props) {
             w-64 shrink-0 border-r border-slate-200 bg-white px-5 py-6
           `}
         >
-          <FilterSection title="Category">
-            {categories.map((cat) => (
-              <CheckboxRow
-                key={cat}
-                label={cat}
-                count={courses.filter((c) => c.category === cat).length}
-                checked={selCategories.includes(cat)}
-                onChange={() => setSelCategories(toggle(selCategories, cat))}
-              />
-            ))}
-          </FilterSection>
+          {categories.length > 1 && (
+            <FilterSection title="Category">
+              {categories.map((cat) => (
+                <CheckboxRow
+                  key={cat}
+                  label={cat}
+                  count={courses.filter((c) => c.category === cat).length}
+                  checked={selCategories.includes(cat)}
+                  onChange={() => setSelCategories(toggle(selCategories, cat))}
+                />
+              ))}
+            </FilterSection>
+          )}
 
           <FilterSection title="Level">
             {LEVELS.map((level) => (
