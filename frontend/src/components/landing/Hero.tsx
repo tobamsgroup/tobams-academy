@@ -8,7 +8,7 @@ import { IMAGES } from "@/assets/images";
 export function Hero() {
 
   return (
-    <section className="flex min-h-[520px] flex-col md:flex-row px-16 py-9">
+    <section className="flex min-h-[520px] flex-col md:flex-row px-5 py-9 md:px-16">
       {/* Left */}
       <div className={`flex flex-1 flex-col justify-center  transition-all duration-700 `}>
         <h1 className="mb-4 text-3xl font-bold leading-tight text-slate-900 sm:text-4xl md:text-5xl">Embark on a Journey of Lifelong Learning with Us</h1>

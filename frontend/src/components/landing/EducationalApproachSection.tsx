@@ -8,14 +8,12 @@ export function EducationalApproachSection() {
   return (
     <section className="bg-white">
       {/* Two-column panel */}
-      <div className="flex flex-col bg-[#252A64] px-16 py-9">
+      <div className="flex flex-col md:flex-row bg-[#252A64] px-5 py-9 md:px-16">
         {/* Left — dark navy */}
-        <div className="flex flex-1 flex-col flex-row justify-center  px-8 py-16 md:px-12">
-          <h2 className="mb-6 text-2xl font-bold text-white md:text-3xl w-[50%]">
+        <div className="flex flex-1 flex-col justify-center px-4 py-12 md:px-12 md:py-16">
+          <h2 className="mb-6 text-2xl font-bold text-white md:text-3xl">
             Our Educational Approach
           </h2>
-          <div className='w-[50%]'>
-
           <p className="mb-4 text-sm leading-relaxed text-white/80">
             Our Educational Approach is centered on the highest standards of excellence and
             innovation, aligned with the prestigious TGA Certification. We integrate
@@ -34,12 +32,11 @@ export function EducationalApproachSection() {
               Learn About Us
             </Link>
           </div>
-          </div>
         </div>
 
-        {/* Right — image placeholder */}
-        <div className="flex min-h-[300px] flex-1 items-center justify-center bg-red-400 h-122.5">
-          <Image src={IMAGES.approach} alt='approach' className='h-[490px] object-cover object-top'/>
+        {/* Right — image */}
+        <div className="flex flex-1 items-center justify-center overflow-hidden">
+          <Image src={IMAGES.approach} alt='approach' className='h-[490px] w-full object-cover object-top'/>
         </div>
       </div>
 

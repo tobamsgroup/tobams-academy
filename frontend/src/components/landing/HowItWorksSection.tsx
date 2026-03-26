@@ -29,7 +29,7 @@ export function HowItWorksSection() {
         </h2>
         <div className="flex flex-col gap-8 md:flex-row md:gap-12">
           {/* Left — image placeholder */}
-          <div className="flex min-h-[320px] flex-1 items-center justify-center rounded-2xlmd:min-h-[420px]">
+          <div className="flex min-h-[320px] flex-1 items-center justify-center rounded-2xl md:min-h-[420px]">
             <Image src={IMAGES.howItWorks} alt="howItWorks"/>
           </div>
 

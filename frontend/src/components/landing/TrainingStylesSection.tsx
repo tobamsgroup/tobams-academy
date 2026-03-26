@@ -19,7 +19,7 @@ export function TrainingStylesSection() {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {STYLES.map((style) => (
             <div key={style.title} className="rounded-2xl border border-slate-100 bg-white p-8 shadow-sm">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 mb-4">
                 <ICONS.Thunder/>
                 <h3 className="text-lg font-bold text-[#B82B91]">{style.title}</h3>
               </div>
