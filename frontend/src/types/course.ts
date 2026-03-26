@@ -58,6 +58,8 @@ export interface PaginatedResponse<T> {
   }
 }
 
+export type LocalCourseLevel = 'Beginner' | 'Intermediate' | 'Advanced'
+
 export interface CurriculumWeek {
   week: number
   title: string
@@ -77,7 +79,7 @@ export interface LocalCourse {
   curriculum: CurriculumWeek[]
   // enriched fields
   price: string             // always "Free"
-  level: 'Beginner' | 'Intermediate' | 'Advanced'
+  level: LocalCourseLevel
   rating: number            // 4.5
   ratingCount: number       // 5
   studentsEnrolled: number  // 286
