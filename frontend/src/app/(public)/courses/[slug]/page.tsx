@@ -37,7 +37,7 @@ export default function CourseDetailPage({ params }: Props) {
           {/* Breadcrumb */}
           <nav className="mb-4 text-xs text-white/50">
             <Link href="/courses" className="hover:text-white/80 transition-colors">
-              Course
+              Courses
             </Link>
             <span className="mx-2">/</span>
             <span className="text-white/80 line-clamp-1">{course.title}</span>
