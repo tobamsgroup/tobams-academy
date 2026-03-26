@@ -1,45 +1,58 @@
 import Link from 'next/link'
-import type { Course } from '@/types/course'
-
-const LEVEL_COLORS: Record<string, string> = {
-  BEGINNER: 'bg-emerald-100 text-emerald-700',
-  INTERMEDIATE: 'bg-amber-100 text-amber-700',
-  ADVANCED: 'bg-red-100 text-red-700',
-}
+import type { LocalCourse } from '@/types/course'
 
 interface Props {
-  course: Course
+  course: LocalCourse
 }
 
 export function CourseCard({ course }: Props) {
-  const moduleCount = course._count?.modules ?? 0
+  const fullStars = Math.floor(course.rating)
+  const emptyStars = 5 - fullStars
 
   return (
-    <Link
-      href={`/courses/${course.slug}`}
-      className="group block overflow-hidden rounded-xl border border-slate-100 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-[#571244]/10"
-    >
-      <div className="relative h-36 overflow-hidden bg-gradient-to-br from-[#571244] to-[#EF4353]">
-        {course.thumbnail && (
-          <img src={course.thumbnail} alt={course.title} className="h-full w-full object-cover" />
-        )}
-        <span className={`absolute bottom-2 left-2 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${LEVEL_COLORS[course.level]}`}>
-          {course.level.toLowerCase()}
-        </span>
-      </div>
+    <div className="rounded-xl overflow-hidden border border-slate-200 bg-white hover:shadow-md transition-shadow">
+      {/* Image */}
+      <Link href={`/courses/${course.slug}`} tabIndex={-1}>
+        <div className="relative aspect-video bg-slate-200 flex items-center justify-center">
+          <span className="text-xs text-slate-400">[Image Placeholder]</span>
+        </div>
+      </Link>
+
       <div className="p-4">
-        <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#571244]">
-          {course.category.name}
+        {/* Provider */}
+        <p className="text-[10px] font-medium text-slate-400 mb-0.5 uppercase tracking-wide">
+          Tobams Group Academy
         </p>
-        <h3 className="mb-2 text-sm font-bold leading-snug text-slate-900 group-hover:text-[#571244] transition-colors line-clamp-2">
-          {course.title}
-        </h3>
-        <p className="text-xs text-slate-400 line-clamp-2">{course.description}</p>
-        <div className="mt-3 flex items-center justify-between text-xs text-slate-400">
-          <span>{moduleCount} module{moduleCount !== 1 ? 's' : ''}</span>
-          <span>{course.price ? `$${course.price}` : 'Free'}</span>
+
+        {/* Stars */}
+        <div className="flex items-center gap-1 mb-2">
+          <span className="text-amber-400 text-xs leading-none" aria-label={`${course.rating} stars`}>
+            {'★'.repeat(fullStars)}{'☆'.repeat(emptyStars)}
+          </span>
+          <span className="text-xs text-slate-400">({course.ratingCount})</span>
+        </div>
+
+        {/* Title */}
+        <Link href={`/courses/${course.slug}`}>
+          <h3 className="font-bold text-slate-900 text-sm leading-snug line-clamp-2 mb-1 hover:text-[#571244] transition-colors">
+            {course.title}
+          </h3>
+        </Link>
+
+        {/* Description */}
+        <p className="text-xs text-slate-500 line-clamp-2 mb-4">{course.description}</p>
+
+        {/* Footer row */}
+        <div className="flex items-center justify-between">
+          <span className="font-bold text-slate-900 text-sm">{course.price}</span>
+          <Link
+            href={`/courses/${course.slug}`}
+            className="rounded-lg bg-[#571244] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#571244]/90 transition-colors"
+          >
+            Add to Cart
+          </Link>
         </div>
       </div>
-    </Link>
+    </div>
   )
 }
