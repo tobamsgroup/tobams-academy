@@ -1,8 +1,6 @@
-import Image from 'next/image'
 import Link from 'next/link'
-import type { Course } from '@/types/course'
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1'
+import { getAllCourses } from '@/lib/courseData'
+import type { LocalCourse } from '@/types/course'
 
 const CATEGORY_PILLS = [
   'IT Service',
@@ -12,34 +10,11 @@ const CATEGORY_PILLS = [
   'Leadership',
 ]
 
-async function fetchFeaturedCourses(): Promise<Course[]> {
-  try {
-    const res = await fetch(`${API}/courses/featured`, { next: { revalidate: 300 } })
-    if (!res.ok) return []
-    const json = (await res.json()) as { data?: Course[] }
-    return json.data ?? []
-  } catch {
-    return []
-  }
-}
-
-function FeaturedCourseCard({ course }: { course: Course }) {
+function FeaturedCourseCard({ course }: { course: LocalCourse }) {
   return (
     <div className="overflow-hidden rounded-xl border border-slate-100 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-md">
-      <div className="relative h-48 bg-slate-200">
-        {course.thumbnail ? (
-          <Image
-            src={course.thumbnail}
-            alt={course.title}
-            fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center">
-            <span className="text-xs text-slate-400">[Image Placeholder]</span>
-          </div>
-        )}
+      <div className="relative h-48 bg-slate-200 flex items-center justify-center">
+        <span className="text-xs text-slate-400">[Image Placeholder]</span>
       </div>
       <div className="p-4">
         <p className="mb-1 text-xs font-semibold text-[#571244]">Tobams Group Academy</p>
@@ -51,9 +26,7 @@ function FeaturedCourseCard({ course }: { course: Course }) {
         <h3 className="mb-1 line-clamp-2 text-sm font-bold text-slate-900">{course.title}</h3>
         <p className="mb-3 line-clamp-2 text-xs text-slate-500">{course.description}</p>
         <div className="flex items-center justify-between">
-          <span className="text-sm font-bold text-slate-900">
-            {(!course.price || course.price === '0') ? 'Free' : `£${course.price}`}
-          </span>
+          <span className="text-sm font-bold text-slate-900">{course.price}</span>
           <Link
             href={`/courses/${course.slug}`}
             className="rounded-lg bg-[#1a1a5e] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#571244]"
@@ -66,26 +39,28 @@ function FeaturedCourseCard({ course }: { course: Course }) {
   )
 }
 
-export async function PopularCourses() {
-  const courses = await fetchFeaturedCourses()
+export function PopularCourses() {
+  const courses = getAllCourses().slice(0, 6)
 
   return (
-    <section className="bg-slate-50 px-5 py-12 md:px-12 md:py-16">
+    <section className="bg-[#D3D4E0] px-5 py-12 md:px-12 md:py-16 rounded-tr-[48px] rounded-tl-[48px]">
+      <p className='text-[30px] font-semibold text-[#151515]'>Explore Our Featured Categories and Courses</p>
+      <p className='leading-normal text-[#151515] mt-4 mb-6'>Discover a curated selection of top-notch courses spanning various categories. Dive into our featured content designed to elevate your learning experience and empower your professional journey.</p>
       {/* Category pills */}
       <div className="mb-8 flex flex-wrap items-center gap-3">
         {CATEGORY_PILLS.map((pill) => (
           <span
             key={pill}
-            className="rounded-full border border-slate-200 bg-white px-4 py-1.5 text-sm text-slate-600"
+            className="rounded-full border border-slate-200  px-4 py-1.5 text-sm text-slate-600"
           >
             {pill}
           </span>
         ))}
         <Link
           href="/courses"
-          className="text-sm font-semibold text-[#EF4353] hover:underline"
+          className="text-sm font-semibold text-[#B82B91] hover:underline"
         >
-          Explore all categories →
+          Explore all categories
         </Link>
       </div>
 
