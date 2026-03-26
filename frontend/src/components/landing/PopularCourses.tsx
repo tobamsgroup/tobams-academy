@@ -13,8 +13,9 @@ const CATEGORY_PILLS = [
 function FeaturedCourseCard({ course }: { course: LocalCourse }) {
   return (
     <div className="overflow-hidden rounded-xl border border-slate-100 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-md">
-      <div className="relative h-48 bg-slate-200 flex items-center justify-center">
-        <span className="text-xs text-slate-400">[Image Placeholder]</span>
+      <div className="relative h-48 bg-slate-100 flex flex-col items-center justify-center gap-2 px-4">
+        <span className="text-4xl">📚</span>
+        <span className="text-xs text-slate-500 font-medium text-center line-clamp-2">{course.title}</span>
       </div>
       <div className="p-4">
         <p className="mb-1 text-xs font-semibold text-[#571244]">Tobams Group Academy</p>

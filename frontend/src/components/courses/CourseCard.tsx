@@ -13,8 +13,9 @@ export function CourseCard({ course }: Props) {
     <div className="rounded-xl overflow-hidden border border-slate-200 bg-white hover:shadow-md transition-shadow">
       {/* Image */}
       <Link href={`/courses/${course.slug}`} tabIndex={-1}>
-        <div className="relative aspect-video bg-slate-200 flex items-center justify-center">
-          <span className="text-xs text-slate-400">[Image Placeholder]</span>
+        <div className="relative aspect-video bg-slate-100 flex flex-col items-center justify-center gap-2 px-4">
+          <span className="text-4xl">📚</span>
+          <span className="text-xs text-slate-500 font-medium text-center line-clamp-2">{course.title}</span>
         </div>
       </Link>
 
