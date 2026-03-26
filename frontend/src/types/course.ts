@@ -57,3 +57,28 @@ export interface PaginatedResponse<T> {
     totalPages: number
   }
 }
+
+export interface CurriculumWeek {
+  week: number
+  title: string
+  topics: string[]
+}
+
+export interface LocalCourse {
+  id: string
+  slug: string
+  title: string
+  category: string
+  description: string
+  objective: string
+  targetAudience: string[]
+  keyLearningOutcomes: string[]
+  duration: string          // e.g. "12 Weeks"
+  curriculum: CurriculumWeek[]
+  // enriched fields
+  price: string             // always "Free"
+  level: 'Beginner' | 'Intermediate' | 'Advanced'
+  rating: number            // 4.5
+  ratingCount: number       // 5
+  studentsEnrolled: number  // 286
+}
