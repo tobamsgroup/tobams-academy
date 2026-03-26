@@ -8,15 +8,16 @@ import { Footer } from '@/components/landing/Footer'
 import type { Metadata } from 'next'
 
 interface Props {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 export function generateStaticParams() {
   return getAllCourses().map((c) => ({ slug: c.slug }))
 }
 
-export function generateMetadata({ params }: Props): Metadata {
-  const course = getCourseBySlug(params.slug)
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params
+  const course = getCourseBySlug(slug)
   if (!course) return { title: 'Course Not Found' }
   return {
     title: `${course.title} — Tobams Academy`,
@@ -24,8 +25,9 @@ export function generateMetadata({ params }: Props): Metadata {
   }
 }
 
-export default function CourseDetailPage({ params }: Props) {
-  const course = getCourseBySlug(params.slug)
+export default async function CourseDetailPage({ params }: Props) {
+  const { slug } = await params
+  const course = getCourseBySlug(slug)
   if (!course) notFound()
 
   return (
