@@ -1,28 +1,21 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { CourseOutline } from '@/components/courses/CourseOutline'
-import type { CourseDetail } from '@/types/course'
+import { getAllCourses, getCourseBySlug } from '@/lib/courseData'
+import { CourseDetailTabs } from '@/components/courses/CourseDetailTabs'
+import { Navbar } from '@/components/landing/Navbar'
+import { Footer } from '@/components/landing/Footer'
 import type { Metadata } from 'next'
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1'
-
-async function fetchCourse(slug: string): Promise<CourseDetail | null> {
-  try {
-    const res = await fetch(`${API}/courses/${slug}`, { cache: 'no-store' })
-    if (!res.ok) return null
-    const json = await res.json()
-    return json.data
-  } catch {
-    return null
-  }
-}
 
 interface Props {
   params: { slug: string }
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const course = await fetchCourse(params.slug)
+export function generateStaticParams() {
+  return getAllCourses().map((c) => ({ slug: c.slug }))
+}
+
+export function generateMetadata({ params }: Props): Metadata {
+  const course = getCourseBySlug(params.slug)
   if (!course) return { title: 'Course Not Found' }
   return {
     title: `${course.title} — Tobams Academy`,
@@ -30,74 +23,123 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-const LEVEL_LABELS: Record<string, string> = {
-  BEGINNER: 'Beginner',
-  INTERMEDIATE: 'Intermediate',
-  ADVANCED: 'Advanced',
-}
-
-export default async function CourseDetailPage({ params }: Props) {
-  const course = await fetchCourse(params.slug)
+export default function CourseDetailPage({ params }: Props) {
+  const course = getCourseBySlug(params.slug)
   if (!course) notFound()
 
-  const totalLessons = course.modules.reduce((acc, m) => acc + m.lessons.length, 0)
-  const totalMinutes = course.modules.reduce(
-    (acc, m) => acc + m.lessons.reduce((la, l) => la + (l.duration ?? 0), 0),
-    0,
-  )
-
   return (
-    <main className="mx-auto max-w-5xl px-5 py-10 md:px-8">
-      {/* Breadcrumb */}
-      <nav className="mb-6 text-xs text-slate-400">
-        <Link href="/courses" className="hover:text-[#571244]">Courses</Link>
-        <span className="mx-1">/</span>
-        <span className="text-slate-600">{course.title}</span>
-      </nav>
+    <div className="min-h-screen bg-white">
+      <Navbar />
 
-      <div className="grid gap-8 lg:grid-cols-3">
-        {/* Left — main content */}
-        <div className="lg:col-span-2">
-          <div className="mb-6 overflow-hidden rounded-2xl bg-gradient-to-br from-[#571244] to-[#EF4353] p-8 text-white">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-white/70">
-              {course.category.name}
-            </p>
-            <h1 className="text-2xl font-bold leading-snug md:text-3xl">{course.title}</h1>
-            <p className="mt-3 text-sm leading-relaxed text-white/80">{course.description}</p>
-            <div className="mt-5 flex flex-wrap gap-4 text-xs text-white/70">
-              <span>🎓 {LEVEL_LABELS[course.level]}</span>
-              <span>📦 {course.modules.length} modules</span>
-              <span>📹 {totalLessons} lessons</span>
-              {totalMinutes > 0 && <span>⏱ {Math.round(totalMinutes / 60)}h {totalMinutes % 60}m</span>}
-            </div>
+      {/* Hero */}
+      <div className="bg-[#1a1a5e] text-white">
+        <div className="mx-auto max-w-5xl px-6 py-12">
+          {/* Breadcrumb */}
+          <nav className="mb-4 text-xs text-white/50">
+            <Link href="/courses" className="hover:text-white/80 transition-colors">
+              Course
+            </Link>
+            <span className="mx-2">/</span>
+            <span className="text-white/80 line-clamp-1">{course.title}</span>
+          </nav>
+
+          {/* Category badge */}
+          <span className="mb-3 inline-block rounded bg-[#EF4353] px-2.5 py-0.5 text-xs font-semibold text-white">
+            {course.category}
+          </span>
+
+          <h1 className="mb-3 text-2xl font-bold leading-snug md:text-3xl">
+            {course.title}
+          </h1>
+
+          <p className="mb-5 max-w-2xl text-sm leading-relaxed text-white/75">
+            {course.description}
+          </p>
+
+          {/* Meta row */}
+          <div className="flex flex-wrap items-center gap-3 text-sm text-white/60">
+            <span className="text-amber-400 font-medium">★ {course.rating}</span>
+            <span>({course.ratingCount} ratings)</span>
+            <span>·</span>
+            <span>{course.studentsEnrolled} students</span>
+            <span>·</span>
+            <span>Duration: {course.duration}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Body */}
+      <div className="mx-auto max-w-5xl px-6 py-10">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+          {/* Left — tabs */}
+          <div className="lg:col-span-2">
+            <CourseDetailTabs course={course} />
           </div>
 
-          <h2 className="mb-3 text-lg font-bold text-slate-900">Course Outline</h2>
-          <CourseOutline modules={course.modules} />
-        </div>
+          {/* Right — sticky enrol card */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-lg shadow-[#1a1a5e]/5">
+              <div className="flex items-start justify-between">
+                <span className="text-2xl font-bold text-slate-900">
+                  {course.price}
+                </span>
+                <button
+                  aria-label="Save to wishlist"
+                  className="text-xl text-slate-300 hover:text-[#EF4353] transition-colors"
+                >
+                  ♡
+                </button>
+              </div>
 
-        {/* Right — enroll card */}
-        <div className="lg:col-span-1">
-          <div className="sticky top-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-lg shadow-[#571244]/5">
-            <p className="text-2xl font-bold text-slate-900">
-              {course.price ? `$${course.price}` : 'Free'}
-            </p>
-            <Link
-              href="/register"
-              className="mt-4 block w-full rounded-xl bg-[#571244] py-3 text-center text-sm font-bold text-white transition-all hover:bg-[#571244]/90"
-            >
-              Enrol Now
-            </Link>
-            <p className="mt-3 text-center text-xs text-slate-400">
-              Full lifetime access · Certificate on completion
-            </p>
-            <div className="mt-5 border-t border-slate-100 pt-4 text-sm text-slate-600">
-              <p className="font-semibold">Instructor</p>
-              <p className="mt-1 text-slate-500">{course.instructor.name}</p>
+              <ul className="mt-5 space-y-3 text-sm text-slate-600">
+                <li className="flex items-center gap-2">
+                  <span>📅</span>
+                  <span>
+                    <span className="font-medium">Course Duration:</span>{' '}
+                    {course.duration}
+                  </span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span>📋</span>
+                  <span>
+                    <span className="font-medium">Lessons:</span>{' '}
+                    {course.curriculum.length} weeks
+                  </span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span>📹</span>
+                  <span>
+                    <span className="font-medium">Videos:</span> Included
+                  </span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span>👥</span>
+                  <span>
+                    <span className="font-medium">Students Enrolled:</span>{' '}
+                    {course.studentsEnrolled}
+                  </span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span>🏆</span>
+                  <span>
+                    <span className="font-medium">Certificate:</span> Awarded on
+                    completion
+                  </span>
+                </li>
+              </ul>
+
+              <Link
+                href="/register"
+                className="mt-6 block w-full rounded-xl bg-[#1a1a5e] py-3 text-center text-sm font-bold text-white hover:bg-[#1a1a5e]/90 transition-colors"
+              >
+                Enrol Now
+              </Link>
             </div>
           </div>
         </div>
       </div>
-    </main>
+
+      <Footer />
+    </div>
   )
 }
