@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import type { Course } from '@/types/course'
 
@@ -27,10 +28,12 @@ function FeaturedCourseCard({ course }: { course: Course }) {
     <div className="overflow-hidden rounded-xl border border-slate-100 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-md">
       <div className="relative h-48 bg-slate-200">
         {course.thumbnail ? (
-          <img
+          <Image
             src={course.thumbnail}
             alt={course.title}
-            className="h-full w-full object-cover"
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
@@ -49,14 +52,14 @@ function FeaturedCourseCard({ course }: { course: Course }) {
         <p className="mb-3 line-clamp-2 text-xs text-slate-500">{course.description}</p>
         <div className="flex items-center justify-between">
           <span className="text-sm font-bold text-slate-900">
-            {course.price ? `£${course.price}` : 'Free'}
+            {(!course.price || course.price === '0') ? 'Free' : `£${course.price}`}
           </span>
-          <button
-            type="button"
+          <Link
+            href={`/courses/${course.slug}`}
             className="rounded-lg bg-[#1a1a5e] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#571244]"
           >
             Add to Cart
-          </button>
+          </Link>
         </div>
       </div>
     </div>
