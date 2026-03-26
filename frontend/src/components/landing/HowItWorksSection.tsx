@@ -1,3 +1,6 @@
+import { IMAGES } from "@/assets/images"
+import Image from "next/image"
+
 const STEPS = [
   {
     title: 'Explore our Courses',
@@ -26,8 +29,8 @@ export function HowItWorksSection() {
         </h2>
         <div className="flex flex-col gap-8 md:flex-row md:gap-12">
           {/* Left — image placeholder */}
-          <div className="flex min-h-[320px] flex-1 items-center justify-center rounded-2xl bg-slate-200 md:min-h-[420px]">
-            <span className="text-sm text-slate-400">[Image Placeholder]</span>
+          <div className="flex min-h-[320px] flex-1 items-center justify-center rounded-2xlmd:min-h-[420px]">
+            <Image src={IMAGES.howItWorks} alt="howItWorks"/>
           </div>
 
           {/* Right — steps */}

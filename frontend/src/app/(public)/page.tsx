@@ -18,7 +18,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-white">
       <Navbar />
       <Hero />
-      <StatsBar />
+      {/* <StatsBar /> */}
       <PopularCourses />
       <WhyLearnSection />
       <CertificationPathsSection />

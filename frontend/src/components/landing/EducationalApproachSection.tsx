@@ -1,17 +1,21 @@
+import { IMAGES } from '@/assets/images'
+import Image from 'next/image'
 import Link from 'next/link'
 
-const PARTNERS = ['Tobams Group', 'Tobams Logic', 'Life Newton']
+const PARTNERS = [IMAGES.tobamsgroup, IMAGES.tobamslogic, IMAGES.jitenewton]
 
 export function EducationalApproachSection() {
   return (
     <section className="bg-white">
       {/* Two-column panel */}
-      <div className="flex flex-col md:flex-row">
+      <div className="flex flex-col bg-[#252A64] px-16 py-9">
         {/* Left — dark navy */}
-        <div className="flex flex-1 flex-col justify-center bg-[#1a1a5e] px-8 py-16 md:px-12">
-          <h2 className="mb-6 text-2xl font-bold text-white md:text-3xl">
+        <div className="flex flex-1 flex-col flex-row justify-center  px-8 py-16 md:px-12">
+          <h2 className="mb-6 text-2xl font-bold text-white md:text-3xl w-[50%]">
             Our Educational Approach
           </h2>
+          <div className='w-[50%]'>
+
           <p className="mb-4 text-sm leading-relaxed text-white/80">
             Our Educational Approach is centered on the highest standards of excellence and
             innovation, aligned with the prestigious TGA Certification. We integrate
@@ -30,11 +34,12 @@ export function EducationalApproachSection() {
               Learn About Us
             </Link>
           </div>
+          </div>
         </div>
 
         {/* Right — image placeholder */}
-        <div className="flex min-h-[300px] flex-1 items-center justify-center bg-slate-200 md:min-h-[400px]">
-          <span className="text-sm text-slate-400">[Image Placeholder]</span>
+        <div className="flex min-h-[300px] flex-1 items-center justify-center bg-red-400 h-122.5">
+          <Image src={IMAGES.approach} alt='approach' className='h-[490px] object-cover object-top'/>
         </div>
       </div>
 
@@ -43,14 +48,9 @@ export function EducationalApproachSection() {
         <p className="text-xs font-extrabold uppercase tracking-widest text-slate-500">
           OUR TRUSTED PARTNERS
         </p>
-        <div className="flex flex-wrap items-center justify-center gap-10">
-          {PARTNERS.map((name) => (
-            <div
-              key={name}
-              className="flex h-10 w-32 items-center justify-center rounded-lg border border-slate-200 bg-slate-50"
-            >
-              <span className="text-xs text-slate-400">{name}</span>
-            </div>
+        <div className="flex  items-center justify-center gap-10">
+          {PARTNERS.map((name, i) => (
+           <Image src={name} key={i} alt={i +'trustced'} className=' w-28 object-contain'/>
           ))}
         </div>
       </div>

@@ -22,7 +22,7 @@ const BENEFITS = [
 export function InternshipSection() {
   return (
     <section className="bg-white px-5 py-16 md:px-12 md:py-20">
-      <div className="mx-auto max-w-4xl">
+      <div className="">
         <h2 className="mb-4 text-2xl font-bold text-slate-900 md:text-3xl">
           Internship Opportunities at TGA: Empowering Future Professionals
         </h2>
@@ -31,7 +31,7 @@ export function InternshipSection() {
           experience, global exposure, and additional training to shape you into a well-rounded
           professional.
         </p>
-        <p className="mb-4 text-xs font-extrabold uppercase tracking-widest text-[#EF4353]">
+        <p className="mb-4 text-xs font-extrabold uppercase tracking-widest text-[#B82B91]">
           Key Benefits
         </p>
 
