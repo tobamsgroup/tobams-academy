@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 const PARTNERS = ['Tobams Group', 'Tobams Logic', 'Life Newton']
 
 export function EducationalApproachSection() {
@@ -21,12 +23,12 @@ export function EducationalApproachSection() {
             setting them on a path toward professional success and industry recognition.
           </p>
           <div>
-            <a
+            <Link
               href="#"
               className="inline-block rounded-xl border-2 border-white px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white hover:text-[#1a1a5e]"
             >
               Learn About Us
-            </a>
+            </Link>
           </div>
         </div>
 

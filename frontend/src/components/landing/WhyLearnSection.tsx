@@ -33,7 +33,7 @@ export function WhyLearnSection() {
             <div key={feature.title} className="flex items-start gap-8 py-8 first:pt-0 last:pb-0">
               {/* Illustration placeholder */}
               <div className="hidden h-20 w-20 flex-shrink-0 items-center justify-center rounded-xl bg-slate-100 sm:flex">
-                <span className="text-xs text-slate-400">img</span>
+                <span className="text-xs text-slate-400">[Image Placeholder]</span>
               </div>
               <div>
                 <h3 className="mb-2 text-lg font-bold text-slate-900">{feature.title}</h3>

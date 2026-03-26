@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 const TESTIMONIALS = [
   {
     name: 'Damilare Ismaila',
@@ -35,12 +37,12 @@ export function TestimonialsSection() {
               Reviews From Our Students
             </h2>
           </div>
-          <a
+          <Link
             href="#"
             className="flex-shrink-0 rounded-xl border-2 border-[#1a1a5e] px-5 py-2.5 text-sm font-semibold text-[#1a1a5e] transition-colors hover:bg-[#1a1a5e] hover:text-white"
           >
             See All Testimonials →
-          </a>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

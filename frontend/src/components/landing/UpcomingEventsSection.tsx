@@ -1,5 +1,7 @@
+import Link from 'next/link'
+
 const EVENT = {
-  date: 'May 15, 2024 | 10:00 AM – 12:00 PM (UK Time)',
+  date: 'TBA | 10:00 AM – 12:00 PM (UK Time)',
   title: 'Leadership Summit 2024',
   excerpt:
     'We are proud to announce that Tobams Group Academy has been recognized for its commitment to sustainable business practices. Learn more about our eco-friendly initiatives and the positive impact on our c...',
@@ -13,9 +15,9 @@ function SmallEventCard() {
         <p className="mb-1 text-[10px] text-slate-400">{EVENT.date}</p>
         <h4 className="mb-1 text-sm font-bold text-slate-900">{EVENT.title}</h4>
         <p className="mb-2 line-clamp-2 text-xs text-slate-500">{EVENT.excerpt}</p>
-        <a href="#" className="text-xs font-semibold text-[#EF4353] hover:underline">
+        <Link href="#" className="text-xs font-semibold text-[#EF4353] hover:underline">
           Register Now
-        </a>
+        </Link>
       </div>
     </div>
   )
@@ -27,12 +29,12 @@ export function UpcomingEventsSection() {
       <div className="mx-auto max-w-5xl">
         <div className="mb-8 flex items-center justify-between">
           <h2 className="text-2xl font-bold text-slate-900 md:text-3xl">Upcoming Events</h2>
-          <a
+          <Link
             href="#"
             className="rounded-xl bg-[#1a1a5e] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#571244]"
           >
             View All Events →
-          </a>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -40,24 +42,20 @@ export function UpcomingEventsSection() {
           <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
             <div className="relative flex h-56 items-center justify-center bg-slate-200">
               <span className="text-sm text-slate-400">[Image Placeholder]</span>
-              {/* Play button overlay */}
-              <button
-                type="button"
-                aria-label="Play"
-                className="absolute inset-0 flex items-center justify-center"
-              >
+              {/* Play button overlay — decorative placeholder */}
+              <div aria-hidden="true" className="absolute inset-0 flex items-center justify-center">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/80 text-xl text-slate-700 shadow">
                   ▶
                 </div>
-              </button>
+              </div>
             </div>
             <div className="p-5">
               <p className="mb-1 text-xs text-slate-400">{EVENT.date}</p>
               <h3 className="mb-2 text-lg font-bold text-slate-900">{EVENT.title}</h3>
               <p className="mb-3 text-sm text-slate-500">{EVENT.excerpt}</p>
-              <a href="#" className="text-sm font-semibold text-[#EF4353] hover:underline">
+              <Link href="#" className="text-sm font-semibold text-[#EF4353] hover:underline">
                 Register Now
-              </a>
+              </Link>
             </div>
           </div>
 
