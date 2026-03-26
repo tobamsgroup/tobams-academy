@@ -59,10 +59,10 @@ export function TestimonialsSection() {
                 </div>
               </div>
               <div className="mb-3 flex gap-0.5">
-                {[1, 2, 3, 4, 5].map((i) => (
+                {[1, 2, 3, 4, 5].map((star) => (
                   <span
-                    key={i}
-                    className={`text-sm ${i <= t.stars ? 'text-yellow-400' : 'text-slate-200'}`}
+                    key={star}
+                    className={`text-sm ${star <= t.stars ? 'text-yellow-400' : 'text-slate-200'}`}
                   >
                     ★
                   </span>

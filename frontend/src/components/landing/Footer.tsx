@@ -1,6 +1,5 @@
-'use client'
-
 import Link from 'next/link'
+import { NewsletterForm } from '@/components/landing/NewsletterForm'
 
 const COLUMNS = {
   Academy: [
@@ -15,6 +14,8 @@ const COLUMNS = {
   ],
 }
 
+const CURRENT_YEAR = new Date().getFullYear()
+
 export function Footer() {
   return (
     <footer>
@@ -25,23 +26,7 @@ export function Footer() {
             <p className="font-bold text-white">Subscribe To Get Updates Regarding New Courses</p>
             <p className="mt-1 text-sm text-white/60">Stay informed with the latest updates from our academy</p>
           </div>
-          <form
-            onSubmit={(e) => e.preventDefault()}
-            className="flex w-full max-w-sm overflow-hidden rounded-xl border border-white/20"
-          >
-            <input
-              type="email"
-              placeholder="Enter your email..."
-              className="flex-1 bg-white/10 px-4 py-2.5 text-sm text-white placeholder-white/40 outline-none"
-            />
-            <button
-              type="submit"
-              className="flex items-center justify-center bg-[#EF4353] px-4 text-white transition-opacity hover:opacity-90"
-              aria-label="Subscribe"
-            >
-              →
-            </button>
-          </form>
+          <NewsletterForm />
         </div>
       </div>
 
@@ -107,7 +92,7 @@ export function Footer() {
 
           {/* Bottom bar */}
           <div className="mt-10 border-t border-slate-800 pt-6 text-center text-xs text-slate-500">
-            © {new Date().getFullYear()} Tobams Group Academy. All rights reserved.
+            © {CURRENT_YEAR} Tobams Group Academy. All rights reserved.
           </div>
         </div>
       </div>

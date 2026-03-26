@@ -44,8 +44,8 @@ function FeaturedCourseCard({ course }: { course: Course }) {
       <div className="p-4">
         <p className="mb-1 text-xs font-semibold text-[#571244]">Tobams Group Academy</p>
         <div className="mb-2 flex items-center gap-0.5">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <span key={i} className="text-xs text-yellow-400">★</span>
+          {[1, 2, 3, 4, 5].map((star) => (
+            <span key={star} className="text-xs text-yellow-400">★</span>
           ))}
         </div>
         <h3 className="mb-1 line-clamp-2 text-sm font-bold text-slate-900">{course.title}</h3>
@@ -58,7 +58,7 @@ function FeaturedCourseCard({ course }: { course: Course }) {
             href={`/courses/${course.slug}`}
             className="rounded-lg bg-[#1a1a5e] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#571244]"
           >
-            Add to Cart
+            View Course
           </Link>
         </div>
       </div>
@@ -74,13 +74,12 @@ export async function PopularCourses() {
       {/* Category pills */}
       <div className="mb-8 flex flex-wrap items-center gap-3">
         {CATEGORY_PILLS.map((pill) => (
-          <button
+          <span
             key={pill}
-            type="button"
-            className="rounded-full border border-slate-200 bg-white px-4 py-1.5 text-sm text-slate-600 transition-colors hover:border-[#571244] hover:text-[#571244]"
+            className="rounded-full border border-slate-200 bg-white px-4 py-1.5 text-sm text-slate-600"
           >
             {pill}
-          </button>
+          </span>
         ))}
         <Link
           href="/courses"
@@ -109,22 +108,14 @@ export async function PopularCourses() {
         </div>
       )}
 
-      {/* Pagination arrows */}
-      <div className="mt-6 flex justify-end gap-2">
-        <button
-          type="button"
-          aria-label="Previous"
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-lg text-slate-600 transition-colors hover:border-[#571244] hover:text-[#571244]"
-        >
+      {/* Pagination arrows — decorative placeholders */}
+      <div aria-hidden="true" className="mt-6 flex justify-end gap-2">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-lg text-slate-400">
           ‹
-        </button>
-        <button
-          type="button"
-          aria-label="Next"
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-lg text-slate-600 transition-colors hover:border-[#571244] hover:text-[#571244]"
-        >
+        </div>
+        <div className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-lg text-slate-400">
           ›
-        </button>
+        </div>
       </div>
 
       {/* Explore CTA */}
