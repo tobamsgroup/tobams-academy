@@ -1,101 +1,129 @@
-import Link from 'next/link'
-import { NewsletterForm } from '@/components/landing/NewsletterForm'
+// components/Footer.tsx
+"use client";
 
-const COLUMNS = {
-  Academy: [
-    { label: 'About', href: '#' },
-    { label: 'Courses', href: '/courses' },
-    { label: 'Corporate Training', href: '#' },
-  ],
-  'Quick Links': [
-    { label: 'Tobams Group', href: '#' },
-    { label: 'Events', href: '#' },
-    { label: 'FAQs', href: '#' },
-  ],
-}
+import Image from "next/image";
+import Link from "next/link";
+import { IMAGES } from '../../assets/images/index';
+import { ICONS } from "@/assets/icons";
 
-const CURRENT_YEAR = new Date().getFullYear()
+const COMPANY_LINKS = [
+  { label: "About us",    href: "/about" },
+  { label: "Courses",     href: "/courses" },
+  { label: "FAQs",        href: "/faq" },
+  { label: "Contact Us",  href: "/contact" },
+];
+
+const RESOURCE_LINKS = [
+  { label: "Newsletter",  href: "/newsletter" },
+  { label: "Support",     href: "/support" },
+];
+
+const LEGAL_LINKS = [
+  { label: "Terms Of Use",    href: "/terms" },
+  { label: "Privacy Policy",  href: "/privacy" },
+  { label: "Cookie Policy",   href: "/cookies" },
+];
 
 export function Footer() {
   return (
-    <footer>
-      {/* Newsletter bar */}
-      <div className="bg-[#1a1a5e] px-5 py-8 md:px-12">
-        <div className="mx-auto flex max-w-5xl flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
-          <div>
-            <p className="font-bold text-white">Subscribe To Get Updates Regarding New Courses</p>
-            <p className="mt-1 text-sm text-white/60">Stay informed with the latest updates from our academy</p>
-          </div>
-          <NewsletterForm />
-        </div>
-      </div>
+    <footer className="px-5 bg-[#101321] pt-[150px] pb-8 md:px-16">
+      <div className="mx-auto max-w-6xl">
+        {/* Main grid */}
+        <div className="mb-16 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10 xl:grid-cols-[650px_1fr_1fr_1fr]">
 
-      {/* Main footer */}
-      <div className="bg-slate-900 px-5 py-12 text-slate-400 md:px-12 md:py-14">
-        <div className="mx-auto max-w-5xl">
-          <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 md:grid-cols-4">
-            {/* Brand */}
-            <div className="sm:col-span-2 md:col-span-1">
-              <Link href="/" className="text-xl font-bold text-white">
-                TG<span className="text-[#EF4353]">.</span>
+          {/* Brand col */}
+          <div className="col-span-2 sm:col-span-1 ">
+            <div className="mb-8 flex items-center gap-3">
+              <Image
+                src={IMAGES.footerLogo}
+                alt="Tobams Group Academy"
+                width={65}
+                height={65}
+                className="object-contain"
+              />
+              <span className="md:text-[24px] text-[20px] font-extrabold text-white">
+                Tobams Group Academy
+              </span>
+            </div>
+            <p className="mb-6 text-lg leading-relaxed text-white max-w-[350px] md:max-w-[338px]">
+              Empowering learners everywhere with access to quality courses and
+              resources to grow their skills and knowledge.
+            </p>
+
+            {/* Social icons */}
+            <div className="flex items-center gap-4 text-slate-400">
+              <Link href="#" className="transition-colors hover:text-white">
+                <ICONS.Facebook width={24} height={24} className="text-white" />
               </Link>
-              <p className="mt-3 text-sm leading-relaxed text-slate-400">
-                Empower your knowledge journey with Tobams Group Academy — Your Gateway to
-                Professional Excellence.
-              </p>
-            </div>
-
-            {/* Link columns */}
-            {Object.entries(COLUMNS).map(([title, items]) => (
-              <div key={title}>
-                <h4 className="mb-4 text-xs font-extrabold uppercase tracking-widest text-slate-500">
-                  {title}
-                </h4>
-                <ul className="flex flex-col gap-2.5">
-                  {items.map((item) => (
-                    <li key={item.label}>
-                      <Link
-                        href={item.href}
-                        className="text-sm text-slate-400 transition-colors hover:text-white"
-                      >
-                        {item.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-
-            {/* Contact */}
-            <div>
-              <h4 className="mb-4 text-xs font-extrabold uppercase tracking-widest text-slate-500">
-                Contact
-              </h4>
-              <ul className="flex flex-col gap-3 text-sm text-slate-400">
-                <li className="flex items-start gap-2">
-                  <span>📍</span>
-                  <span>64 Nile Street, International House, London N1 7SR</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span>✉</span>
-                  <a href="mailto:theteam@tobamsgroup.com" className="transition-colors hover:text-white">
-                    theteam@tobamsgroup.com
-                  </a>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span>📞</span>
-                  <span>[Phone Placeholder]</span>
-                </li>
-              </ul>
+              <Link href="#" className="transition-colors hover:text-white">
+                <ICONS.Instagram width={24} height={24} className="text-white" />
+              </Link>
+              <Link href="#" className="transition-colors hover:text-white">
+                <ICONS.Twitter width={24} height={24} className="text-white" />
+              </Link>
+              <Link href="#" className="transition-colors hover:text-white">
+                <ICONS.LinkedIn width={24} height={24} className="text-white" />
+              </Link>
             </div>
           </div>
 
-          {/* Bottom bar */}
-          <div className="mt-10 border-t border-slate-800 pt-6 text-center text-xs text-slate-500">
-            © {CURRENT_YEAR} Tobams Group Academy. All rights reserved.
+          {/* Company */}
+          <div>
+            <h4 className="mb-4 md:text-lg text-base font-semibold text-white">Company</h4>
+            <ul className="flex flex-col gap-3">
+              {COMPANY_LINKS.map((l) => (
+                <li key={l.label}>
+                  <Link
+                    href={l.href}
+                    className="md:text-lg text-base font-medium text-white"
+                  >
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Resources */}
+          <div>
+            <h4 className="mb-4 md:text-lg text-base font-semibold text-white">Resources</h4>
+            <ul className="flex flex-col gap-3">
+              {RESOURCE_LINKS.map((l) => (
+                <li key={l.label}>
+                  <Link
+                    href={l.href}
+                    className="md:text-lg text-base font-medium text-white"
+                  >
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Legal */}
+          <div>
+            <h4 className="mb-4 md:text-lg text-base font-semibold text-white">Legal</h4>
+            <ul className="flex flex-col gap-3">
+              {LEGAL_LINKS.map((l) => (
+                <li key={l.label}>
+                  <Link
+                    href={l.href}
+                    className="md:text-lg text-base font-medium text-white"
+                  >
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
+
+        {/* Copyright */}
+        <p className="text-center text-white">
+          © 2026 Tobams Group Academy. All Rights Reserved.
+        </p>
       </div>
     </footer>
-  )
+  );
 }

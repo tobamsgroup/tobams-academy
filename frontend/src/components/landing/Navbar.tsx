@@ -2,39 +2,51 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 import Image from 'next/image'
 import { IMAGES } from '@/assets/images'
+import { ICONS } from '@/assets/icons'
+import { Button } from '@/components/ui/Button'
 
 export function Navbar() {
   const [open, setOpen] = useState(false)
+  const router = useRouter()
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-slate-100 bg-white/95 backdrop-blur-sm">
-      <div className="flex items-center justify-between px-5 py-4 md:px-8">
+    <nav className="sticky top-0 z-50 border-b border-slate-100 bg-white/95 shadow-[0px_4px_15px_0px_#00000033] backdrop-blur-sm">
+      <div className="flex items-center justify-between pl-0 pr-5 md:px-16">
         <Link href="/" className="text-xl font-bold text-primary">
-<Image src={IMAGES.logo} alt='logo' className='h-[100px] w-[149px] object-contain'/>
+          <Image src={IMAGES.newLogo} alt='logo' className='h-[100px] w-[149px] object-contain'/>
         </Link>
 
         {/* Desktop links */}
-        <div className="hidden items-center gap-6 text-sm text-slate-500 md:flex">
+        <div className="hidden items-center gap-6 text-lg text-[#221D23] md:flex">
           <Link href="#" className="transition-colors hover:text-primary">About</Link>
           <Link href="/courses" className="transition-colors hover:text-primary">Courses</Link>
           <Link href="#" className="transition-colors hover:text-primary">Corporate Training</Link>
-          <Link href="#" className="transition-colors hover:text-primary">Exams</Link>
+          {/* <Link href="#" className="transition-colors hover:text-primary">Exams</Link>
           <Link href="#" className="transition-colors hover:text-primary">Membership</Link>
           <Link href="#" className="transition-colors hover:text-primary">Events</Link>
-          <Link href="#" className="transition-colors hover:text-primary">Contact Us</Link>
+          <Link href="#" className="transition-colors hover:text-primary">Contact Us</Link> */}
           {/* <Link href="/login" className="font-semibold text-primary transition-colors hover:text-primary/80">Login</Link> */}
-          <Link
-            href="/register"
-            className="rounded-lg bg-primary px-5 py-2 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/25"
+        </div>
+
+        <div className='flex items-center gap-10 hidden md:flex'>
+          <ICONS.Cart width={24} height={24} />
+          <Button
+            type="button"
+            variant="primary"
+            className="rounded-lg bg-gradient-to-r from-[#303869] to-[#303869] px-6 py-3 text-sm font-bold shadow-none hover:shadow-lg hover:shadow-primary/25"
+            onClick={() => router.push('/register')}
           >
-          Student Login
-          </Link>
+            Login
+          </Button>
         </div>
 
         {/* Mobile hamburger */}
+        <div className='md:hidden flex items-center gap-6'>
+        <ICONS.Cart width={24} height={24} />
         <button
           className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 md:hidden"
           onClick={() => setOpen(!open)}
@@ -42,6 +54,7 @@ export function Navbar() {
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
+        </div>
       </div>
 
       {/* Mobile menu */}
