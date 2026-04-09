@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { IMAGES } from "@/assets/images";
 
 export default function AboutSplitSection() {
   const router = useRouter();
@@ -17,7 +18,7 @@ export default function AboutSplitSection() {
           {/* Image */}
           <div className="relative rounded-2xl overflow-hidden">
             <Image
-              src="https://res.cloudinary.com/dpkn1ppzj/image/upload/v1775726594/82c689894868872a157f6ac492861f8e71c2fe9a_hlcd1k.jpg"
+              src={IMAGES.aboutSplit}
               alt="Academy"
               width={624}
               height={575}

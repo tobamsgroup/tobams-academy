@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { IMAGES } from "@/assets/images";
 
 export default function AboutHero() {
   const router = useRouter();
@@ -11,7 +12,7 @@ export default function AboutHero() {
     <section className="relative w-full h-[524px] flex items-center justify-center text-center text-white overflow-hidden">
       {/* Background Image */}
       <Image
-        src="https://res.cloudinary.com/dpkn1ppzj/image/upload/v1775725291/e01bbf2a0b4b231b3ea0a73b1ea9a9d17e123669_udrmhj.jpg"
+        src={IMAGES.aboutHero}
         alt="About Us Background"
         fill
         priority
@@ -32,11 +33,11 @@ export default function AboutHero() {
         </div>
 
         {/* Heading */}
-        <h1 className="text-[24px] md:text-[56px] text-white font-bold leading-tight">
+        <h1 className="text-[24px] md:text-4xl lg:text-[56px] text-white font-bold leading-tight">
           The Central Hub
         </h1>
 
-        <h2 className="text-3xl md:text-[56px] font-semibold text-[#B83092] mt-2">
+        <h2 className="text-3xl md:text-4xl lg:text-[56px] font-semibold text-[#B83092] mt-2">
           For Professional Growth
         </h2>
 

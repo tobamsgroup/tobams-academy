@@ -16,7 +16,7 @@ export default function MissionVisionSection() {
           />
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Mission Card */}
           <div className="bg-white rounded-2xl py-6 px-6 md:py-12 md:px-10 flex flex-col gap-4">
         
