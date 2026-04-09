@@ -23,10 +23,10 @@ export function CorporateTraining() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 mx-auto flex max-w-[1216px] flex-col items-center gap-10 md:flex-row md:gap-16">
+      <div className="relative z-10 mx-auto flex max-w-[1216px] flex-col items-center gap-10 lg:flex-row lg:gap-16">
 
-        {/* Left — image */}
-        <div className="order-2 w-full flex-shrink-0 md:order-1 md:w-[46%]">
+        {/* Left — image (below text until large screens / desktop) */}
+        <div className="order-2 w-full flex-shrink-0 lg:order-1 lg:w-[46%]">
           <Image
             src="https://res.cloudinary.com/dpkn1ppzj/image/upload/v1775583647/5aa00c7d984d75fb9922eb29f1f45f0ac2cfeda7_hwoadn.jpg"
             alt="Corporate Training"
@@ -37,7 +37,7 @@ export function CorporateTraining() {
         </div>
 
         {/* Right — text */}
-        <div className="order-1 flex flex-1 flex-col md:order-2">
+        <div className="order-1 flex flex-1 flex-col lg:order-2">
           <h2 className="mb-5 text-3xl font-semibold text-white sm:text-4xl md:text-[40px]">
             Corporate Training
           </h2>
@@ -57,7 +57,7 @@ export function CorporateTraining() {
           <Button
             type="button"
             variant="primary"
-            className="md:w-fit w-full bg-primary md:bg-white py-3.5 px-8 md:text-primary text-white text-sm md:text-lg"
+            className="w-full bg-primary py-3.5 px-8 text-sm text-white lg:w-fit lg:bg-white lg:text-lg lg:text-primary"
             onClick={() => router.push("/corporate")}
           >
             Learn More

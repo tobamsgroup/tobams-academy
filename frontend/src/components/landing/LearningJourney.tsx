@@ -48,7 +48,7 @@ export function LearningJourney() {
 
       {/* Heading */}
       <div className="relative z-10 mb-12 text-center">
-        <h2 className="mb-4 text-[24px] font-medium md:font-bold text-white sm:text-[40px]">
+        <h2 className="mb-4 text-[24px] font-medium md:font-bold text-white sm:text-[32px] lg:text-[40px]">
           Your Learning Journey
         </h2>
         <p className="mx-auto max-w-[320px] md:max-w-[634px] text-lg leading-relaxed text-white">
@@ -75,13 +75,13 @@ export function LearningJourney() {
             >
               {/* Number bubble */}
               <div
-                className="mb-5 flex md:h-16 h-12 w-12 md:w-16 items-center justify-center rounded-full md:text-[32px] text-[24px] font-bold text-white bg-primary"
+                className="mb-5 flex md:h-16 h-12 w-12 md:w-16 items-center justify-center rounded-full lg:text-[32px] text-[24px] font-bold text-white bg-primary"
               >
                 {step.number}
               </div>
 
-              <h3 className="mb-3 text-lg md:text-2xl font-bold text-white">{step.title}</h3>
-              <p className="text-base md:text-lg leading-relaxed text-white max-w-[291px] md:max-w-[257px] text-center">{step.description}</p>
+              <h3 className="mb-3 text-lg md:text-xl lg:text-2xl font-bold text-white">{step.title}</h3>
+              <p className="text-base md:text-lg lg:text-lg leading-relaxed text-white max-w-[291px] md:max-w-[257px] text-center">{step.description}</p>
             </div>
           </div>
         ))}

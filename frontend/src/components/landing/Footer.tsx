@@ -29,7 +29,7 @@ export function Footer() {
     <footer className="px-5 bg-[#101321] pt-[150px] pb-8 md:px-16">
       <div className="mx-auto max-w-6xl">
         {/* Main grid */}
-        <div className="mb-16 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10 xl:grid-cols-[650px_1fr_1fr_1fr]">
+        <div className="mb-16 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-10 xl:grid-cols-[650px_1fr_1fr_1fr]">
 
           {/* Brand col */}
           <div className="col-span-2 sm:col-span-1 ">

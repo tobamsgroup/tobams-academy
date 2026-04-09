@@ -34,11 +34,11 @@ export function EmpoweringSection() {
   return (
     <section className="bg-white px-5 pt-[51px] pb-0 md:py-16 md:px-16">
       {/* Heading */}
-      <div className="mb-12 md:mb-14 text-center">
-        <h2 className="mb-3 text-[24px] font-medium md:font-bold text-slate-900 sm:text-4xl md:text-[40px]">
+      <div className="mb-12 lg:mb-14 text-center">
+        <h2 className="mb-3 text-[24px] font-medium md:font-bold text-slate-900 sm:text-[32px] lg:text-[40px]">
           <span className="text-[#B83092]">Empowering</span> Learners <br className="md:hidden block" /> {" "} Worldwide
         </h2>
-        <p className="mx-auto md:text-lg text-base text-[#474348]">
+        <p className="mx-auto lg:text-lg text-base text-[#474348]">
           Delivering high-quality courses that help people gain skills and grow their careers.
         </p>
       </div>
@@ -51,7 +51,7 @@ export function EmpoweringSection() {
           {STATS.map((stat) => (
             <div key={stat.id} className="flex flex-col items-center justify-center">
               <span
-                className="mb-2 text-[48px] font-semibold md:font-bold md:text-[64px]"
+                className="mb-2 text-[48px] font-semibold md:font-bold lg:text-[64px]"
               >
                 {stat.value}
               </span>

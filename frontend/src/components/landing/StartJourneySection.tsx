@@ -23,11 +23,11 @@ export function StartJourneySection() {
         {/* Primary overlay — theme color with stronger tint */}
         <div className="absolute inset-0 bg-primary/85" aria-hidden />
 
-        {/* Content row */}
-        <div className="relative z-10 flex md:min-h-[480px] flex-col items-center gap-6 md:px-8 px-4 py-8 md:py-12 md:flex-row md:justify-between md:px-14">
+        {/* Content row — stacked through tablet (md); side-by-side from lg */}
+        <div className="relative z-10 flex flex-col items-center gap-6 px-4 py-8 md:px-8 md:py-12 lg:min-h-[480px] lg:flex-row lg:justify-between lg:px-14">
 
           {/* Left — headline */}
-          <h2 className="text-center md:text-left text-[24px] font-medium md:font-bold leading-tight text-white md:text-[40px]">
+          <h2 className="text-center text-[24px] font-medium leading-tight text-white lg:text-left md:font-bold md:text-[40px]">
             Start Your Learning Journey With Us Today!
           </h2>
 

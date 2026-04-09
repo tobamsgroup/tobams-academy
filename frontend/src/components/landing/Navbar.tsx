@@ -15,7 +15,7 @@ export function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 border-b border-slate-100 bg-white/95 shadow-[0px_4px_15px_0px_#00000033] backdrop-blur-sm">
-      <div className="flex items-center justify-between pl-0 pr-5 md:px-16">
+      <div className="flex items-center justify-between pl-0 pr-5 lg:px-16">
         <Link href="/" className="text-xl font-bold text-primary">
           <Image src={IMAGES.newLogo} alt='logo' className='h-[100px] w-[149px] object-contain'/>
         </Link>

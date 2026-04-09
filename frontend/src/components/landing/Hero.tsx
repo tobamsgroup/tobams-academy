@@ -52,19 +52,19 @@ export function Hero() {
       <div>
         {/* Left: headline + subtitle */}
         <div className="z-10">
-          <h1 className="mb-4 text-[28px] font-extrabold leading-tight text-slate-900 sm:text-5xl md:text-[56px]">
+          <h1 className="mb-4 text-[28px] font-extrabold leading-tight text-slate-900 md:text-[32px] lg:text-[56px]">
             Transform Your{" "}
             <span className="text-[#B83092]">Career</span>{" "}
             <br className="md:hidden" />
             With
-            <br className="hidden md:flex" />{" "}
+            <br className="hidden lg:flex" />{" "}
             <span className="text-[#B83092]">Professional</span>{" "}
             <span className="text-slate-900">Courses</span>
           </h1>
         </div>
 
         {/* Right: buttons */}
-        <div className="flex flex-col md:flex-row md:justify-between items-center gap-3 z-10 md:mt-6 w-full">
+        <div className="flex flex-col lg:flex-row md:justify-between items-center gap-3 z-10 md:mt-6 w-full">
         <p className="text-lg font-medium leading-relaxed ">
             Make your next career move with online courses from 200+ world-class universities and brands.
           </p>

@@ -15,6 +15,10 @@ import Facebook from "./Facebook";
 import Instagram from "./Instagram";
 import Twitter from "./Twitter";
 import LinkedIn from "./LinkedIn";
+import Badge from "./about-icons/Badge";
+import Hands from "./about-icons/Hands";
+import MenuStep from "./about-icons/MenuStep";
+import MultiF from "./about-icons/Multi-F";
 
 
 export const ICONS = {
@@ -35,4 +39,8 @@ export const ICONS = {
     Instagram,
     Twitter,
     LinkedIn,
+    Badge,
+    Hands,
+    MenuStep,
+    MultiF,
 }

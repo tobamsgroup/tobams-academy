@@ -112,7 +112,7 @@ export function CoursesSection() {
   return (
     <section className="bg-white px-5 py-8 md:py-16 md:px-16">
       {/* Heading */}
-      <h2 className="mb-[64px] text-center text-[24px] font-bold leading-tight tracking-[0%] text-slate-900 sm:text-3xl md:text-[40px]">
+      <h2 className="lg:mb-[64px] mb-10 text-center text-[24px] font-bold leading-tight tracking-[0%] text-slate-900 sm:text-3xl lg:text-[40px]">
         Find the Right Course to{" "}
         <span className="text-[#B83092]">Build</span> Your
         <br className="hidden md:block" /> {" "}

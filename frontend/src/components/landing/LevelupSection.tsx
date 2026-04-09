@@ -18,7 +18,7 @@ export function LevelUpSection() {
         }}
       >
         {/* Left — image overflowing top and bottom */}
-        <div className="relative hidden w-[42%] flex-shrink-0 md:block">
+        <div className="relative hidden w-[42%] flex-shrink-0 lg:block">
           <div className="absolute -top-4 -bottom-4 left-14 w-[88%] md:left-20 lg:left-24">
             <Image
               src={IMAGES.levelUp}
@@ -31,7 +31,7 @@ export function LevelUpSection() {
         </div>
 
         {/* Right — text content */}
-        <div className="flex flex-1 flex-col items-start justify-center md:items-start md:px-8 md:py-12 md:ml-20">
+        <div className="flex flex-1 flex-col items-start justify-center md:items-start lg:px-8 md:pr-8 md:py-12 lg:ml-20">
           <h2 className="mb-4 text-3xl font-extrabold leading-tight text-white sm:text-4xl md:text-[40px]">
             Level Up Your <br className="hidden md:flex" /> Skill!
           </h2>
@@ -48,7 +48,7 @@ export function LevelUpSection() {
           </Button>
 
           {/* Mobile image (below text) */}
-          <div className="relative mt-10 h-[260px] w-full overflow-hidden rounded-2xl md:hidden">
+          <div className="relative mt-10 h-[260px] w-full overflow-hidden rounded-2xl lg:hidden">
             <Image
               src={IMAGES.levelUp}
               alt="Level up your skill"
