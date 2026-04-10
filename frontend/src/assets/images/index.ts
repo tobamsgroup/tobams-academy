@@ -24,6 +24,8 @@ import getInfo from './get-info.png'
 import footerLogo from './footer-logo.png'
 import purpleFrame from './purple-frame.png'
 import mobileContents from './mobile-contents.png'
+import bgPer from './bg-Per.png'
+import CpLeft from './CP-left_1_29.jpg'
 
 export const IMAGES = {
   accelerate,
@@ -51,5 +53,7 @@ export const IMAGES = {
   getInfo,
   footerLogo,
   purpleFrame,
-  mobileContents
+  mobileContents,
+  bgPer,
+  CpLeft
 };

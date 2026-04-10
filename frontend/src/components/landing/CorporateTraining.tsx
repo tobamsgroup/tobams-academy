@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { IMAGES } from "@/assets/images";
 
 export function CorporateTraining() {
   const router = useRouter();
@@ -15,7 +16,7 @@ export function CorporateTraining() {
       {/* Background perspective grid */}
       <div className="pointer-events-none absolute inset-0">
         <Image
-          src="https://res.cloudinary.com/dpkn1ppzj/image/upload/v1775583765/Perspective_Grid_wclxte.png"
+          src={IMAGES.bgPer}
           alt=""
           fill
           className="object-cover opacity-60"
@@ -28,7 +29,7 @@ export function CorporateTraining() {
         {/* Left — image */}
         <div className="order-2 w-full flex-shrink-0 md:order-1 md:w-[46%]">
           <Image
-            src="https://res.cloudinary.com/dpkn1ppzj/image/upload/v1775583647/5aa00c7d984d75fb9922eb29f1f45f0ac2cfeda7_hwoadn.jpg"
+            src={IMAGES.CpLeft}
             alt="Corporate Training"
             width={680}
             height={480}

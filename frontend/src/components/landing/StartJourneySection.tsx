@@ -41,7 +41,7 @@ export function StartJourneySection() {
                 For Learners
               </span>
               <Image
-                src="https://res.cloudinary.com/dpkn1ppzj/image/upload/v1775584726/newLogo_bp7kfy.png"
+                src={IMAGES.newLogo}
                 alt="TG Logo"
                 width={64}
                 height={64}
