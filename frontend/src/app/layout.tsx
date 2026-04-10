@@ -17,13 +17,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className={`${roboto.variable} font-body antialiased`}>
+      <body className={`${roboto.variable} ${roboto.className} font-sans antialiased`}>
         <Providers>{children}</Providers>
       </body>
     </html>
