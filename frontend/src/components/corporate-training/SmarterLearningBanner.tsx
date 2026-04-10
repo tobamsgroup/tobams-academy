@@ -6,7 +6,7 @@ import { IMAGES } from "@/assets/images";
 
 export default function SmarterLearningBanner() {
   return (
-    <section className="bg-[#222643] py-12 px-6 md:px-16 lg:px-24">
+    <section className="bg-[#222643] py-12 px-6 md:px-16 lg:px-24 overflow-hidden">
       <div className="max-w-[1216px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
 
         {/* Left: Text */}
@@ -20,35 +20,25 @@ export default function SmarterLearningBanner() {
           <Button
             type="button"
             className="w-full md:w-fit bg-primary md:bg-white text-white md:text-primary text-lg font-medium px-7 py-3 hover:bg-gray-100 hover:from-gray-100 hover:to-gray-100 hover:translate-y-0"
-            onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
           >
             Contact Us
           </Button>
         </div>
 
         {/* Right: Image with decorative blocks */}
-        <div className="relative flex justify-center md:justify-end">
+        <div className="relative flex justify-center md:justify-end ">
           {/* Decorative smart grid — top right */}
-          <div className="absolute top-0 right-0 h-16 w-16 opacity-70 z-0">
+          <div className="absolute bottom-[-175%] right-0 md:right-[-60%] md:-bottom-[10px] z-10 w-full  overflow-hidden">
             <Image
               src={IMAGES.smartGrid}
               alt=""
-              fill
-              className="object-contain"
+              width={502}
+              height={492}
+              className="object-contain w-[352px] h-full"
               aria-hidden
             />
           </div>
 
-          {/* Decorative smart grid — bottom right */}
-          <div className="absolute bottom-0 right-0 h-16 w-16 opacity-70 z-0">
-            <Image
-              src={IMAGES.smartGrid}
-              alt=""
-              fill
-              className="object-contain"
-              aria-hidden
-            />
-          </div>
 
           {/* Main image */}
           <div className="relative w-full max-w-md h-[260px] md:h-[300px] rounded-2xl overflow-hidden z-10">

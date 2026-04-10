@@ -44,7 +44,7 @@ const STEPS: {
 export function WhyChooseTGA() {
   return (
     <section
-      className="relative overflow-hidden px-6 py-8 md:py-[48px] md:px-16 bg-primary"
+      className="relative overflow-hidden px-6 py-8 md:py-[48px] md:px-16 lg:px-8 xl:px-16 bg-primary"
     >
       {/* Grid background image */}
       <div className="pointer-events-none absolute inset-0 opacity-25">
@@ -79,7 +79,7 @@ export function WhyChooseTGA() {
                   <Icon width={64} height={64} />
                 </div>
 
-                <h3 className="mb-3 text-lg md:text-xl lg:text-2xl font-bold text-white">{step.title}</h3>
+                <h3 className="mb-3 text-lg md:text-xl xl:text-2xl text-center font-bold text-white">{step.title}</h3>
                 <p className="text-base md:text-lg lg:text-lg leading-relaxed text-white max-w-[291px] md:max-w-[257px] text-center">{step.description}</p>
               </div>
             </div>

@@ -31,7 +31,7 @@ import linePattern from './Line-pattern.png'
 import selfLearning from './CP-Content1.png'
 import faceToFace from './CP-Content2.png'
 import smarterLearning from './SM.jpg'
-import smartGrid from './Grid layers - v2 (1).png'
+import smartGrid from './SM-Grid.png'
 
 export const IMAGES = {
   accelerate,
