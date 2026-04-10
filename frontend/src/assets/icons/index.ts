@@ -19,7 +19,16 @@ import Badge from "./about-icons/Badge";
 import Hands from "./about-icons/Hands";
 import MenuStep from "./about-icons/MenuStep";
 import MultiF from "./about-icons/Multi-F";
-
+import Comment from "./corporate-icons/Comment";
+import RoundedCircle from "./corporate-icons/RoundedCircle";
+import SquareCheck from "./corporate-icons/SquareCheck";
+import CP1 from "./corporate-icons/CP-1";
+import CP2 from "./corporate-icons/CP-2";
+import CP3 from "./corporate-icons/CP-3";
+import CP4 from "./corporate-icons/CP-4";
+import LeftArrow from "./LeftArrow";
+import RightArrow from "./RightArrow";
+import WhiteArrow from "./WhiteArrow";
 
 export const ICONS = {
     Thunder,
@@ -43,4 +52,14 @@ export const ICONS = {
     Hands,
     MenuStep,
     MultiF,
+    Comment,
+    RoundedCircle,
+    SquareCheck,
+    CP1,
+    CP2,
+    CP3,
+    CP4,
+    LeftArrow,
+    RightArrow,
+    WhiteArrow,
 }

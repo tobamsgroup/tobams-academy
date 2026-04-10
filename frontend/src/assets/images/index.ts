@@ -26,6 +26,12 @@ import purpleFrame from './purple-frame.png'
 import mobileContents from './mobile-contents.png'
 import aboutHero from './about-hero.jpg'
 import aboutSplit from './about-split.jpg'
+import corporateHero from './CP-hero.png'
+import linePattern from './Line-pattern.png'
+import selfLearning from './CP-Content1.png'
+import faceToFace from './CP-Content2.png'
+import smarterLearning from './SM.jpg'
+import smartGrid from './Grid layers - v2 (1).png'
 
 export const IMAGES = {
   accelerate,
@@ -55,5 +61,11 @@ export const IMAGES = {
   purpleFrame,
   mobileContents,
   aboutHero,
-  aboutSplit
+  aboutSplit,
+  corporateHero,
+  linePattern,
+  selfLearning,
+  faceToFace,
+  smarterLearning,
+  smartGrid
 };

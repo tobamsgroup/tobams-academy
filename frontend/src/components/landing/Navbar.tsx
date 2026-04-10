@@ -24,7 +24,7 @@ export function Navbar() {
         <div className="hidden items-center gap-6 text-lg text-[#221D23] md:flex">
           <Link href="/about-us" className="transition-colors hover:text-primary">About</Link>
           <Link href="/courses" className="transition-colors hover:text-primary">Courses</Link>
-          <Link href="#" className="transition-colors hover:text-primary">Corporate Training</Link>
+          <Link href="/corporate-training" className="transition-colors hover:text-primary">Corporate Training</Link>
           {/* <Link href="#" className="transition-colors hover:text-primary">Exams</Link>
           <Link href="#" className="transition-colors hover:text-primary">Membership</Link>
           <Link href="#" className="transition-colors hover:text-primary">Events</Link>
@@ -59,18 +59,18 @@ export function Navbar() {
 
       {/* Mobile menu */}
       {open && (
-        <div className="border-t border-slate-100 bg-white px-5 pb-5 md:hidden">
-          <div className="flex flex-col gap-3 pt-4 text-sm">
+        <div className="border-t border-slate-100 bg-[#FFFAFA] px-5 pb-5 md:hidden">
+          <div className="flex flex-col gap-5 pt-4">
+          <Link href="/about-us" className="py-1 text-slate-600 hover:text-primary" onClick={() => setOpen(false)}>About Us</Link>
             <Link href="/courses" className="py-1 text-slate-600 hover:text-primary" onClick={() => setOpen(false)}>Courses</Link>
-            <Link href="#" className="py-1 text-slate-600 hover:text-primary" onClick={() => setOpen(false)}>Community</Link>
-            <Link href="#" className="py-1 text-slate-600 hover:text-primary" onClick={() => setOpen(false)}>About</Link>
-            <Link href="/login" className="py-1 font-semibold text-primary" onClick={() => setOpen(false)}>Login</Link>
+            <Link href="/corporate-training" className="py-1 text-slate-600 hover:text-primary" onClick={() => setOpen(false)}>Corporate Training</Link>
+            <hr className="border-[#E5E7EB]" />
             <Link
               href="/register"
-              className="mt-1 rounded-lg bg-primary px-5 py-2.5 text-center font-bold text-white"
+              className="mt-12 rounded-lg bg-primary px-5 py-2.5 text-center font-bold text-white"
               onClick={() => setOpen(false)}
             >
-            Student Login
+            Login
             </Link>
           </div>
         </div>
