@@ -51,7 +51,7 @@ export function CorporateTraining() {
 
           <p className="mb-8 text-lg leading-relaxed text-white">
             Our corporate training solutions are tailored to meet your
-            organization's unique goals, operational needs, and industry
+            organization&apos;s unique goals, operational needs, and industry
             requirements.
           </p>
 

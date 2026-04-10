@@ -52,7 +52,7 @@ export function LearningJourney() {
           Your Learning Journey
         </h2>
         <p className="mx-auto max-w-[320px] md:max-w-[634px] text-lg leading-relaxed text-white">
-          From registration to certification, we've designed a seamless path for your
+          From registration to certification, we&apos;ve designed a seamless path for your
           professional development.
         </p>
       </div>
