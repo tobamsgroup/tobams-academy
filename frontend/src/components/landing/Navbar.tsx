@@ -22,7 +22,7 @@ export function Navbar() {
 
         {/* Desktop links */}
         <div className="hidden items-center gap-6 text-lg text-[#221D23] md:flex">
-          <Link href="#" className="transition-colors hover:text-primary">About</Link>
+          <Link href="/about-us" className="transition-colors hover:text-primary">About</Link>
           <Link href="/courses" className="transition-colors hover:text-primary">Courses</Link>
           <Link href="#" className="transition-colors hover:text-primary">Corporate Training</Link>
           {/* <Link href="#" className="transition-colors hover:text-primary">Exams</Link>
