@@ -39,7 +39,7 @@ export function FAQSection() {
         <h2 className="mb-3 text-[24px] font-medium md:font-bold text-slate-900 sm:text-3xl md:text-[40px]">
           Frequently Asked Questions
         </h2>
-        <p className="md:text-lg text-base text-[#474348]">Everything you need to know.</p>
+        <p className="md:text-lg text-base text-body">Everything you need to know.</p>
       </div>
 
       {/* Accordion */}
@@ -59,12 +59,12 @@ export function FAQSection() {
                 onClick={() => toggle(faq.id)}
                 className="flex w-full items-center justify-between px-6 py-5 text-left"
               >
-                <span className="md:text-[20px] text-lg font-medium text-[#221D23]">
+                <span className="md:text-[20px] text-lg font-medium text-heading">
                   {faq.question}
                 </span>
                 <span className="ml-4 flex-shrink-0">
                   {isOpen ? (
-                    <ICONS.CircleMinus width={24} height={24} stroke="#221D23" />
+                    <ICONS.CircleMinus width={24} height={24} stroke="var(--color-heading)" />
                   ) : (
                     <ICONS.CirclePlus width={24} height={24} stroke="#C3C0B7" />
                   )}
@@ -74,7 +74,7 @@ export function FAQSection() {
               {/* Answer */}
               {isOpen && (
                 <div className="px-6 pb-6">
-                  <p className="md:text-lg text-base leading-relaxed text-[#221D23]">
+                  <p className="md:text-lg text-base leading-relaxed text-heading">
                     {faq.answer}
                   </p>
                 </div>

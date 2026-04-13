@@ -44,7 +44,7 @@ export function Newsletter() {
           <Button
             type="submit"
             variant="primary"
-            className="w-full flex-shrink-0 rounded-lg bg-gradient-to-r from-[#252A64] to-[#252A64] px-5 py-3 text-sm font-semibold hover:shadow-[#252A64]/40 lg:w-auto"
+            className="w-full flex-shrink-0 rounded-lg bg-primary px-5 py-3 text-sm font-semibold hover:shadow-[#252A64]/40 lg:w-auto"
           >
             Subscribe
           </Button>

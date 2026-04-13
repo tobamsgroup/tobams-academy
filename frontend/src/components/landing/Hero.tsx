@@ -10,12 +10,7 @@ export function Hero() {
 
   return (
     <section
-      className="relative min-h-[520px] overflow-hidden px-5 pt-10 pb-0 md:px-16"
-      style={{
-        background: `
-          linear-gradient(135deg, #f0f1f8 0%, #e8eaf6 40%, #ede9f5 70%, #f5f0fb 100%)
-        `,
-      }}
+      className="relative min-h-[520px] overflow-hidden px-5 pt-10 md:pt-16 pb-0 md:px-16 bg-[#EEF0F6]"
     >
       {/* Tunnel perspective grid background */}
       <div className="pointer-events-none absolute inset-0">
@@ -52,7 +47,7 @@ export function Hero() {
       <div>
         {/* Left: headline + subtitle */}
         <div className="z-10">
-          <h1 className="mb-4 text-[28px] font-extrabold leading-tight text-slate-900 md:text-[32px] lg:text-[56px]">
+          <h1 className="mb-4 text-[28px] font-semibold leading-tight text-slate-900 md:text-[32px] lg:text-[56px]">
             Transform Your{" "}
             <span className="text-[#B83092]">Career</span>{" "}
             <br className="md:hidden" />
@@ -65,14 +60,14 @@ export function Hero() {
 
         {/* Right: buttons */}
         <div className="flex flex-col lg:flex-row md:justify-between items-center gap-3 z-10 md:mt-6 w-full">
-        <p className="text-lg font-medium leading-relaxed ">
+        <p className="text-lg font-medium leading-relaxed text-[#221D23] ">
             Make your next career move with online courses from 200+ world-class universities and brands.
           </p>
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-3 z-10 w-full md:w-auto">
             <Button
               type="button"
               variant="primary"
-              className="w-full rounded-lg bg-primary py-3.5 shadow-md hover:shadow-[#252A64]/30 md:w-[180px]"
+              className="w-full rounded-lg bg-primary py-3.5 text-lg shadow-md hover:shadow-[#252A64]/30 md:w-[180px]"
               onClick={() => router.push("/courses")}
             >
               Explore Courses
@@ -80,8 +75,8 @@ export function Hero() {
             <Button
               type="button"
               variant="ghost"
-              className="w-full rounded-lg border border-primary bg-gradient-to-r from-white to-white py-3.5 font-semibold text-slate-700 shadow-sm hover:border-slate-400 hover:from-slate-50 hover:to-slate-50 md:w-[180px]"
-              onClick={() => router.push("/login")}
+              className="w-full rounded-lg border border-primary text-lg bg-gradient-to-r from-white to-white py-3.5 font-semibold text-slate-700 shadow-sm hover:border-slate-400 hover:from-slate-50 hover:to-slate-50 md:w-[180px]"
+              onClick={() => router.push("/register")}
             >
               Log In
             </Button>

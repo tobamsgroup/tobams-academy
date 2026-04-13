@@ -50,11 +50,11 @@ type Objective = {
       <section className="w-full bg-[#EEF0F6] py-6 md:py-12 px-6 md:px-12">
         <div className="max-w-7xl mx-auto text-center">
           {/* Heading */}
-          <h2 className="text-[24px] lg:text-[40px] font-medium md:font-bold text-[#221D23]">
+          <h2 className="text-[24px] lg:text-[40px] font-medium md:font-bold text-heading">
             Core Objectives
           </h2>
   
-          <p className="mt-4  md:text-lg text-[#221D23] max-w-[630px] mx-auto">
+          <p className="mt-4 md:text-lg text-heading max-w-[630px] mx-auto">
             Our platform is engineered to achieve six fundamental goals that
             ensure a superior learning experience for every user.
           </p>

@@ -32,9 +32,9 @@ const STATS = [
 
 export function EmpoweringSection() {
   return (
-    <section className="bg-white px-5 pt-[51px] pb-0 md:py-16 md:px-16">
+    <section className="bg-white px-5 pt-[51px] pb-0 md:py-16 md:px-16 lg:py-[96px]">
       {/* Heading */}
-      <div className="mb-12 lg:mb-14 text-center">
+      <div className="mb-12 lg:mb-16 text-center">
         <h2 className="mb-3 text-[24px] font-medium md:font-bold text-slate-900 sm:text-[32px] lg:text-[40px]">
           <span className="text-[#B83092]">Empowering</span> Learners <br className="md:hidden block" /> {" "} Worldwide
         </h2>

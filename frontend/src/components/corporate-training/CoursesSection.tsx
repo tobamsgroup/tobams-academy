@@ -100,7 +100,7 @@ export function CoursesSection() {
       <h2 className="text-[24px] font-bold leading-tight tracking-[0%] text-slate-900 sm:text-3xl lg:text-[40px]">
       Transform Learning at Work
       </h2>
-      <p className="md:text-lg leading-relaxed text-[#474348] mt-5">Equip your team with skills that drive growth and innovation.</p>
+      <p className="md:text-lg leading-relaxed text-body mt-5">Equip your team with skills that drive growth and innovation.</p>
       </div>
       <div className="hidden w-full md:block md:w-auto">
         <Button

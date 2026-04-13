@@ -53,7 +53,7 @@ export default function AboutSplitSection() {
           <Button
             type="button"
             variant="primary"
-            className="mt-8 rounded-lg bg-gradient-to-r from-[#303869] to-[#303869] px-8 py-3.5 md:text-lg w-full md:wa=-auto"
+            className="mt-8 rounded-lg bg-gradient-to-r from-[#303869] to-[#303869] px-8 py-3.5 md:text-lg w-full md:w-auto"
             onClick={() => router.push("/courses")}
           >
             Explore Courses

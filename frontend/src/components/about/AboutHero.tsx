@@ -37,7 +37,7 @@ export default function AboutHero() {
           The Central Hub
         </h1>
 
-        <h2 className="text-3xl md:text-4xl lg:text-[56px] font-semibold text-[#B83092] mt-2">
+        <h2 className="text-3xl md:text-4xl lg:text-[56px] font-semibold text-accent-pink mt-2">
           For Professional Growth
         </h2>
 
@@ -52,7 +52,7 @@ export default function AboutHero() {
         <Button
           type="button"
           variant="primary"
-          className="mt-8 rounded-lg bg-[#B83092] px-8 py-3.5 text-lg font-medium shadow-lg hover:shadow-[#B83092]/40"
+          className="mt-8 rounded-lg bg-accent-pink px-8 py-3.5 text-lg font-medium shadow-lg hover:shadow-accent-pink/40"
           onClick={() => router.push("/courses")}
         >
           Explore Courses

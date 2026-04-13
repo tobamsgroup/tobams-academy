@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { IMAGES } from "@/assets/images";
 import { ICONS } from "@/assets/icons";
 import { Button } from "@/components/ui/Button";
@@ -16,7 +17,7 @@ const features = [
       "Track progress and achievements in real time",
       "Our platform allows employees to learn at their own pace.",
     ],
-    cta: { label: "Enroll Now", href: "#enroll" },
+    cta: { label: "Enroll Now", href: "/courses" },
     imageAlt: "Team collaborating on laptop",
     imageSrc: IMAGES.faceToFace,
     imageLeft: false,
@@ -31,7 +32,7 @@ const features = [
       "Engage in interactive activities to deepen your understanding.",
       "Collaborate with peers and build strong professional networks.",
     ],
-    cta: { label: "Contact Us", href: "#contact" },
+    cta: { label: "Contact Us", href: "/contact" },
     imageAlt: "Team in face-to-face session",
     imageSrc: IMAGES.selfLearning,
     imageLeft: true,
@@ -39,20 +40,22 @@ const features = [
 ];
 
 export default function FeaturesSection() {
+  const router = useRouter();
+
   return (
     <section className="bg-[#FFFFFF] lg:py-20 py-6 px-6 md:px-16 lg:px-24">
       <div className="max-w-[1312px] mx-auto flex flex-col gap-8 md:gap-20">
 
         {/* Header */}
         <div className="text-center flex flex-col">
-          <span className="text-[#B83092] text-sm md:text-base font-medium uppercase tracking-widest mb-3">
+          <span className="text-accent-pink text-sm md:text-base font-medium uppercase tracking-widest mb-3">
             Features
           </span>
-          <h2 className="text-2xl md:text-3xl lg:text-[40px] font-bold text-[#221D23] leading-tight mb-5">
+          <h2 className="text-2xl md:text-3xl lg:text-[40px] font-bold text-heading leading-tight mb-5">
             Offer 24/7 Access To Our Extensive <br className="hidden md:block" />
             Course Collection
           </h2>
-          <p className="text-[#474348] text-base md:text-lg leading-relaxed max-w-[578px] mx-auto">
+          <p className="text-body text-base md:text-lg leading-relaxed max-w-[578px] mx-auto">
             Employees around the world can learn in-demand skills when it works
             for them and improve resilience with wellness programs.
           </p>
@@ -78,10 +81,10 @@ export default function FeaturesSection() {
                 </div>
               
 
-              <h3 className="text-xl lg:text-[32px] font-semibold text-[#221D23] mb-4">
+              <h3 className="text-xl lg:text-[32px] font-semibold text-heading mb-4">
                 {feature.title}
               </h3>
-              <p className="text-[#221D23] text-base md:text-lg leading-relaxed mb-8">
+              <p className="text-heading text-base md:text-lg leading-relaxed mb-8">
                 {feature.description}
               </p>
 
@@ -96,7 +99,7 @@ export default function FeaturesSection() {
 
               <ul className="flex flex-col gap-5">
                 {feature.bullets.map((bullet, i) => (
-                  <li key={i} className="flex items-start gap-3 text-[#474348] text-base md:text-lg">
+                  <li key={i} className="flex items-start gap-3 text-body text-base md:text-lg">
                     <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center [&_svg]:block">
                       <ICONS.SquareCheck />
                     </span>
@@ -108,11 +111,7 @@ export default function FeaturesSection() {
               <Button
                 type="button"
                 className="mt-8 w-full bg-primary  px-8 py-3 text-base md:text-lg font-medium text-white hover:bg-[#162060] hover:from-[#162060] hover:to-[#162060] hover:translate-y-0 md:w-fit"
-                onClick={() =>
-                  document
-                    .getElementById(feature.cta.href.replace("#", ""))
-                    ?.scrollIntoView({ behavior: "smooth" })
-                }
+                onClick={() => router.push(feature.cta.href)}
               >
                 {feature.cta.label}
               </Button>

@@ -12,7 +12,7 @@ import { FAQSection } from '@/components/corporate-training/FAQSection'
 const CorporateTrainingPage = () => {
   return (
     <div>
-        <Navbar />
+        <Navbar shadow={false} />
         <UpskillHero />
         <FeauturesSection />
         <WhyChooseTGA />

@@ -20,9 +20,9 @@ export default function MissionVisionSection() {
           {/* Mission Card */}
           <div className="bg-white rounded-2xl py-6 px-6 md:py-12 md:px-10 flex flex-col gap-4">
         
-            <h3 className="text-[24px] lg:text-[28px] font-bold text-[#221D23]">Our Mission</h3>
+            <h3 className="text-[24px] lg:text-[28px] font-bold text-heading">Our Mission</h3>
   
-            <p className="text-[#474348] text-base md:text-lg text-justify">
+            <p className="text-body text-base md:text-lg text-justify">
               Our mission is to make professional learning accessible, structured,
               and easy to navigate. The platform is designed to remove technical
               barriers so learners can focus on acquiring knowledge, developing
@@ -34,9 +34,9 @@ export default function MissionVisionSection() {
           {/* Vision Card */}
           <div className="bg-white rounded-2xl py-6 px-6 md:py-12 md:px-10 flex flex-col gap-4">
            
-            <h3 className="text-[24px] lg:text-[28px] font-bold text-[#221D23]">Our Vision</h3>
+            <h3 className="text-[24px] lg:text-[28px] font-bold text-heading">Our Vision</h3>
   
-            <p className="text-[#474348] text-base md:text-lg text-justify">
+            <p className="text-body text-base md:text-lg text-justify">
               To become a leading global platform where professionals everywhere
               can continuously learn, develop skills, and unlock new career
               opportunities without barriers.

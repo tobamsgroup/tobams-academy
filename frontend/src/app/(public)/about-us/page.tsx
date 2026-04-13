@@ -11,7 +11,7 @@ import CTASection from '@/components/about/CTASection'
 export default function AboutUsPage() {
   return (
     <div>
-        <Navbar />
+        <Navbar shadow={false} />
         <AboutHero />
         <AboutSplitSection />
         <CoreObjectives />

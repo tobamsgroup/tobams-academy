@@ -10,7 +10,7 @@ export default function CTASection() {
             Ready to Start Your Journey?
           </h2>
   
-          <p className="text-[#474348] text-base md:text-lg text-center">
+          <p className="text-body text-base md:text-lg text-center">
             Join thousands of professionals advancing their careers through our
             structured learning <br className="md:hidden" /> platform.
           </p>

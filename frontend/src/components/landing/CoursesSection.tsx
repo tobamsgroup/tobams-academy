@@ -110,7 +110,7 @@ export function CoursesSection() {
   const active = CATEGORIES.find((c) => c.id === activeCategory) ?? CATEGORIES[0];
 
   return (
-    <section className="bg-white px-5 py-8 md:py-16 md:px-16">
+    <section className="bg-white px-5 py-8 md:py-16 md:px-16 lg:py-[96px]">
       {/* Heading */}
       <h2 className="lg:mb-[64px] mb-10 text-center text-[24px] font-bold leading-tight tracking-[0%] text-slate-900 sm:text-3xl lg:text-[40px]">
         Find the Right Course to{" "}
@@ -197,7 +197,7 @@ export function CoursesSection() {
           <Link
             href={`/courses/${course.id}`}
             key={course.id}
-            className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all hover:-translate-y-1 hover:shadow-lg"
+            className="group flex flex-col overflow-hidden rounded-2xl border border-[#D3D2D3] bg-white transition-all hover:-translate-y-1 hover:shadow-lg"
           >
             {/* Image area (padded inset) */}
             <div className="w-full bg-white p-3">
@@ -245,16 +245,16 @@ export function CoursesSection() {
         <button
           onClick={() => setPage((p) => Math.max(0, p - 1))}
           disabled={page === 0}
-          className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition-all hover:border-slate-400 disabled:opacity-30"
+          className="flex h-11 w-11 items-center justify-center rounded-full border border-[#D3D2D3] bg-white text-slate-600 transition-all hover:border-slate-400"
         >
-          <ArrowLeft size={18} />
+          <ICONS.LeftArrow />
         </button>
         <button
           onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
           disabled={page === totalPages - 1}
-          className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition-all hover:border-slate-400 disabled:opacity-30"
+          className="flex h-11 w-11 items-center justify-center rounded-full border border-[#D3D2D3] bg-white text-slate-600 transition-all hover:border-slate-400"
         >
-          <ArrowRight size={18} />
+          <ICONS.RightArrow />
         </button>
       </div>
     </section>

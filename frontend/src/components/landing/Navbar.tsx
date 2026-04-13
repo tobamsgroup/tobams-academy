@@ -8,13 +8,25 @@ import Image from 'next/image'
 import { IMAGES } from '@/assets/images'
 import { ICONS } from '@/assets/icons'
 import { Button } from '@/components/ui/Button'
+import { cn } from '@/lib/utils'
 
-export function Navbar() {
+const NAVBAR_DROP_SHADOW = 'shadow-[0px_4px_15px_0px_#00000033]'
+
+export type NavbarProps = {
+  shadow?: boolean
+}
+
+export function Navbar({ shadow = true }: NavbarProps) {
   const [open, setOpen] = useState(false)
   const router = useRouter()
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-slate-100 bg-white/95 shadow-[0px_4px_15px_0px_#00000033] backdrop-blur-sm">
+    <nav
+      className={cn(
+        'sticky top-0 z-50 border-b border-slate-100 bg-white/95 backdrop-blur-sm',
+        shadow && NAVBAR_DROP_SHADOW,
+      )}
+    >
       <div className="flex items-center justify-between pl-0 pr-5 lg:px-16">
         <Link href="/" className="text-xl font-bold text-primary">
           <Image src={IMAGES.newLogo} alt='logo' className='h-[100px] w-[149px] object-contain'/>

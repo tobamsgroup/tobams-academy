@@ -32,6 +32,7 @@ import selfLearning from './CP-Content1.png'
 import faceToFace from './CP-Content2.png'
 import smarterLearning from './SM.jpg'
 import smartGrid from './SM-Grid.png'
+import contact from './Contact.png'
 
 export const IMAGES = {
   accelerate,
@@ -67,5 +68,6 @@ export const IMAGES = {
   selfLearning,
   faceToFace,
   smarterLearning,
-  smartGrid
+  smartGrid,
+  contact
 };
