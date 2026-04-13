@@ -10,17 +10,6 @@ import { Button } from "../ui/Button";
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
-const CATEGORIES = [
-  { label: "Trending",         icon: ICONS.Trending,       id: "trending" },
-  { label: "Leadership",       icon: ICONS.Leadership,     id: "leadership" },
-  { label: "Business",         icon: ICONS.Bussiness,      id: "business" },
-  { label: "NGO",              icon: ICONS.Ngo,            id: "ngo" },
-  { label: "Interviewing Skills", icon: ICONS.Interview,   id: "interviewing" },
-  { label: "Sustainability",   icon: ICONS.Sustainability, id: "sustainability" },
-  { label: "Innovation",       icon: ICONS.Innovation,     id: "innovation" },
-  { label: "IT",               icon: ICONS.IT,             id: "it" },
-  { label: "More Courses",     icon: ICONS.MrCourses,      id: "more" },
-];
 
 const COURSES = [
   {
