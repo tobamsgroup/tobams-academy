@@ -19,7 +19,7 @@ const RESOURCE_LINKS = [
 ];
 
 const LEGAL_LINKS = [
-  { label: "Terms Of Use",    href: "/terms" },
+  { label: "Terms Of Use",    href: "/terms-of-use" },
   { label: "Privacy Policy",  href: "/privacy" },
   { label: "Cookie Policy",   href: "/cookies" },
 ];

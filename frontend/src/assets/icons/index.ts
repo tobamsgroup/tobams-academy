@@ -29,6 +29,9 @@ import CP4 from "./corporate-icons/CP-4";
 import LeftArrow from "./LeftArrow";
 import RightArrow from "./RightArrow";
 import WhiteArrow from "./WhiteArrow";
+import Location from "./Location";
+import Mail from "./Mail";
+import Phone from "./Phone";
 
 export const ICONS = {
     Thunder,
@@ -62,4 +65,7 @@ export const ICONS = {
     LeftArrow,
     RightArrow,
     WhiteArrow,
+    Location,
+    Mail,
+    Phone,
 }

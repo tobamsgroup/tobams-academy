@@ -14,7 +14,7 @@ export function Newsletter() {
   };
 
   return (
-    <section className=" px-5 pb-0 md:px-16">
+    <section className="py-8 px-5 pb-0 md:px-16 md:py-16 bg-[#FFFAFA]">
       <div
         className="relative z-10 mx-auto -mb-22 flex max-w-5xl flex-col items-start justify-between gap-6 rounded-[16px] bg-[#222643] px-8 py-10 md:px-12 md:py-16 lg:flex-row lg:items-center"
       >
