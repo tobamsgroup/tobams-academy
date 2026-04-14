@@ -73,7 +73,7 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
             </div>
           </section>
 
-          <section id="course-content" className="mb-8">
+          <section id="course-content" className="mb-10">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-[24px] font-medium text-heading">Course Content</h2>
               <button
@@ -119,15 +119,15 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
             <button
               type="button"
               onClick={() => setExpandAll(true)}
-              className="mt-4 w-full rounded-md border border-[#D3D2D3]  py-2 text-lg font-semibold text-heading hover:bg-[#F7F7FA]"
+              className="mt-4 w-full rounded-md border border-primary text-primary  py-2 text-lg font-medium text-heading hover:bg-[#F7F7FA]"
             >
               View All Modules
             </button>
           </section>
 
-          <section id="course-description" className="mb-8">
-            <h2 className="mb-3 text-2xl font-semibold text-heading">Description</h2>
-            <div className="space-y-4 text-sm leading-relaxed text-[#474348]">
+          <section id="course-description" className="mb-10">
+            <h2 className="mb-3 text-[24px] font-medium text-heading">Description</h2>
+            <div className="space-y-4 text-lg leading-relaxed text-[#474348] font-medium">
               <p>{course.description}</p>
               <p>{course.objective}</p>
               <p>
@@ -138,45 +138,44 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
           </section>
 
           <section id="course-feedbacks">
-            <h2 className="mb-3 text-2xl font-semibold text-heading">Student Feedback</h2>
-            <div className="mb-6 rounded-lg border border-[#E5E7EB] bg-white p-4">
-              <div className="grid grid-cols-[64px_1fr_36px] items-center gap-x-3 gap-y-2">
-                <div className="row-span-5 text-4xl font-semibold text-heading">{course.rating}</div>
+            <h2 className="mb-3 text-2xl font-medium text-heading">Student Feedback</h2>
+            <div className="mb-6">
+              <div className="grid grid-cols-[100px_1fr_88px] items-center gap-x-3 gap-y-2">
+                <div className="row-span-5 text-[48px] font-bold text-heading">{course.rating}</div>
                 {feedbackBars.map((bar) => (
                   <>
-                    <div key={`line-${bar.label}`} className="h-2 overflow-hidden rounded bg-[#E5E7EB]">
+                    <div key={`line-${bar.label}`} className="h-2 overflow-hidden rounded-full bg-[#D3D2D3]">
                       <div className="h-full rounded bg-primary" style={{ width: bar.width }} />
                     </div>
-                    <span key={`label-${bar.label}`} className="text-xs text-[#696969]">
+                    <span key={`label-${bar.label}`} className="text-sm flex justify-end items-end text-[#696969]">
                       {bar.label}
                     </span>
                   </>
                 ))}
               </div>
-              <p className="mt-2 text-xs text-[#696969]">Course Rating</p>
+              <p className="-mt-4 text-sm text-[#474348]">Course Rating</p>
             </div>
 
             {[1, 2].map((idx) => (
-              <article key={idx} className="mb-4 rounded-lg border border-[#E5E7EB] bg-white p-4">
+              <article key={idx} className="mb-4  border-t border-[#E5E7EB]  p-4">
                 <div className="mb-2 flex items-center gap-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-semibold text-white">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-semibold text-white">
                     MJ
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-heading">Michael J.</p>
-                    <p className="text-xs text-[#696969]">2 weeks ago</p>
+                    <p className="text-lg text-heading">Michael J.</p>
+                    <p className="text-xs text-[#474348]">2 weeks ago</p>
                   </div>
                 </div>
-                <p className="text-sm text-[#474348]">
-                  This course is absolutely amazing. The instructor explains everything clearly and the
-                  projects are very practical.
+                <p className="text-lg text-[#474348]">
+                This course is absolutely amazing. The instructor explains everything clearly and the projects are very practical. I went from knowing nothing to building full-stack apps in just a few months. Highly recommended!
                 </p>
               </article>
             ))}
 
             <button
               type="button"
-              className="rounded-md border border-[#D3D2D3] bg-white px-5 py-2 text-sm font-semibold text-heading hover:bg-[#F7F7FA]"
+              className="rounded-md border-[2px] border-[#E5E7EB]  px-5 py-2 text-sm font-medium text-heading hover:bg-[#F7F7FA]"
             >
               See all reviews
             </button>
@@ -184,22 +183,22 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
         </div>
 
         <aside>
-          <div className="sticky top-24 overflow-hidden rounded-lg border border-[#D3D2D3] bg-white">
+          <div className="sticky top-24 overflow-hidden rounded-lg border-[2px] border-[#E5E7EB]">
             <div className="relative aspect-[16/10]">
               <Image src={IMAGES.course2} alt={course.title} fill className="object-cover" />
             </div>
-            <div className="p-4">
-              <p className="text-3xl font-bold text-heading">{course.price}</p>
-              <p className="mb-4 text-xs text-[#B83092]">2 days left at this price!</p>
-              <button className="mb-2 w-full rounded-md bg-primary py-2.5 text-sm font-semibold text-white hover:bg-[#232A59]">
+            <div className="p-6">
+              <p className="text-[32px] font-bold text-primary mb-4">{course.price}</p>
+              <p className="mb-4 text-sm text-[#B83092]">2 days left at this price!</p>
+              <button className="mb-2 w-full rounded-md bg-primary py-3 text-lg font-medium text-white hover:bg-[#232A59]">
                 Add to Cart
               </button>
-              <button className="mb-4 w-full rounded-md border border-[#D3D2D3] py-2.5 text-sm font-semibold text-heading hover:bg-[#F8F8FA]">
+              <button className="mb-4 w-full rounded-md border border-primary py-3 text-sm font-semibold text-primary hover:bg-[#F8F8FA]">
                 Buy Now
               </button>
 
-              <p className="mb-2 text-xs font-semibold text-heading">This course includes</p>
-              <ul className="space-y-2 text-xs text-[#474348]">
+              <p className="mb-2 text-sm font-semibold text-heading">This course includes</p>
+              <ul className="space-y-2 text-sm text-[#474348]">
                 <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5" /> 65.5 hours on-demand video</li>
                 <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5" /> 48 downloadable resources</li>
                 <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5" /> Access on mobile and TV</li>
