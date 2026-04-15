@@ -32,6 +32,11 @@ import WhiteArrow from "./WhiteArrow";
 import Location from "./Location";
 import Mail from "./Mail";
 import Phone from "./Phone";
+import Video from "./courses-icons/video";
+import BookDownload from "./courses-icons/bookDownload";
+import Device from "./courses-icons/Device";
+import Lifebuoy from "./courses-icons/Lifebuoy";
+import Certificate from "./courses-icons/Certificate";
 
 export const ICONS = {
     Thunder,
@@ -68,4 +73,9 @@ export const ICONS = {
     Location,
     Mail,
     Phone,
+    Video,
+    BookDownload,
+    Device,
+    Lifebuoy,
+    Certificate,
 }

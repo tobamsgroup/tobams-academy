@@ -21,6 +21,7 @@ const SORT_OPTIONS = [
   { id: 'highest_price', label: 'Highest Price' },
   { id: 'lowest_price', label: 'Lowest Price' },
 ] as const
+type FilterSectionKey = 'category' | 'level' | 'rating' | 'duration' | 'price'
 
 export function CatalogueClient({ courses, categories }: Props) {
   const [search, setSearch] = useState('')
@@ -34,6 +35,13 @@ export function CatalogueClient({ courses, categories }: Props) {
   const [priceMin, setPriceMin] = useState('')
   const [priceMax, setPriceMax] = useState('')
   const [selPriceTypes, setSelPriceTypes] = useState<string[]>([])
+  const [filterSectionsOpen, setFilterSectionsOpen] = useState<Record<FilterSectionKey, boolean>>({
+    category: true,
+    level: true,
+    rating: true,
+    duration: true,
+    price: true,
+  })
   const controlsRef = useRef<HTMLDivElement>(null)
 
   const allDurations = useMemo(
@@ -118,6 +126,22 @@ export function CatalogueClient({ courses, categories }: Props) {
     return arr.includes(val) ? arr.filter((x) => x !== val) : [...arr, val]
   }
 
+  function resetFilters() {
+    setSearch('')
+    setSortBy('trending')
+    setSelCategories([])
+    setSelLevels([])
+    setSelRatings([])
+    setSelDurations([])
+    setPriceMin('')
+    setPriceMax('')
+    setSelPriceTypes([])
+  }
+
+  function toggleFilterSection(section: FilterSectionKey) {
+    setFilterSectionsOpen((prev) => ({ ...prev, [section]: !prev[section] }))
+  }
+
   return (
     <div className="min-h-screen">
       {/* Top bar */}
@@ -125,15 +149,17 @@ export function CatalogueClient({ courses, categories }: Props) {
         <div className="mx-auto flex max-w-[1312px] items-center gap-3">
           {/* Mobile filter toggle */}
           <button
-            className="md:hidden flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-600"
+            className={`md:hidden order-2 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border text-slate-600 ${
+              filterOpen ? 'border-[#E5E7EB] bg-[#EEF0F6]' : 'border-slate-200 bg-white'
+            }`}
             onClick={() => setFilterOpen((o) => !o)}
+            aria-label="Open filters"
           >
             <SlidersHorizontal className="h-4 w-4" />
-            Filter
           </button>
 
           {/* Search */}
-          <div className="flex w-full items-center justify-end gap-3">
+          <div className="flex w-full order-1 items-center justify-end gap-3 md:order-2">
             <div className="relative w-full md:max-w-[520px]">
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
               <input
@@ -186,7 +212,9 @@ export function CatalogueClient({ courses, categories }: Props) {
                   setFilterOpen((o) => !o)
                   setSortOpen(false)
                 }}
-                className="inline-flex items-center gap-2 px-2 py-2  font-medium text-[#252A64] transition-colors hover:text-slate-900"
+                className={`inline-flex items-center gap-2 rounded-lg px-2 py-2 font-medium text-[#252A64] transition-colors hover:text-slate-900 ${
+                  filterOpen ? 'bg-[#EEF0F6]' : ''
+                }`}
               >
                 <SlidersHorizontal className="h-4 w-4" />
                 Filter
@@ -200,80 +228,199 @@ export function CatalogueClient({ courses, categories }: Props) {
           <div className="absolute left-0 right-0 top-full z-40 px-6">
             <div className="mx-auto mt-3 w-full max-w-[1312px]">
               <div className="ml-auto w-full max-w-[371px] rounded-2xl border border-[#D3D2D3] bg-[#FFFAFA] p-7">
-              <div className="rounded-lg border border-[#DEDEDE] bg-white">
-                <button
-                  type="button"
-                  className="flex w-full items-center justify-between p-5 text-left text-[20px] font-medium text-[#221D23]"
-                >
-                  Category
-                  <ChevronDown className="h-4 w-4" />
-                </button>
-                <div className="space-y-4 border-t border-[#D3D2D3] p-5">
-                  {categories.map((cat) => (
-                    <label key={cat} className="flex cursor-pointer items-center gap-3 text-sm text-[#252A64]">
-                      <input
-                        type="checkbox"
-                        checked={selCategories.includes(cat)}
-                        onChange={() => setSelCategories(toggle(selCategories, cat))}
-                        className="h-[18px] w-[18px] rounded border-[#151515] accent-primary"
-                      />
-                      <span className="flex-1">{cat}</span>
-                      <span className="text-[#696969]">{courses.filter((c) => c.category === cat).length}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-5 rounded-lg border border-[#DEDEDE] bg-white">
-                <button
-                  type="button"
-                  className="flex w-full items-center justify-between p-5 text-left text-[20px] font-medium text-[#221D23]"
-                >
-                  Price
-                  <ChevronDown className="h-4 w-4" />
-                </button>
-                <div className="space-y-5 border-t border-[#DEDEDE] p-5">
-                  <div className="grid grid-cols-2 gap-4">
-                    <input
-                      value={priceMin}
-                      onChange={(e) => setPriceMin(e.target.value)}
-                      placeholder="£ min:"
-                      className="h-[48px] rounded-lg border border-[#DEDEDE] bg-transparent px-4  text-[#3C3C3C] outline-none"
-                    />
-                    <input
-                      value={priceMax}
-                      onChange={(e) => setPriceMax(e.target.value)}
-                      placeholder="£ max:"
-                      className="h-[48px] rounded-lg border border-[#DEDEDE] bg-transparent px-4 text-[#3C3C3C] outline-none"
-                    />
+                <div className="md:hidden">
+                  <div className="pb-4 text-left font-medium text-[#221D23]">Sort by:</div>
+                  <div className="">
+                    <div className="relative">
+                      <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                        className="h-11 w-full appearance-none rounded-lg border border-[#DEDEDE] bg-white px-4 pr-10 text-sm text-[#221D23] outline-none"
+                      >
+                        {SORT_OPTIONS.map((option) => (
+                          <option key={option.id} value={option.id}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#696969]" />
+                    </div>
                   </div>
-                  {[
-                    { id: 'paid', label: 'Paid', count: priceCounts.paid },
-                    { id: 'free', label: 'Free', count: priceCounts.free },
-                  ].map((item) => (
-                    <label
-                      key={item.id}
-                      className="flex cursor-pointer items-center gap-3 text-sm text-[#221D23]"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selPriceTypes.includes(item.id)}
-                        onChange={() => setSelPriceTypes(toggle(selPriceTypes, item.id))}
-                        className="h-[18px] w-[18px] rounded border-[#151515] accent-primary"
-                      />
-                      <span className="flex-1">{item.label}</span>
-                      <span className="text-[#696969]">{item.count}</span>
-                    </label>
-                  ))}
                 </div>
-              </div>
 
-              <Button
-              type="button"
-              className="bg-primary text-white mt-4 font-medium text-base  border-[2px] border-primary px-6 py-3 hover:bg-[#162060] hover:from-[#162060] hover:to-[#162060] hover:translate-y-0 w-full"
-            >
-              Reset
-            </Button>
+                <div className="mt-5 rounded-lg border border-[#DEDEDE] bg-white">
+                  <button
+                    type="button"
+                    onClick={() => toggleFilterSection('category')}
+                    className="flex w-full items-center justify-between p-5 text-left md:text-[20px] font-medium text-[#221D23]"
+                  >
+                    Category
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform ${filterSectionsOpen.category ? 'rotate-180' : ''}`}
+                    />
+                  </button>
+                  {filterSectionsOpen.category ? (
+                    <div className="space-y-4 border-t border-[#D3D2D3] p-5">
+                      {categories.map((cat) => (
+                        <label key={cat} className="flex cursor-pointer items-center gap-3 text-sm text-[#252A64]">
+                          <input
+                            type="checkbox"
+                            checked={selCategories.includes(cat)}
+                            onChange={() => setSelCategories(toggle(selCategories, cat))}
+                            className="h-[18px] w-[18px] rounded border-[#151515] accent-primary"
+                          />
+                          <span className="flex-1">{cat}</span>
+                          <span className="text-[#696969]">{courses.filter((c) => c.category === cat).length}</span>
+                        </label>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="mt-5 rounded-lg border border-[#DEDEDE] bg-white">
+                  <button
+                    type="button"
+                    onClick={() => toggleFilterSection('level')}
+                    className="flex w-full items-center justify-between p-5 text-left md:text-[20px] font-medium text-[#221D23]"
+                  >
+                    Level
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform ${filterSectionsOpen.level ? 'rotate-180' : ''}`}
+                    />
+                  </button>
+                  {filterSectionsOpen.level ? (
+                    <div className="space-y-4 border-t border-[#DEDEDE] p-5">
+                      {LEVELS.map((level) => (
+                        <label key={level} className="flex cursor-pointer items-center gap-3 text-sm text-[#252A64]">
+                          <input
+                            type="checkbox"
+                            checked={selLevels.includes(level)}
+                            onChange={() => setSelLevels(toggle(selLevels, level))}
+                            className="h-[18px] w-[18px] rounded border-[#151515] accent-primary"
+                          />
+                          <span className="flex-1">{level}</span>
+                          <span className="text-[#696969]">{courses.filter((c) => c.level === level).length}</span>
+                        </label>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="mt-5 rounded-lg border border-[#DEDEDE] bg-white">
+                  <button
+                    type="button"
+                    onClick={() => toggleFilterSection('rating')}
+                    className="flex w-full items-center justify-between p-5 text-left md:text-[20px] font-medium text-[#221D23]"
+                  >
+                    Rating
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform ${filterSectionsOpen.rating ? 'rotate-180' : ''}`}
+                    />
+                  </button>
+                  {filterSectionsOpen.rating ? (
+                    <div className="space-y-4 border-t border-[#DEDEDE] p-5">
+                      {RATING_OPTIONS.map((rating) => (
+                        <label key={rating} className="flex cursor-pointer items-center gap-3 text-sm text-[#252A64]">
+                          <input
+                            type="checkbox"
+                            checked={selRatings.includes(rating)}
+                            onChange={() => setSelRatings(toggle(selRatings, rating))}
+                            className="h-[18px] w-[18px] rounded border-[#151515] accent-primary"
+                          />
+                          <span className="flex-1">{`${'★'.repeat(rating)}${'☆'.repeat(5 - rating)} ${rating}+`}</span>
+                        </label>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="mt-5 rounded-lg border border-[#DEDEDE] bg-white">
+                  <button
+                    type="button"
+                    onClick={() => toggleFilterSection('duration')}
+                    className="flex w-full items-center justify-between p-5 text-left md:text-[20px] font-medium text-[#221D23]"
+                  >
+                    Duration
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform ${filterSectionsOpen.duration ? 'rotate-180' : ''}`}
+                    />
+                  </button>
+                  {filterSectionsOpen.duration ? (
+                    <div className="space-y-4 border-t border-[#DEDEDE] p-5">
+                      {allDurations.map((duration) => (
+                        <label
+                          key={duration}
+                          className="flex cursor-pointer items-center gap-3 text-sm text-[#252A64]"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selDurations.includes(duration)}
+                            onChange={() => setSelDurations(toggle(selDurations, duration))}
+                            className="h-[18px] w-[18px] rounded border-[#151515] accent-primary"
+                          />
+                          <span className="flex-1">{duration}</span>
+                        </label>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="mt-5 rounded-lg border border-[#DEDEDE] bg-white">
+                  <button
+                    type="button"
+                    onClick={() => toggleFilterSection('price')}
+                    className="flex w-full items-center justify-between p-5 text-left md:text-[20px] font-medium text-[#221D23]"
+                  >
+                    Price
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform ${filterSectionsOpen.price ? 'rotate-180' : ''}`}
+                    />
+                  </button>
+                  {filterSectionsOpen.price ? (
+                    <div className="space-y-5 border-t border-[#DEDEDE] p-5">
+                      <div className="grid grid-cols-2 gap-4">
+                        <input
+                          value={priceMin}
+                          onChange={(e) => setPriceMin(e.target.value)}
+                          placeholder="£ min:"
+                          className="h-[48px] rounded-lg border border-[#DEDEDE] bg-transparent px-4  text-[#3C3C3C] outline-none"
+                        />
+                        <input
+                          value={priceMax}
+                          onChange={(e) => setPriceMax(e.target.value)}
+                          placeholder="£ max:"
+                          className="h-[48px] rounded-lg border border-[#DEDEDE] bg-transparent px-4 text-[#3C3C3C] outline-none"
+                        />
+                      </div>
+                      {[
+                        { id: 'paid', label: 'Paid', count: priceCounts.paid },
+                        { id: 'free', label: 'Free', count: priceCounts.free },
+                      ].map((item) => (
+                        <label
+                          key={item.id}
+                          className="flex cursor-pointer items-center gap-3 text-sm text-[#221D23]"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selPriceTypes.includes(item.id)}
+                            onChange={() => setSelPriceTypes(toggle(selPriceTypes, item.id))}
+                            className="h-[18px] w-[18px] rounded border-[#151515] accent-primary"
+                          />
+                          <span className="flex-1">{item.label}</span>
+                          <span className="text-[#696969]">{item.count}</span>
+                        </label>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+
+                <Button
+                  type="button"
+                  onClick={resetFilters}
+                  className="bg-primary text-white mt-4 font-medium text-base border-[2px] border-primary px-6 py-3 hover:bg-[#162060] hover:from-[#162060] hover:to-[#162060] hover:translate-y-0 w-full"
+                >
+                  Reset
+                </Button>
               </div>
             </div>
           </div>
@@ -346,7 +493,7 @@ export function CatalogueClient({ courses, categories }: Props) {
         </aside> */}
 
         {/* Course grid */}
-        <main className="py-8">
+        <main className="py-8 px-6 md:px-0">
           {sorted.length > 0 ? (
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {sorted.map((course) => (

@@ -17,7 +17,7 @@ export function CourseCard({ course }: Props) {
           <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-slate-100">
             <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-slate-100 to-slate-200 px-4">
               <span className="text-4xl">📚</span>
-              <span className="line-clamp-2 text-center text-[20px] font-medium text-slate-500">
+              <span className="line-clamp-2 text-center md:text-[20px] text-lg font-medium text-slate-500">
                 {course.title}
               </span>
             </div>
@@ -41,19 +41,19 @@ export function CourseCard({ course }: Props) {
 
         {/* Title */}
         <Link href={`/courses/${course.slug}`}>
-          <h3 className="mb-1.5 line-clamp-2 text-[20px] font-medium text-heading transition-colors hover:text-[#571244]">
+          <h3 className="mb-1.5 line-clamp-2 md:text-[20px] text-lg font-medium text-heading transition-colors hover:text-[#571244]">
             {course.title}
           </h3>
         </Link>
 
         {/* Description */}
-        <p className="mb-4 flex-1 line-clamp-2 text-lg text-[#3C3C3C]">
+        <p className="mb-4 flex-1 line-clamp-2 md:text-lg text-[#3C3C3C]">
           {course.description}
         </p>
 
         {/* Footer row */}
         <div className="flex items-center justify-between">
-          <span className="text-[20px] font-bold text-heading">{course.price}</span>
+          <span className="md:text-[20px] text-lg font-bold text-heading">{course.price}</span>
           {/* <Link
             href={`/courses/${course.slug}`}
             className="rounded-lg bg-[#571244] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#571244]/90 transition-colors"

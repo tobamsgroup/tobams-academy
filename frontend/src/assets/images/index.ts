@@ -33,6 +33,7 @@ import faceToFace from './CP-Content2.png'
 import smarterLearning from './SM.jpg'
 import smartGrid from './SM-Grid.png'
 import contact from './Contact.png'
+import courseHero from './course-hero.jpg'
 
 export const IMAGES = {
   accelerate,
@@ -69,5 +70,6 @@ export const IMAGES = {
   faceToFace,
   smarterLearning,
   smartGrid,
-  contact
+  contact,
+  courseHero
 };

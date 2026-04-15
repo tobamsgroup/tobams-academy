@@ -12,7 +12,7 @@ export default function CoursesHero() {
     <section className="relative w-full h-[260px] flex items-center justify-center text-center text-white overflow-hidden">
       {/* Background Image */}
       <Image
-        src={IMAGES.aboutHero}
+        src={IMAGES.courseHero}
         alt="About Us Background"
         fill
         priority
