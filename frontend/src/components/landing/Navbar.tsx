@@ -45,7 +45,10 @@ export function Navbar({ shadow = true }: NavbarProps) {
         </div>
 
         <div className='flex items-center gap-10 hidden md:flex'>
+          <Link href="/cart" className="transition-colors hover:text-primary">  
           <ICONS.Cart width={24} height={24} />
+          </Link>
+
           <Button
             type="button"
             variant="primary"
