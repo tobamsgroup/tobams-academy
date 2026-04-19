@@ -22,7 +22,7 @@ export default function SmarterLearningBanner() {
           <Button
             type="button"
             className="w-full md:w-fit bg-primary md:bg-white text-white md:text-primary text-lg font-medium px-7 py-3 hover:bg-gray-100 hover:from-gray-100 hover:to-gray-100 hover:translate-y-0"
-            onClick={()=>router.push("/contact")}
+            onClick={()=>router.push("/corporate-fo")}
           >
             Contact Us
           </Button>

@@ -5,6 +5,8 @@ import { useMemo, useState } from 'react'
 import { ChevronRight, Trash2 } from 'lucide-react'
 import { IMAGES } from '@/assets/images'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/Button'
 
 type CartItem = {
   id: string
@@ -35,6 +37,7 @@ const INITIAL_ITEMS: CartItem[] = [
 ]
 
 export default function CartSection() {
+  const router = useRouter()
   const [items, setItems] = useState<CartItem[]>(INITIAL_ITEMS)
   const [couponCode, setCouponCode] = useState('')
   const [couponApplied, setCouponApplied] = useState(false)
@@ -119,34 +122,32 @@ export default function CartSection() {
                 placeholder=""
                 className=" flex-1 border-none  bg-white px-4 text-lg outline-none"
               />
-              <button
+              <Button
                 type="button"
                 onClick={() => setCouponApplied(couponCode.trim().toUpperCase() === 'SAVE20')}
-                className="py-2 rounded-[16px] bg-[#191C32] px-6 text-sm md:text-base text-white hover:bg-[#232A59]"
+                className="rounded-[16px] bg-[#191C32] px-6 py-2 text-sm text-white hover:translate-y-0 hover:bg-[#232A59] hover:from-[#232A59] hover:to-[#232A59] md:text-base"
               >
                 Apply
-              </button>
+              </Button>
             </div>
           </div>
 
-          <Link href="/checkout">
-          <button
+          <Button
             type="button"
-            className="mt-6 hidden w-full rounded-lg bg-[#303869] px-6 py-3 text-lg font-medium text-white hover:bg-[#232A59] lg:block"
-            >
+            onClick={() => router.push('/checkout')}
+            className="mt-6 hidden w-full rounded-lg bg-[#303869] px-6 py-3 text-lg font-medium text-white hover:translate-y-0 hover:bg-[#232A59] hover:from-[#232A59] hover:to-[#232A59] lg:block"
+          >
             Proceed to Checkout
-            </button>
-          </Link>
+          </Button>
         </aside>
       </div>
-      <Link href="/checkout"> 
-      <button
+      <Button
         type="button"
-        className="mt-6 w-full rounded-lg bg-[#303869] px-6 py-3  font-medium text-white hover:bg-[#232A59] lg:hidden"
+        onClick={() => router.push('/checkout')}
+        className="mt-6 w-full rounded-lg bg-[#303869] px-6 py-3 font-medium text-white hover:translate-y-0 hover:bg-[#232A59] hover:from-[#232A59] hover:to-[#232A59] lg:hidden"
       >
         Proceed to Checkout
-      </button>
-      </Link>
+      </Button>
     </section>
   )
 }

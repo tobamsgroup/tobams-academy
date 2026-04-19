@@ -154,20 +154,22 @@ export function CoursesSection() {
 
       {/* Pagination arrows */}
       <div className="mt-10 flex justify-end gap-3">
-        <button
+        <Button
+          type="button"
           onClick={() => setPage((p) => Math.max(0, p - 1))}
           disabled={page === 0}
-          className="flex h-11 w-11 items-center justify-center rounded-full border border-[#D3D2D3] bg-white text-slate-600 transition-all hover:border-slate-400"
+          className="flex h-11 w-11 items-center justify-center rounded-full border border-[#D3D2D3] bg-white p-0 text-slate-600 shadow-none hover:translate-y-0 hover:border-slate-400 hover:bg-white hover:from-white hover:to-white"
         >
           <ICONS.LeftArrow />
-        </button>
-        <button
+        </Button>
+        <Button
+          type="button"
           onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
           disabled={page === totalPages - 1}
-          className="flex h-11 w-11 items-center justify-center rounded-full border border-[#D3D2D3] bg-white text-slate-600 transition-all hover:border-slate-400"
+          className="flex h-11 w-11 items-center justify-center rounded-full border border-[#D3D2D3] bg-white p-0 text-slate-600 shadow-none hover:translate-y-0 hover:border-slate-400 hover:bg-white hover:from-white hover:to-white"
         >
           <ICONS.RightArrow />
-        </button>
+        </Button>
       </div>
 
       <div className="mt-8 w-full md:hidden">

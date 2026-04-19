@@ -36,8 +36,6 @@ export default function SupportHero() {
         <h1 className="text-[24px] md:text-4xl lg:text-[56px] text-white font-bold leading-tight">
         We’d Love to Hear From You. Get In Touch
         </h1>
-
-
       </div>
     </section>
   );

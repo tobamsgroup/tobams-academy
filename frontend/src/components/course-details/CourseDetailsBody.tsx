@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { ChevronDown } from 'lucide-react'
 import { ICONS } from '@/assets/icons'
 import { IMAGES } from '@/assets/images'
+import { Button } from '@/components/ui/Button'
 import type { LocalCourse } from '@/types/course'
 
 interface Props {
@@ -49,16 +50,16 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
     <div className="mx-auto max-w-[1312px] px-6 py-10  w-full">
        <div className="hidden md:grid mb-5  grid-cols-2 rounded-[12px] border-[2px] border-[#E5E7EB] bg-white p-2 md:grid-cols-4">
             {TABS.map((tab) => (
-              <button
+              <Button
                 key={tab.id}
                 type="button"
                 onClick={() => jumpTo(tab.id)}
-                className={`rounded-lg px-3 py-2.5 text-lg transition-colors ${
+                className={`rounded-lg px-3 py-2.5 text-lg font-normal shadow-none hover:translate-y-0 hover:shadow-none ${
                   activeTab === tab.id ? 'bg-[#EEF0F6] text-primary' : 'text-[#221D23]'
                 }`}
               >
                 {tab.label}
-              </button>
+              </Button>
             ))}
           </div>
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.45fr_0.85fr]">
@@ -77,13 +78,13 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
           <section id="course-content" className="mb-10">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-[24px] font-medium text-heading">Course Content</h2>
-              <button
+              <Button
                 type="button"
                 onClick={() => setExpandAll((v) => !v)}
-                className="text-sm  text-primary hover:underline"
+                className="px-0 py-0 text-sm font-normal text-primary shadow-none hover:translate-y-0 hover:bg-transparent hover:from-transparent hover:to-transparent hover:shadow-none hover:underline"
               >
                 {expandAll ? 'Collapse all sections' : 'Expand all sections'}
-              </button>
+              </Button>
             </div>
 
             <div className="overflow-hidden rounded-lg border border-[#D3D2D3] bg-white">
@@ -91,10 +92,10 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
                 const isOpen = expandAll || openWeek === week.week
                 return (
                   <div key={week.week} className="border-b border-[#E5E7EB] last:border-b-0">
-                    <button
+                    <Button
                       type="button"
                       onClick={() => setOpenWeek(isOpen ? null : week.week)}
-                      className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-[#F8F8FA]"
+                      className="flex w-full items-center justify-between rounded-none px-4 py-3 text-left font-normal shadow-none hover:translate-y-0 hover:bg-[#F8F8FA] hover:from-[#F8F8FA] hover:to-[#F8F8FA] hover:shadow-none"
                     >
                         <p className="text-lg font-medium text-heading">{week.title}</p>
                       <div className="flex items-center gap-2">
@@ -103,7 +104,7 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
                         </p>
                       <ChevronDown className={`h-4 w-4 text-[#696969] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                       </div>
-                    </button>
+                    </Button>
                     {isOpen ? (
                       <ul className="space-y-1 px-4 ">
                         {week.topics.map((topic, idx) => (
@@ -117,13 +118,13 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
                 )
               })}
             </div>
-            <button
+            <Button
               type="button"
               onClick={() => setExpandAll(true)}
-              className="mt-4 w-full rounded-md border border-primary text-primary py-3 md:text-lg font-medium text-heading hover:bg-[#F7F7FA]"
+              className="mt-4 w-full rounded-md border border-primary bg-transparent py-3 font-medium text-heading text-primary shadow-none hover:translate-y-0 hover:bg-[#F7F7FA] hover:from-[#F7F7FA] hover:to-[#F7F7FA] md:text-lg"
             >
               View All Modules
-            </button>
+            </Button>
           </section>
 
           <section id="course-description" className="mb-10">
@@ -178,12 +179,12 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
               </article>
             ))}
 
-            <button
+            <Button
               type="button"
-              className="rounded-md border-[2px] border-[#E5E7EB]  px-5 py-2 md:text-sm font-medium text-heading hover:bg-[#F7F7FA] md:w-fit w-full"
+              className="w-full rounded-md border-[2px] border-[#E5E7EB] bg-transparent px-5 py-2 font-medium text-heading shadow-none hover:translate-y-0 hover:bg-[#F7F7FA] hover:from-[#F7F7FA] hover:to-[#F7F7FA] md:w-fit md:text-sm"
             >
               See all reviews
-            </button>
+            </Button>
           </section>
         </div>
 
@@ -195,12 +196,18 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
             <div className="md:p-6 p-4">
               <p className="text-[28px] md:text-[32px] font-bold text-primary md:mb-4">{course.price}</p>
               <p className="mb-4 text-sm text-[#B83092]">2 days left at this price!</p>
-              <button className="md:mb-3 mb-4 w-full rounded-md bg-primary py-3 md:text-lg font-medium text-white hover:bg-[#232A59]">
+              <Button
+                type="button"
+                className="mb-4 w-full rounded-md bg-primary py-3 font-medium text-white hover:translate-y-0 hover:bg-[#232A59] hover:from-[#232A59] hover:to-[#232A59] md:mb-3 md:text-lg"
+              >
                 Add to Cart
-              </button>
-              <button className="mb-4 w-full rounded-md border border-primary py-3 md:text-lg font-semibold text-primary hover:bg-[#F8F8FA]">
+              </Button>
+              <Button
+                type="button"
+                className="mb-4 w-full rounded-md border border-primary bg-transparent py-3 font-semibold text-primary shadow-none hover:translate-y-0 hover:bg-[#F8F8FA] hover:from-[#F8F8FA] hover:to-[#F8F8FA] md:text-lg"
+              >
                 Buy Now
-              </button>
+              </Button>
 
               <p className="mb-2 text-sm font-semibold text-heading">This course includes</p>
               <ul className="space-y-2 text-sm text-[#474348]">

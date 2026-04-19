@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
+import { Button } from '@/components/ui/Button'
 
 export default function CheckoutSection() {
   return (
@@ -79,12 +80,12 @@ export default function CheckoutSection() {
               </div>
             </div>
 
-            <button
+            <Button
               type="button"
-              className="mt-2 w-full rounded-lg bg-primary px-6 py-3 text-lg font-medium text-white hover:bg-[#232A59]"
+              className="mt-2 w-full rounded-lg bg-primary px-6 py-3 text-lg font-medium text-white hover:translate-y-0 hover:bg-[#232A59] hover:from-[#232A59] hover:to-[#232A59]"
             >
               Pay $220
-            </button>
+            </Button>
           </form>
         </div>
 
