@@ -10,6 +10,30 @@ import tobamsgroup from './tobamsgroup.png'
 import tobamslogic from './tobamslogic.png'
 import jitenewton from './jitenewton.png'
 import logo from './logo.png'
+import newLogo from './newLogo.png'
+import tunnel from './Tunnel.png'
+import newHero from './newHero.jpg'
+import course1 from './c1.png'
+import course2 from './c2.jpg'
+import course3 from './c3.jpg'
+import course4 from './c4.jpg'
+import gridBg from './grid-bg.png'
+import contentBg from './Contents.png'
+import levelUp from './levelup.jpg'
+import getInfo from './get-info.png'
+import footerLogo from './footer-logo.png'
+import purpleFrame from './purple-frame.png'
+import mobileContents from './mobile-contents.png'
+import aboutHero from './about-hero.jpg'
+import aboutSplit from './about-split.jpg'
+import corporateHero from './CP-hero.png'
+import linePattern from './Line-pattern.png'
+import selfLearning from './CP-Content1.png'
+import faceToFace from './CP-Content2.png'
+import smarterLearning from './SM.jpg'
+import smartGrid from './SM-Grid.png'
+import contact from './Contact.png'
+import courseHero from './course-hero.jpg'
 
 export const IMAGES = {
   accelerate,
@@ -23,5 +47,29 @@ export const IMAGES = {
   logo,
   tobamsgroup,
   tobamslogic,
-  jitenewton
+  jitenewton,
+  newLogo,
+  tunnel,
+  newHero,
+  course1,
+  course2,
+  course3,
+  course4,
+  gridBg,
+  contentBg,
+  levelUp, 
+  getInfo,
+  footerLogo,
+  purpleFrame,
+  mobileContents,
+  aboutHero,
+  aboutSplit,
+  corporateHero,
+  linePattern,
+  selfLearning,
+  faceToFace,
+  smarterLearning,
+  smartGrid,
+  contact,
+  courseHero
 };

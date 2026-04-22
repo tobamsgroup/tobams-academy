@@ -3,13 +3,19 @@
 
 @theme {
   /* Brand colors */
-  --color-primary: #252A64;
+  --color-primary: #303869;
   --color-secondary: #EF4353;
   --color-accent: #f97316;
 
-  /* Font families */
-  --font-heading: "Google Sans", "Nunito Sans", sans-serif;
-  --font-body: var(--font-nunito), "Nunito Sans", sans-serif;
+  /* Text & accent (use as text-heading, bg-accent-pink, text-body, etc.) */
+  --color-heading: #221d23;
+  --color-accent-pink: #b83092;
+  --color-body: #474348;
+
+  /* Font families — Roboto (sans-serif). Use --font-sans so `font-sans` applies in Tailwind v4. */
+  --font-sans: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
 
   /* Custom animations */
   --animate-float: float 3s ease-in-out infinite;
@@ -29,12 +35,8 @@
 
 @layer base {
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-google-sans), var(--font-nunito), sans-serif;
+    font-family: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
   }
-}
-
-:root {
-  --font-google-sans: 'Google Sans', sans-serif;
 }
 
 @keyframes float {
