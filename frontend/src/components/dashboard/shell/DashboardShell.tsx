@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { DashboardSidebar } from './DashboardSidebar'
 import { DashboardHeader } from './DashboardHeader'
 import { DashboardMobileDrawer } from './DashboardMobileDrawer'
-import { getDashboardTitle } from './dashboard-titles'
+import { getDashboardMeta } from './dashboard-titles'
 
 export function DashboardShell({
   userName,
@@ -45,10 +45,16 @@ export function DashboardShell({
           mobileMenuOpen={mobileNavOpen}
         />
         <main className="min-h-0 flex-1 overflow-y-auto ">
-          <div className="px-4  py-4 md:hidden">
-            <h2 className="text-lg md:text-2xl font-bold text-heading">
-              {getDashboardTitle(pathname)}
-            </h2>
+          <div className="px-4 py-4 md:hidden">
+            {(() => {
+              const { title, subtitle } = getDashboardMeta(pathname)
+              return (
+                <>
+                  <h2 className="text-lg font-bold text-heading">{title}</h2>
+                  {subtitle && <p className="mt-0.5 text-sm text-[#696969]">{subtitle}</p>}
+                </>
+              )
+            })()}
           </div>
           {children}
         </main>

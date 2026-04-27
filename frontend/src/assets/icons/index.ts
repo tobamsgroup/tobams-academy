@@ -49,6 +49,16 @@ import DashboardBell from "./dashboard-icons/Bell";
 import DashboardCalendar from "./dashboard-icons/Calendar";
 import DashboardClock from "./dashboard-icons/Clock";
 import DashboardBook from "./dashboard-icons/Book";
+import DashboardProfile from "./dashboard-icons/Profile";
+import ProfileFacebook from "./profile-icons/Facebook";
+import ProfileInstagram from "./profile-icons/Instagram";
+import ProfileLinkedIn from "./profile-icons/LinkedIn";
+import ProfileTwitter from "./profile-icons/Twitter";
+import ProfilePenIcon from "./profile-icons/PenIcon";
+import ProfileSuccess from "./profile-icons/Success";
+import ProfileFailed from "./profile-icons/Failed";
+import ProfileMail from "./profile-icons/Mail";
+import ProfilePhone from "./profile-icons/Phone";
 
 export const ICONS = {
     Thunder,
@@ -102,4 +112,14 @@ export const ICONS = {
     DashboardCalendar,
     DashboardClock,
     DashboardBook,
+    DashboardProfile,
+    ProfileFacebook,
+    ProfileInstagram,
+    ProfileLinkedIn,
+    ProfileTwitter,
+    ProfilePenIcon,
+    ProfileSuccess,
+    ProfileFailed,
+    ProfileMail,
+    ProfilePhone,
 }
