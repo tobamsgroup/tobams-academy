@@ -8,7 +8,6 @@ import { IMAGES } from "@/assets/images";
 import { ICONS } from "@/assets/icons";
 import { Button } from "../ui/Button";
 
-// ─── Data ────────────────────────────────────────────────────────────────────
 
 
 const COURSES = [
