@@ -37,6 +37,28 @@ import BookDownload from "./courses-icons/bookDownload";
 import Device from "./courses-icons/Device";
 import Lifebuoy from "./courses-icons/Lifebuoy";
 import Certificate from "./courses-icons/Certificate";
+import Dashboard from "./dashboard-icons/dashboard";
+import DashboardCourses from "./dashboard-icons/Courses";
+import DashboardPayment from "./dashboard-icons/Payment";
+import DashboardLearning from "./dashboard-icons/Learning";
+import DashboardSupport from "./dashboard-icons/Support";
+import DashboardSettings from "./dashboard-icons/Settings";
+import DashboardQuestion from "./dashboard-icons/Question";
+import DashboardLogout from "./dashboard-icons/Logout";
+import DashboardBell from "./dashboard-icons/Bell";
+import DashboardCalendar from "./dashboard-icons/Calendar";
+import DashboardClock from "./dashboard-icons/Clock";
+import DashboardBook from "./dashboard-icons/Book";
+import DashboardProfile from "./dashboard-icons/Profile";
+import ProfileFacebook from "./profile-icons/Facebook";
+import ProfileInstagram from "./profile-icons/Instagram";
+import ProfileLinkedIn from "./profile-icons/LinkedIn";
+import ProfileTwitter from "./profile-icons/Twitter";
+import ProfilePenIcon from "./profile-icons/PenIcon";
+import ProfileSuccess from "./profile-icons/Success";
+import ProfileFailed from "./profile-icons/Failed";
+import ProfileMail from "./profile-icons/Mail";
+import ProfilePhone from "./profile-icons/Phone";
 
 export const ICONS = {
     Thunder,
@@ -78,4 +100,26 @@ export const ICONS = {
     Device,
     Lifebuoy,
     Certificate,
+    Dashboard,
+    DashboardCourses,
+    DashboardPayment,
+    DashboardLearning,
+    DashboardSupport,
+    DashboardSettings,
+    DashboardQuestion,
+    DashboardLogout,
+    DashboardBell,
+    DashboardCalendar,
+    DashboardClock,
+    DashboardBook,
+    DashboardProfile,
+    ProfileFacebook,
+    ProfileInstagram,
+    ProfileLinkedIn,
+    ProfileTwitter,
+    ProfilePenIcon,
+    ProfileSuccess,
+    ProfileFailed,
+    ProfileMail,
+    ProfilePhone,
 }

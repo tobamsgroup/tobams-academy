@@ -3,17 +3,13 @@ import { NextResponse } from 'next/server'
 
 const PUBLIC_PATHS = ['/', '/courses', '/login', '/register', '/forgot-password', '/verify-email']
 const ADMIN_PREFIX = '/admin'
-const AUTH_PATHS = ['/login', '/register']
 
 export default auth((req) => {
   const { pathname } = req.nextUrl
   const session = req.auth
   const isLoggedIn = !!session
 
-  // Redirect authenticated users away from auth pages
-  if (isLoggedIn && AUTH_PATHS.some((p) => pathname.startsWith(p))) {
-    return NextResponse.redirect(new URL('/dashboard', req.url))
-  }
+  // Auth pages (/login, /register, etc.) remain reachable while logged in (no redirect to /dashboard).
 
   // Protect admin routes
   if (pathname.startsWith(ADMIN_PREFIX)) {
@@ -24,9 +20,11 @@ export default auth((req) => {
   }
 
   // Protect all other non-public routes
-  const isPublic = PUBLIC_PATHS.some(
-    (p) => pathname === p || pathname.startsWith('/courses'),
-  )
+  // Dashboard is temporarily public (no login required) — tighten when auth is required.
+  const isPublic =
+    PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith('/courses')) ||
+    pathname === '/dashboard' ||
+    pathname.startsWith('/dashboard/')
   if (!isPublic && !isLoggedIn) {
     return NextResponse.redirect(new URL('/login', req.url))
   }

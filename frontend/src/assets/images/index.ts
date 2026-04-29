@@ -34,6 +34,8 @@ import smarterLearning from './SM.jpg'
 import smartGrid from './SM-Grid.png'
 import contact from './Contact.png'
 import courseHero from './course-hero.jpg'
+import wave from './Wave.png'
+import profile from './profile.png'
 
 export const IMAGES = {
   accelerate,
@@ -71,5 +73,7 @@ export const IMAGES = {
   smarterLearning,
   smartGrid,
   contact,
-  courseHero
+  courseHero,
+  wave,
+  profile
 };
