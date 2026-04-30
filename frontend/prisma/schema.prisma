@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String    @id @default(uuid())
+  email            String    @unique
+  name             String
+  passwordHash     String
+  role             Role      @default(LEARNER)
+  emailVerified    Boolean   @default(false)
+  verifyTokenHash  String?
+  resetTokenHash   String?
+  resetTokenExpiry DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  courses          Course[]
+
+  @@map("users")
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  courses   Course[]
+
+  @@map("categories")
+}
+
+model Course {
+  id           String         @id @default(uuid())
+  title        String
+  slug         String         @unique
+  description  String
+  thumbnail    String?
+  level        CourseLevel    @default(BEGINNER)
+  status       CourseStatus   @default(DRAFT)
+  isFeatured   Boolean        @default(false)
+  price        Decimal?       @db.Decimal(10, 2)
+  categoryId   String
+  instructorId String
+  category     Category       @relation(fields: [categoryId], references: [id])
+  instructor   User           @relation(fields: [instructorId], references: [id])
+  modules      CourseModule[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([categoryId])
+  @@index([instructorId])
+  @@index([status])
+  @@index([isFeatured])
+  @@map("courses")
+}
+
+model CourseModule {
+  id       String   @id @default(uuid())
+  title    String
+  position Int
+  courseId String
+  course   Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons  Lesson[]
+
+  @@index([courseId])
+  @@map("course_modules")
+}
+
+model Lesson {
+  id       String       @id @default(uuid())
+  title    String
+  position Int
+  duration Int?
+  moduleId String
+  module   CourseModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@index([moduleId])
+  @@map("lessons")
+}
+
+enum Role {
+  LEARNER
+  INSTRUCTOR
+  ADMIN
+}
+
+enum CourseLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+}

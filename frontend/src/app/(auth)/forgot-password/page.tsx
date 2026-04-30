@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import axios from 'axios'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
@@ -13,11 +14,7 @@ export default function ForgotPasswordPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/forgot-password`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
-    })
+    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/forgot-password`, { email }).catch(() => {})
     setLoading(false)
     setSent(true)
   }

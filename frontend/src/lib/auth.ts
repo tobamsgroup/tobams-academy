@@ -1,17 +1,20 @@
-import NextAuth from 'next-auth'
+import NextAuth, { CredentialsSignin } from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
+import { prisma } from './prisma'
+import { comparePassword } from './auth-helpers'
+import { signTokens } from './jwt'
+import { authConfig } from './auth.config'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1'
+class InvalidCredentials extends CredentialsSignin {
+  code = 'invalid_credentials'
+}
 
-interface ExtendedUser {
-  id: string
-  name: string
-  email: string
-  role: 'LEARNER' | 'INSTRUCTOR' | 'ADMIN'
-  accessToken: string
+class EmailNotVerified extends CredentialsSignin {
+  code = 'email_not_verified'
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   providers: [
     Credentials({
       credentials: {
@@ -19,46 +22,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        const res = await fetch(`${API_URL}/auth/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: credentials.email,
-            password: credentials.password,
-          }),
-        })
+        const email = credentials?.email as string | undefined
+        const password = credentials?.password as string | undefined
+        if (!email || !password) throw new InvalidCredentials()
 
-        if (!res.ok) return null
+        const user = await prisma.user.findUnique({ where: { email } })
+        if (!user) throw new InvalidCredentials()
 
-        const { data } = await res.json() as { data: { user: { id: string; name: string; email: string; role: string }; accessToken: string } }
+        const match = await comparePassword(password, user.passwordHash)
+        if (!match) throw new InvalidCredentials()
+
+        if (!user.emailVerified) throw new EmailNotVerified()
+
+        const { accessToken } = signTokens(user.id, user.email, user.role)
+
         return {
-          id: data.user.id,
-          name: data.user.name,
-          email: data.user.email,
-          role: data.user.role,
-          accessToken: data.accessToken,
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          accessToken,
         }
       },
     }),
   ],
-  callbacks: {
-    jwt({ token, user }) {
-      if (user) {
-        token.id = user.id
-        const extUser = user as unknown as ExtendedUser
-        token.role = extUser.role
-        token.accessToken = extUser.accessToken
-      }
-      return token
-    },
-    session({ session, token }) {
-      session.user.id = token.id as string
-      session.user.role = token.role as 'LEARNER' | 'INSTRUCTOR' | 'ADMIN'
-      session.accessToken = token.accessToken as string
-      return session
-    },
-  },
-  pages: {
-    signIn: '/login',
-  },
 })

@@ -55,7 +55,7 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
                 type="button"
                 onClick={() => jumpTo(tab.id)}
                 className={`rounded-lg px-3 py-2.5 text-lg font-normal shadow-none hover:translate-y-0 hover:shadow-none ${
-                  activeTab === tab.id ? 'bg-[#EEF0F6] text-primary' : 'text-[#221D23]'
+                  activeTab === tab.id ? 'bg-[#EEF0F6] text-primary' : 'text-[#221D23] bg-white'
                 }`}
               >
                 {tab.label}
@@ -81,7 +81,7 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
               <Button
                 type="button"
                 onClick={() => setExpandAll((v) => !v)}
-                className="px-0 py-0 text-sm font-normal text-primary shadow-none hover:translate-y-0 hover:bg-transparent hover:from-transparent hover:to-transparent hover:shadow-none hover:underline"
+                className="px-0 py-0 text-sm font-normal text-primary shadow-none hover:translate-y-0 hover:bg-transparent hover:from-transparent hover:to-transparent hover:shadow-none hover:underline bg-transparent"
               >
                 {expandAll ? 'Collapse all sections' : 'Expand all sections'}
               </Button>
@@ -95,12 +95,12 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
                     <Button
                       type="button"
                       onClick={() => setOpenWeek(isOpen ? null : week.week)}
-                      className="flex w-full items-center justify-between rounded-none px-4 py-3 text-left font-normal shadow-none hover:translate-y-0 hover:bg-[#F8F8FA] hover:from-[#F8F8FA] hover:to-[#F8F8FA] hover:shadow-none"
+                      className="flex w-full items-center justify-between rounded-none px-4 py-3 text-left font-normal shadow-none hover:translate-y-0 hover:bg-[#F8F8FA] hover:from-[#F8F8FA] hover:to-[#F8F8FA] hover:shadow-none bg-transparent"
                     >
                         <p className="text-lg font-medium text-heading">{week.title}</p>
                       <div className="flex items-center gap-2">
                       <p className="text-sm text-heading hidden md:block">
-                          {week.topics.length} lectures • {course.duration}
+                          {week.topics.length} lectures
                         </p>
                       <ChevronDown className={`h-4 w-4 text-[#696969] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                       </div>

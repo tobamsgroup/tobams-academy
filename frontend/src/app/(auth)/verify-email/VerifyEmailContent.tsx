@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { CheckCircle, XCircle } from 'lucide-react'
+import axios from 'axios'
 
 export function VerifyEmailContent() {
   const params = useSearchParams()
@@ -14,8 +15,8 @@ export function VerifyEmailContent() {
     const verify = async () => {
       if (!token) { setStatus('error'); return }
       try {
-        const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify-email?token=${token}`, { method: 'POST' })
-        setStatus(r.ok ? 'success' : 'error')
+        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify-email?token=${token}`)
+        setStatus('success')
       } catch {
         setStatus('error')
       }

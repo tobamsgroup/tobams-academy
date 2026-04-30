@@ -21,7 +21,11 @@ export default function LoginPage() {
     const result = await signIn('credentials', { email, password, redirect: false })
     setLoading(false)
     if (result?.error) {
-      setError('Invalid email or password')
+      const messages: Record<string, string> = {
+        email_not_verified: 'Please verify your email before logging in',
+        invalid_credentials: 'Invalid email or password',
+      }
+      setError(messages[result.code ?? ''] ?? 'Invalid email or password')
     } else {
       router.push('/dashboard')
     }

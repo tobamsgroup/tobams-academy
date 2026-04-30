@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import axios from 'axios'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -16,17 +17,16 @@ export default function RegisterPage() {
     e.preventDefault()
     setError('')
     setLoading(true)
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    })
-    setLoading(false)
-    if (!res.ok) {
-      const data = await res.json()
-      setError(data?.message ?? 'Registration failed')
-    } else {
+    try {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, form)
       router.push('/login?registered=1')
+    } catch (e) {
+      const message = axios.isAxiosError(e)
+        ? (e.response?.data?.message ?? 'Registration failed')
+        : 'Registration failed'
+      setError(message)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -42,7 +42,7 @@ export default function RegisterPage() {
         <Button type="submit" loading={loading} className="w-full">Create Account</Button>
       </form>
       <p className="mt-5 text-center text-sm text-slate-500">
-        Already have an account?{' '}
+        Already have an accountd?{' '}
         <Link href="/login" className="font-semibold text-[#571244] hover:underline">Sign in</Link>
       </p>
     </>

@@ -6,3 +6,5 @@ dist/
 .superpowers/
 *.log
 .worktrees/
+.claude
+.cursor
