@@ -7,7 +7,7 @@ const titles: Record<string, PageMeta> = {
   '/dashboard': { title: 'Dashboard' },
   '/dashboard/courses': { title: 'Courses' },
   '/dashboard/courses/explore': { title: 'Explore Courses' },
-  '/dashboard/payment': { title: 'Payment' },
+  '/dashboard/payment': { title: 'Payment History', subtitle: 'View and manage your purchases.' },
   '/dashboard/learning-progress': {
     title: 'Learning Progress',
     subtitle: "Here's how you're progressing in your courses. Keep learning, you're doing great!",
@@ -25,6 +25,9 @@ export function getDashboardMeta(pathname: string): PageMeta {
   }
   if (pathname.startsWith('/dashboard/courses/')) {
     return { title: 'Courses' }
+  }
+  if (pathname.startsWith('/dashboard/payment/')) {
+    return { title: 'Payment Summary' }
   }
   return { title: 'Dashboard' }
 }
