@@ -44,9 +44,9 @@ export function DashboardHeader({
         </div>
 
         <div className="flex items-center gap-2 md:gap-4">
-          <button type="button" className={iconBtn} aria-label="Notifications">
+          <Link href="/dashboard/notifications" className={iconBtn} aria-label="Notifications">
             <ICONS.DashboardBell />
-          </button>
+          </Link>
           <button type="button" className={iconBtn} aria-label="Help">
             <ICONS.DashboardQuestion />
           </button>

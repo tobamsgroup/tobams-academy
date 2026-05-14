@@ -64,6 +64,9 @@ import PaymentDate from "./payment-icons/Date";
 import PaymentFlash from "./payment-icons/Flash";
 import PaymentUpload from "./payment-icons/Upload";
 import PaymentMenu from "./payment-icons/Menu";
+import Progress from "./Progress";
+import Sort from "./Sort";
+import Check from "./Check";
 
 export const ICONS = {
     Thunder,
@@ -132,4 +135,7 @@ export const ICONS = {
     PaymentFlash,
     PaymentUpload,
     PaymentMenu,
+    Progress,
+    Sort,
+    Check,
 }

@@ -36,6 +36,7 @@ import contact from './Contact.png'
 import courseHero from './course-hero.jpg'
 import wave from './Wave.png'
 import profile from './profile.png'
+import books from './books.png'
 
 export const IMAGES = {
   accelerate,
@@ -75,5 +76,6 @@ export const IMAGES = {
   contact,
   courseHero,
   wave,
-  profile
+  profile,
+  books
 };

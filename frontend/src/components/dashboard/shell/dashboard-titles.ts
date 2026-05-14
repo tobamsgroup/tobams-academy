@@ -5,7 +5,8 @@ export type PageMeta = {
 
 const titles: Record<string, PageMeta> = {
   '/dashboard': { title: 'Dashboard' },
-  '/dashboard/courses': { title: 'Courses' },
+  '/dashboard/courses': { title: 'My Courses', subtitle: 'Continue your learning journey' },
+  '/dashboard/courses/learning': { title: 'My Courses', subtitle: 'Continue your learning journey' },
   '/dashboard/courses/explore': { title: 'Explore Courses' },
   '/dashboard/payment': { title: 'Payment History', subtitle: 'View and manage your purchases.' },
   '/dashboard/learning-progress': {
@@ -15,6 +16,7 @@ const titles: Record<string, PageMeta> = {
   '/dashboard/profile': { title: 'Profile' },
   '/dashboard/settings': { title: 'Settings' },
   '/dashboard/support': { title: 'Support' },
+  '/dashboard/notifications': { title: 'Notifications', subtitle: 'Effortless Management: Stay Informed with Real-Time Notifications.' },
 }
 
 export function getDashboardMeta(pathname: string): PageMeta {
