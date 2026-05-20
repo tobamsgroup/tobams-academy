@@ -37,6 +37,7 @@ import courseHero from './course-hero.jpg'
 import wave from './Wave.png'
 import profile from './profile.png'
 import books from './books.png'
+import AudioFrame from './Audio-frame.png'
 
 export const IMAGES = {
   accelerate,
@@ -77,5 +78,6 @@ export const IMAGES = {
   courseHero,
   wave,
   profile,
-  books
+  books,
+  AudioFrame
 };

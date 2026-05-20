@@ -17,6 +17,11 @@ export function DashboardShell({
   const pathname = usePathname()
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
+  const showCoursePlayer = (() => {
+    const m = pathname.match(/^\/dashboard\/courses\/([^/]+)$/)
+    return Boolean(m?.[1] && m[1] !== 'learning')
+  })()
+
   useEffect(() => {
     setMobileNavOpen(false)
   }, [pathname])
@@ -32,31 +37,41 @@ export function DashboardShell({
 
   return (
     <div className="flex h-screen min-h-0 overflow-hidden">
-      <DashboardSidebar />
+      {!showCoursePlayer && <DashboardSidebar />}
       <DashboardMobileDrawer
-        open={mobileNavOpen}
+        open={mobileNavOpen && !showCoursePlayer}
         onClose={() => setMobileNavOpen(false)}
         userName={userName}
       />
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-        <DashboardHeader
-          userName={userName}
-          onMobileMenuClick={() => setMobileNavOpen((o) => !o)}
-          mobileMenuOpen={mobileNavOpen}
-        />
-        <main className="min-h-0 flex-1 overflow-y-auto ">
-          <div className="px-4 py-4 md:hidden">
-            {(() => {
-              const { title, subtitle } = getDashboardMeta(pathname)
-              return (
-                <>
-                  <h2 className="text-lg font-bold text-heading">{title}</h2>
-                  {subtitle && <p className="mt-0.5 text-sm text-[#696969]">{subtitle}</p>}
-                </>
-              )
-            })()}
-          </div>
-          {children}
+        {!showCoursePlayer && (
+          <DashboardHeader
+            userName={userName}
+            onMobileMenuClick={() => setMobileNavOpen((o) => !o)}
+            mobileMenuOpen={mobileNavOpen}
+          />
+        )}
+        <main
+          className={
+            showCoursePlayer
+              ? 'min-h-0 flex-1 overflow-hidden p-0'
+              : 'min-h-0 flex-1 overflow-y-auto'
+          }
+        >
+          {!showCoursePlayer && (
+            <div className="px-4 py-4 md:hidden">
+              {(() => {
+                const { title, subtitle } = getDashboardMeta(pathname)
+                return (
+                  <>
+                    <h2 className="text-lg font-bold text-heading">{title}</h2>
+                    {subtitle && <p className="mt-0.5 text-sm text-[#696969]">{subtitle}</p>}
+                  </>
+                )
+              })()}
+            </div>
+          )}
+          <div className={showCoursePlayer ? 'h-full min-h-0' : undefined}>{children}</div>
         </main>
       </div>
     </div>

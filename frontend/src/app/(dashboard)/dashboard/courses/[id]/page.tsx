@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import EnrolledCourseDetailView from "@/components/dashboard/courses/EnrolledCourseDetailView";
+import CoursePlayerView from "@/components/dashboard/courses/course-player/CoursePlayerView";
 import { getEnrolledCourseById } from "@/components/dashboard/courses/courses-data";
 
 export default async function DashboardCourseDetailPage({
@@ -11,9 +11,5 @@ export default async function DashboardCourseDetailPage({
   const course = getEnrolledCourseById(id);
   if (!course) notFound();
 
-  return (
-    <div className="bg-[#FAFDFF] px-4 py-5 md:p-8">
-      <EnrolledCourseDetailView course={course} />
-    </div>
-  );
+  return <CoursePlayerView course={course} />;
 }
