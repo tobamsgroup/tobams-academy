@@ -51,8 +51,8 @@ export function InterestLiveHaulLessonContent({
               <Play className="ml-1 md:h-8 md:w-8 h-6 w-6 text-[#303869]" fill="currentColor" strokeWidth={0} />
             </button>
           </div>
-          <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-white/50">
-            <div className="h-full w-0 bg-emerald-500" />
+          <div className="absolute bottom-4 left-0 right-0 h-[13px] bg-white w-[95%] mx-auto rounded">
+            <div className="h-full w-[18%] bg-[#099137] rounded-l-[4px]" />
           </div>
         </div>
 
@@ -103,6 +103,7 @@ export function InterestLiveHaulLessonContent({
               <Maximize2 className="h-5 w-5" strokeWidth={2} />
             </button>
           </div>
+          
         </div>
 
         <div className="mt-6 flex w-full flex-col gap-10 items-start px-6 md:px-0">

@@ -38,7 +38,7 @@ export function DefaultLessonContent({
       </div>
 
       <div className="mx-auto mt-6 w-full md:px-6">
-        <div className="relative aspect-video w-full overflow-hidden bg-black">
+        <div className="relative h-[240px] md:h-[456px] w-full overflow-hidden bg-black">
           <Image
             src={course.thumbnail}
             alt=""
@@ -50,14 +50,14 @@ export function DefaultLessonContent({
           <div className="absolute inset-0 flex items-center justify-center bg-black/25">
             <button
               type="button"
-              className="flex h-16 w-16 items-center justify-center rounded-full bg-white/95 text-[#303869] shadow-lg transition-transform hover:scale-105"
+              className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-white/95 text-[#303869] shadow-lg transition-transform hover:scale-105"
               aria-label="Play video"
             >
-              <Play className="ml-1 h-8 w-8" fill="currentColor" strokeWidth={0} />
+              <Play className="ml-1 h-8 w-8" fill="#221D23" strokeWidth={0} />
             </button>
           </div>
-          <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-white/30">
-            <div className="h-full w-[18%] bg-emerald-500" />
+          <div className="absolute bottom-4 left-0 right-0 h-[13px] bg-white w-[90%] mx-auto rounded">
+            <div className="h-full w-[18%] bg-[#099137] rounded-l-[4px]" />
           </div>
         </div>
 

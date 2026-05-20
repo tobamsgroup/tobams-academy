@@ -24,7 +24,7 @@ export function GrowingMyMoneyQuizQuestions() {
   };
 
   return (
-    <div className="rounded-xl bg-white p-6 shadow-sm md:p-10">
+    <div className="rounded-xl border border-[#D3D2D333] bg-white p-6 md:p-8">
       <div className="space-y-10">
         {pageQuestions.map((question, idx) => {
           const number = pageIndex * GROWING_MY_MONEY_QUESTIONS_PER_PAGE + idx + 1;
