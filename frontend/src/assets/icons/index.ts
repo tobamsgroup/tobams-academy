@@ -67,6 +67,17 @@ import PaymentMenu from "./payment-icons/Menu";
 import Progress from "./Progress";
 import Sort from "./Sort";
 import Check from "./Check";
+import ManageFile from "./manage-icons/File";
+import ManageFilePencil from "./manage-icons/FilePencil";
+import ManageFileSearch from "./manage-icons/FileSearch";
+import ManagePdf from "./manage-icons/Pdf";
+import ManageVideo from "./manage-icons/Video";
+import ManageCancelVideo from "./manage-icons/CancelVideo";
+import ManagePlaylistAdd from "./manage-icons/PlaylistAdd";
+import ManagePause from "./manage-icons/Pause";
+import ManageReload from "./manage-icons/Reload";
+import ManageRotateClock from "./manage-icons/RotateClock";
+import ManageArrowsHorizontal from "./manage-icons/ArrowsHorizontal";
 
 export const ICONS = {
     Thunder,
@@ -138,4 +149,15 @@ export const ICONS = {
     Progress,
     Sort,
     Check,
+    ManageFile,
+    ManageFilePencil,
+    ManageFileSearch,
+    ManagePdf,
+    ManageVideo,
+    ManageCancelVideo,
+    ManagePlaylistAdd,
+    ManagePause,
+    ManageReload,
+    ManageRotateClock,
+    ManageArrowsHorizontal,
 }

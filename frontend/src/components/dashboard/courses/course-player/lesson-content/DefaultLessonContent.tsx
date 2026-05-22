@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import type { DefaultLessonContentProps } from "./types";
 import { VideoPlayerSettingsMenu } from "./VideoPlayerSettingsMenu";
+import { ICONS } from "@/assets/icons";
 
 export function DefaultLessonContent({
   course,
@@ -56,7 +57,7 @@ export function DefaultLessonContent({
               <Play className="ml-1 h-8 w-8" fill="#221D23" strokeWidth={0} />
             </button>
           </div>
-          <div className="absolute bottom-4 left-0 right-0 h-[13px] bg-white w-[90%] mx-auto rounded">
+          <div className="absolute bottom-4 left-0 right-0 h-[13px] bg-white w-[95%] mx-auto rounded">
             <div className="h-full w-[18%] bg-[#099137] rounded-l-[4px]" />
           </div>
         </div>
@@ -64,14 +65,14 @@ export function DefaultLessonContent({
         <div className="flex flex-nowrap items-center justify-between gap-2 bg-[#CCDBEB80] px-3 py-1 text-[#374151] md:flex-wrap md:gap-3">
           <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-1.5 md:gap-3">
             <button type="button" className="shrink-0 rounded p-1 hover:bg-black/5" aria-label="Pause">
-              <Pause className="h-5 w-5" fill="currentColor" />
+              <ICONS.ManagePause />
             </button>
             <button type="button" className="shrink-0 rounded p-1 hover:bg-black/5" aria-label="Back 10 seconds">
-              <RotateCcw className="h-4 w-4" strokeWidth={2} />
+              <ICONS.ManageReload />
             </button>
             <span className="shrink-0 rounded border border-[#C4C4C4] bg-white px-2 py-0.5 text-xs font-medium">1x</span>
             <button type="button" className="shrink-0 rounded p-1 hover:bg-black/5" aria-label="Forward 10 seconds">
-              <RotateCw className="h-4 w-4" strokeWidth={2} />
+              <ICONS.ManageRotateClock />
             </button>
             <span className="min-w-0 shrink truncate text-[11px] font-medium tabular-nums text-[#4B5563] md:text-xs">
               0:00/1:23
@@ -81,7 +82,7 @@ export function DefaultLessonContent({
               className="hidden shrink-0 rounded p-1 hover:bg-black/5 md:inline-flex"
               aria-label="Playlist"
             >
-              <ListVideo className="h-5 w-5" strokeWidth={2} />
+              <ICONS.ManagePlaylistAdd/>
             </button>
           </div>
           <div className="flex shrink-0 items-center gap-0.5 md:gap-2">
@@ -97,12 +98,13 @@ export function DefaultLessonContent({
               className="hidden rounded p-1 hover:bg-black/5 md:inline-flex"
               aria-label="Captions"
             >
-              <Subtitles className="h-5 w-5" strokeWidth={2} />
+              <ICONS.ManageFile />
             </button>
             <VideoPlayerSettingsMenu />
             <button type="button" className="rounded p-1 hover:bg-black/5" aria-label="Fullscreen">
               <Maximize2 className="h-5 w-5" strokeWidth={2} />
             </button>
+            <ICONS.ManageArrowsHorizontal />
           </div>
         </div>
 
