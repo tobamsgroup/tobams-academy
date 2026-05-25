@@ -59,6 +59,14 @@ import ProfileSuccess from "./profile-icons/Success";
 import ProfileFailed from "./profile-icons/Failed";
 import ProfileMail from "./profile-icons/Mail";
 import ProfilePhone from "./profile-icons/Phone";
+import PaymentSearch from "./payment-icons/Search";
+import PaymentDate from "./payment-icons/Date";
+import PaymentFlash from "./payment-icons/Flash";
+import PaymentUpload from "./payment-icons/Upload";
+import PaymentMenu from "./payment-icons/Menu";
+import Progress from "./Progress";
+import Sort from "./Sort";
+import Check from "./Check";
 
 export const ICONS = {
     Thunder,
@@ -122,4 +130,12 @@ export const ICONS = {
     ProfileFailed,
     ProfileMail,
     ProfilePhone,
+    PaymentSearch,
+    PaymentDate,
+    PaymentFlash,
+    PaymentUpload,
+    PaymentMenu,
+    Progress,
+    Sort,
+    Check,
 }

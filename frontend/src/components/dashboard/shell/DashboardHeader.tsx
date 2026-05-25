@@ -25,7 +25,7 @@ export function DashboardHeader({
 
   return (
     <header className="shrink-0 border-b border-[#E5E7EB] bg-white">
-      <div className="flex h-14 items-center justify-between pr-4 md:h-[108px] md:px-6">
+      <div className="flex h-14 items-center justify-between pr-4 md:h-[108px] md:px-6 py-10 md:py-0">
         <Link href="/dashboard" className="flex shrink-0 items-center md:hidden" aria-label="Home">
           <Image
             src={IMAGES.newLogo}
@@ -44,9 +44,9 @@ export function DashboardHeader({
         </div>
 
         <div className="flex items-center gap-2 md:gap-4">
-          <button type="button" className={iconBtn} aria-label="Notifications">
+          <Link href="/dashboard/notifications" className={iconBtn} aria-label="Notifications">
             <ICONS.DashboardBell />
-          </button>
+          </Link>
           <button type="button" className={iconBtn} aria-label="Help">
             <ICONS.DashboardQuestion />
           </button>
@@ -57,7 +57,7 @@ export function DashboardHeader({
             aria-expanded={mobileMenuOpen ?? false}
             onClick={onMobileMenuClick}
           >
-            <Menu className="h-5 w-5" />
+            <Menu  />
           </button>
           <Link
             href="/dashboard/profile"

@@ -8,6 +8,20 @@ import { primaryNav, secondaryNav, type NavItem } from './nav-config'
 import { LogoutButton } from './LogoutButton'
 import { cn } from '@/lib/utils'
 
+/** Nested link active: courses siblings don't both highlight; other parents use prefix match. */
+function isNavChildActive(parentHref: string, childHref: string, pathname: string): boolean {
+  if (parentHref === '/dashboard/courses') {
+    if (childHref === '/dashboard/courses/explore') {
+      return pathname === childHref || pathname.startsWith(`${childHref}/`)
+    }
+    if (childHref === '/dashboard/courses') {
+      if (pathname.startsWith('/dashboard/courses/explore')) return false
+      return pathname === '/dashboard/courses' || pathname.startsWith('/dashboard/courses/')
+    }
+  }
+  return pathname === childHref || pathname.startsWith(`${childHref}/`)
+}
+
 function NavItemRow({
   item,
   onNavigate,
@@ -45,19 +59,27 @@ function NavItemRow({
         </button>
 
         {open && (
-          <div className="ml-[22px] mt-1 flex flex-col border-l-[3px] border-primary">
+          <div className="mt-1 flex flex-col gap-0.5 pl-4">
             {item.children.map((child) => {
-              const childActive = currentPath === child.href
+              const childActive = isNavChildActive(item.href, child.href, currentPath)
               return (
                 <Link
                   key={child.href}
                   href={child.href}
                   onClick={onNavigate}
                   className={cn(
-                    'py-2.5 pl-8 pr-4 text-sm font-medium transition-colors',
+                    'flex items-center gap-3 rounded-lg py-2.5 pr-3 text-sm font-medium transition-colors',
                     childActive ? 'text-primary' : 'text-[#221D23] hover:text-primary',
                   )}
                 >
+                  <span className="flex h-5 w-4 shrink-0 items-center justify-start" aria-hidden>
+                    <span
+                      className={cn(
+                        'h-5 w-[3px] shrink-0 rounded-full transition-colors',
+                        childActive ? 'bg-primary' : 'bg-transparent opacity-0',
+                      )}
+                    />
+                  </span>
                   {child.label}
                 </Link>
               )
