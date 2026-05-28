@@ -4,7 +4,7 @@ import { authConfig } from '@/lib/auth.config'
 
 const { auth } = NextAuth(authConfig)
 
-const PUBLIC_PATHS = ['/', '/courses', '/login', '/register', '/forgot-password', '/verify-email']
+const PUBLIC_PATHS = ['/', '/courses', '/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/otp']
 const ADMIN_PREFIX = '/admin'
 
 export default auth((req) => {

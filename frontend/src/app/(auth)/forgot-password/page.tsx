@@ -2,45 +2,77 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
-import axios from 'axios'
+import { useRouter } from 'next/navigation'
+import { ArrowLeft } from 'lucide-react'
+
+const inputClassName =
+  'h-10 w-full rounded-[8px] border border-[#474348] bg-[#FFFFFF00] px-3 text-sm text-heading outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15'
 
 export default function ForgotPasswordPage() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
-  const [sent, setSent] = useState(false)
+  const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError('')
     setLoading(true)
-    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/forgot-password`, { email }).catch(() => {})
-    setLoading(false)
-    setSent(true)
-  }
 
-  if (sent) {
-    return (
-      <div className="text-center">
-        <div className="mb-3 text-4xl">📬</div>
-        <h2 className="mb-2 text-xl font-bold text-slate-900">Check your email</h2>
-        <p className="text-sm text-slate-500">If that email exists, a reset link has been sent.</p>
-        <Link href="/login" className="mt-6 inline-block text-sm font-semibold text-[#571244] hover:underline">Back to login</Link>
-      </div>
-    )
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+
+      router.push(`/otp?flow=reset&email=${encodeURIComponent(email)}`)
+    } catch {
+      setError('Unable to send OTP. Please try again.')
+      setLoading(false)
+    }
   }
 
   return (
-    <>
-      <h1 className="mb-1 text-2xl font-bold text-slate-900">Reset password</h1>
-      <p className="mb-6 text-sm text-slate-500">We&apos;ll send a reset link to your email</p>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <Button type="submit" loading={loading} className="w-full">Send Reset Link</Button>
-      </form>
-      <p className="mt-5 text-center text-sm text-slate-500">
-        <Link href="/login" className="font-semibold text-[#571244] hover:underline">Back to login</Link>
-      </p>
-    </>
+    <main className="min-h-[calc(100vh-101px)] bg-[#fffbfb] px-5 py-10 md:px-14">
+      <Link href="/login" className="inline-flex items-center gap-4 text-sm font-medium text-heading">
+        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white">
+          <ArrowLeft size={18} aria-hidden="true" />
+        </span>
+        Back
+      </Link>
+
+      <section className="mx-auto mt-20 w-full max-w-[634px]">
+        <div className="text-center">
+          <h1 className="text-[32px] font-semibold leading-tight text-heading md:text-[56px]">Forgot Password?</h1>
+          <p className="mt-3 text-sm text-heading md:text-base">Enter your email below to receive your OTP</p>
+        </div>
+
+        {error && <div className="mt-6 rounded-lg bg-secondary/10 p-3 text-sm text-secondary">{error}</div>}
+
+        <form onSubmit={handleSubmit} className="mt-7">
+          <label className="block text-heading md:text-lg">
+            Email Address
+            <input
+              className={`${inputClassName} mt-2`}
+              type="email"
+              name="forgot-password-email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </label>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-7 h-12 w-full rounded-[8px] bg-primary font-medium text-white transition-colors hover:bg-[#252d5d] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {loading ? 'Sending OTP...' : 'Send OTP'}
+          </button>
+        </form>
+      </section>
+    </main>
   )
 }

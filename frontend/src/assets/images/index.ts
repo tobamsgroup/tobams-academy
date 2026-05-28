@@ -38,6 +38,15 @@ import wave from './Wave.png'
 import profile from './profile.png'
 import books from './books.png'
 import AudioFrame from './Audio-frame.png'
+import SignInHero from './register.jpg'
+import SignInBg from './Background-pattern.png'
+import LoginBg from './login.jpg'
+import Image1 from './image1.png'
+import Image2 from './image2.png'
+import Image3 from './image3.png'
+import Image4 from './image4.png'
+import Image5 from './image5.png'
+
 
 export const IMAGES = {
   accelerate,
@@ -79,5 +88,13 @@ export const IMAGES = {
   wave,
   profile,
   books,
-  AudioFrame
+  AudioFrame,
+  SignInHero,
+  SignInBg,
+  LoginBg,
+  Image1,
+  Image2,
+  Image3,
+  Image4,
+  Image5,
 };
