@@ -8,18 +8,26 @@ datasource db {
 }
 
 model User {
-  id               String    @id @default(uuid())
-  email            String    @unique
+  id               String         @id @default(uuid())
+  email            String         @unique
   name             String
   passwordHash     String
-  role             Role      @default(LEARNER)
-  emailVerified    Boolean   @default(false)
+  role             Role           @default(LEARNER)
+  emailVerified    Boolean        @default(false)
   verifyTokenHash  String?
   resetTokenHash   String?
   resetTokenExpiry DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  phone            String?
+  bio              String?
+  avatarUrl        String?
+  linkedinUrl      String?
+  facebookUrl      String?
+  instagramUrl     String?
+  xUrl             String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
   courses          Course[]
+  notifications    Notification[]
 
   @@map("users")
 }
@@ -83,10 +91,34 @@ model Lesson {
   @@map("lessons")
 }
 
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      NotificationType @default(SYSTEM)
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@index([userId])
+  @@index([userId, isRead])
+  @@map("notifications")
+}
+
 enum Role {
   LEARNER
   INSTRUCTOR
   ADMIN
+}
+
+enum NotificationType {
+  COURSE_UPDATE
+  ENROLLMENT
+  PAYMENT
+  SYSTEM
+  ANNOUNCEMENT
 }
 
 enum CourseLevel {
