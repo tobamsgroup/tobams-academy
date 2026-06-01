@@ -1,7 +1,19 @@
 import { PrismaClient } from '@prisma/client'
 
-const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient }
+const createPrismaClient = () => new PrismaClient()
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient()
+/** Singleton Prisma client — type is inferred from generated client (includes `notification`). */
+export type AppPrismaClient = ReturnType<typeof createPrismaClient>
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+const globalForPrisma = globalThis as unknown as {
+  prisma?: AppPrismaClient
+}
+
+export const prisma: AppPrismaClient = globalForPrisma.prisma ?? createPrismaClient()
+
+/** Notification model delegate (explicit export for stable typing in API routes). */
+export const notificationDb = prisma.notification
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = prisma
+}

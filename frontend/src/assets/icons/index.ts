@@ -59,6 +59,10 @@ import ProfileSuccess from "./profile-icons/Success";
 import ProfileFailed from "./profile-icons/Failed";
 import ProfileMail from "./profile-icons/Mail";
 import ProfilePhone from "./profile-icons/Phone";
+import ProfileClose from "./profile-icons/Close";
+import ProfileBackArrow from "./profile-icons/BackArrow";
+import ProfileUserPlaceholder from "./profile-icons/UserPlaceholder";
+import ProfileUpload from "./profile-icons/Upload";
 import PaymentSearch from "./payment-icons/Search";
 import PaymentDate from "./payment-icons/Date";
 import PaymentFlash from "./payment-icons/Flash";
@@ -143,6 +147,10 @@ export const ICONS = {
     ProfileFailed,
     ProfileMail,
     ProfilePhone,
+    ProfileClose,
+    ProfileBackArrow,
+    ProfileUserPlaceholder,
+    ProfileUpload,
     PaymentSearch,
     PaymentDate,
     PaymentFlash,

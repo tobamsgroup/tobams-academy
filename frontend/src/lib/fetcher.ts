@@ -15,3 +15,10 @@ export async function publicFetcher<T>(path: string): Promise<T> {
   const { data } = await axios.get<{ data: T }>(`${API_URL}${path}`)
   return data.data
 }
+
+export function createAuthedClient(accessToken?: string) {
+  return axios.create({
+    baseURL: API_URL,
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+  })
+}

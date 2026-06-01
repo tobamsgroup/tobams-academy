@@ -81,7 +81,7 @@ export function Navbar({ shadow = true }: NavbarProps) {
             <Link href="/corporate-training" className="py-1 text-slate-600 hover:text-primary" onClick={() => setOpen(false)}>Corporate Training</Link>
             <hr className="border-[#E5E7EB]" />
             <Link
-              href="/register"
+              href="/login"
               className="mt-12 rounded-lg bg-primary px-5 py-2.5 text-center font-bold text-white"
               onClick={() => setOpen(false)}
             >
