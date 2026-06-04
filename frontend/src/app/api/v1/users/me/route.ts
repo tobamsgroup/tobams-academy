@@ -8,6 +8,7 @@ const SAFE_FIELDS = [
   'id', 'email', 'name', 'role', 'emailVerified',
   'phone', 'bio', 'avatarUrl',
   'linkedinUrl', 'facebookUrl', 'instagramUrl', 'xUrl',
+  'twoFactorEnabled', 'isActive',
   'createdAt', 'updatedAt',
 ]
 

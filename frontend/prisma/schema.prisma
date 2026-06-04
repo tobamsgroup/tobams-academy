@@ -23,11 +23,18 @@ model User {
   linkedinUrl      String?
   facebookUrl      String?
   instagramUrl     String?
-  xUrl             String?
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  courses          Course[]
-  notifications    Notification[]
+  xUrl               String?
+  twoFactorEnabled   Boolean        @default(false)
+  twoFactorOtpHash   String?
+  twoFactorOtpExpiry DateTime?
+  isActive           Boolean        @default(true)
+  deactivatedAt      DateTime?
+  deactivationReason String?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  courses            Course[]
+  notifications      Notification[]
+  notificationPref   NotificationPreference?
 
   @@map("users")
 }
@@ -105,6 +112,30 @@ model Notification {
   @@index([userId])
   @@index([userId, isRead])
   @@map("notifications")
+}
+
+model NotificationPreference {
+  id                       String   @id @default(uuid())
+  userId                   String   @unique
+  user                     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  registrationSetupEmail   Boolean  @default(true)
+  registrationSetupInApp   Boolean  @default(true)
+  enrollmentConfirmEmail   Boolean  @default(true)
+  enrollmentConfirmInApp   Boolean  @default(true)
+  courseUpdatesEmail       Boolean  @default(true)
+  courseUpdatesInApp       Boolean  @default(true)
+  assessmentRemindersEmail Boolean  @default(false)
+  assessmentRemindersInApp Boolean  @default(true)
+  progressTrackingEmail    Boolean  @default(false)
+  progressTrackingInApp    Boolean  @default(true)
+  certificationAlertsEmail Boolean  @default(true)
+  certificationAlertsInApp Boolean  @default(true)
+  engagementPromptsEmail   Boolean  @default(true)
+  engagementPromptsInApp   Boolean  @default(true)
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  @@map("notification_preferences")
 }
 
 enum Role {

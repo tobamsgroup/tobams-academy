@@ -28,9 +28,7 @@ export const POST = withRoute('/api/v1/auth/register', async (req: NextRequest) 
     data: { email, name: name.trim(), passwordHash, verifyTokenHash },
   })
 
-  console.log({verifyTokenHash})
-
-  // await sendVerificationEmail(user.email, user.name, rawToken)
+  await sendVerificationEmail(user.email, user.name, rawToken)
 
   return ok(undefined, 'Registration successful. Please verify your email.')
 })

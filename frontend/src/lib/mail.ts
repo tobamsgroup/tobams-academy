@@ -12,18 +12,22 @@ const fromName = () => process.env.MAILJET_FROM_NAME ?? ''
 const clientUrl = () => process.env.CLIENT_URL ?? 'http://localhost:3000'
 
 async function send(to: string, toName: string, subject: string, html: string) {
-  await getClient()
-    .post('send', { version: 'v3.1' })
-    .request({
-      Messages: [
-        {
-          From: { Email: fromEmail(), Name: fromName() },
-          To: [{ Email: to, Name: toName }],
-          Subject: subject,
-          HTMLPart: html,
-        },
-      ],
-    })
+  try {
+    await getClient()
+      .post('send', { version: 'v3.1' })
+      .request({
+        Messages: [
+          {
+            From: { Email: fromEmail(), Name: fromName() },
+            To: [{ Email: to, Name: toName }],
+            Subject: subject,
+            HTMLPart: html,
+          },
+        ],
+      })
+  } catch (error) {
+    console.error('[mail] Failed to send email to', to, error instanceof Error ? error.message : error)
+  }
 }
 
 export async function sendVerificationEmail(to: string, name: string, token: string) {
@@ -37,6 +41,27 @@ export async function sendVerificationEmail(to: string, name: string, token: str
     <p>This link expires in 24 hours.</p>
   `
   await send(to, name, 'Verify your Tobams Academy email', html)
+}
+
+export async function sendTwoFactorOtpEmail(to: string, name: string, otp: string) {
+  const html = `
+    <h2>Your Tobams Academy login code</h2>
+    <p>Hi ${name}, use the code below to complete your sign-in.</p>
+    <div style="margin:24px 0;font-size:36px;font-weight:bold;letter-spacing:8px;color:#1e2d5a;">${otp}</div>
+    <p>This code expires in <strong>10 minutes</strong>. Do not share it with anyone.</p>
+    <p>If you did not attempt to log in, please secure your account immediately.</p>
+  `
+  await send(to, name, 'Your Tobams Academy login verification code', html)
+}
+
+export async function sendAccountDeactivationEmail(to: string, name: string) {
+  const html = `
+    <h2>Your Tobams Academy account has been deactivated</h2>
+    <p>Hi ${name}, your account has been deactivated as requested.</p>
+    <p>You can reactivate it at any time by simply logging in again with your existing credentials.</p>
+    <p>If you did not request this, please contact our support team immediately.</p>
+  `
+  await send(to, name, 'Your Tobams Academy account has been deactivated', html)
 }
 
 export async function sendPasswordResetEmail(to: string, name: string, token: string) {
