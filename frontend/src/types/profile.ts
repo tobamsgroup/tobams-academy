@@ -15,6 +15,7 @@ export interface UserProfile {
   facebookUrl: string | null
   instagramUrl: string | null
   xUrl: string | null
+  twoFactorEnabled: boolean
   createdAt: string
   updatedAt: string
 }

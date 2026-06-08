@@ -84,6 +84,7 @@ import ManageRotateClock from "./manage-icons/RotateClock";
 import ManageArrowsHorizontal from "./manage-icons/ArrowsHorizontal";
 import StarsIcon from "./StarsIcon";
 import EyeFill from "./EyeFill";
+import SettingsEyeIcon from "./settings-icons/EyeIcon";
 
 export const ICONS = {
     Thunder,
@@ -172,4 +173,5 @@ export const ICONS = {
     ManageArrowsHorizontal,
     StarsIcon,
     EyeFill,
+    SettingsEyeIcon,
 }

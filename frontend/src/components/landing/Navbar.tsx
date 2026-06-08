@@ -53,7 +53,7 @@ export function Navbar({ shadow = true }: NavbarProps) {
             type="button"
             variant="primary"
             className="rounded-lg bg-gradient-to-r from-[#303869] to-[#303869] px-6 py-3 text-sm font-bold shadow-none hover:shadow-lg hover:shadow-primary/25"
-            onClick={() => router.push('/register')}
+            onClick={() => router.push('/login')}
           >
             Login
           </Button>

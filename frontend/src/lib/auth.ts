@@ -34,6 +34,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (!user.emailVerified) throw new EmailNotVerified()
 
+        if (user.deactivatedAt) throw new InvalidCredentials()
+
         const { accessToken } = signTokens(user.id, user.email, user.role)
 
         return {

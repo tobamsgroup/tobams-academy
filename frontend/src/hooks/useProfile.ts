@@ -7,6 +7,7 @@ import type {
   UpdateSocialLinksPayload,
   UserProfile,
 } from '@/types/profile'
+import type { ChangePasswordPayload, DeactivateAccountPayload, TwoFactorPayload } from '@/types/settings'
 
 export function useProfile() {
   const { data: session, status } = useSession()
@@ -43,6 +44,36 @@ export function useProfile() {
     [accessToken, mutate],
   )
 
+  const changePassword = useCallback(
+    async (payload: ChangePasswordPayload): Promise<void> => {
+      if (!accessToken) throw new Error('Not authenticated')
+      const client = createAuthedClient(accessToken)
+      await client.patch('/users/me/change-password', payload)
+    },
+    [accessToken],
+  )
+
+  const updateTwoFactor = useCallback(
+    async (payload: TwoFactorPayload): Promise<UserProfile> => {
+      if (!accessToken) throw new Error('Not authenticated')
+      const client = createAuthedClient(accessToken)
+      const res = await client.patch<{ data: UserProfile }>('/users/me/two-factor', payload)
+      const next = res.data.data
+      await mutate(next, { revalidate: false })
+      return next
+    },
+    [accessToken, mutate],
+  )
+
+  const deactivateAccount = useCallback(
+    async (payload: DeactivateAccountPayload): Promise<void> => {
+      if (!accessToken) throw new Error('Not authenticated')
+      const client = createAuthedClient(accessToken)
+      await client.post('/users/me/deactivate', payload)
+    },
+    [accessToken],
+  )
+
   return {
     profile: data,
     error,
@@ -51,5 +82,8 @@ export function useProfile() {
     mutate,
     updateProfile,
     updateSocialLinks,
+    changePassword,
+    updateTwoFactor,
+    deactivateAccount,
   }
 }
