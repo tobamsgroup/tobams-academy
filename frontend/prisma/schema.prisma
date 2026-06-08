@@ -29,10 +29,34 @@ model User {
   deactivationReason String?
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
-  courses          Course[]
-  notifications    Notification[]
+  courses                  Course[]
+  notifications            Notification[]
+  notificationPreference   NotificationPreference?
 
   @@map("users")
+}
+
+model NotificationPreference {
+  id                          String   @id @default(uuid())
+  userId                      String   @unique
+  registrationSetupEmail      Boolean  @default(true)
+  enrollmentConfirmationEmail Boolean  @default(true)
+  enrollmentConfirmationInApp Boolean  @default(true)
+  courseUpdatesEmail          Boolean  @default(true)
+  courseUpdatesInApp          Boolean  @default(true)
+  assessmentRemindersEmail    Boolean  @default(true)
+  assessmentRemindersInApp    Boolean  @default(true)
+  progressTrackingEmail       Boolean  @default(true)
+  progressTrackingInApp       Boolean  @default(true)
+  certificationAlertsEmail    Boolean  @default(true)
+  certificationAlertsInApp    Boolean  @default(true)
+  engagementPromptsEmail      Boolean  @default(true)
+  engagementPromptsInApp      Boolean  @default(true)
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+  user                        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notification_preferences")
 }
 
 model Category {
