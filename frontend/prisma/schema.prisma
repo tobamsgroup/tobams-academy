@@ -35,6 +35,8 @@ model User {
   courses            Course[]
   notifications      Notification[]
   notificationPref   NotificationPreference?
+  enrollments        Enrollment[]
+  quizAttempts       QuizAttempt[]
 
   @@map("users")
 }
@@ -64,6 +66,7 @@ model Course {
   category     Category       @relation(fields: [categoryId], references: [id])
   instructor   User           @relation(fields: [instructorId], references: [id])
   modules      CourseModule[]
+  enrollments  Enrollment[]
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 
@@ -87,15 +90,102 @@ model CourseModule {
 }
 
 model Lesson {
-  id       String       @id @default(uuid())
-  title    String
-  position Int
-  duration Int?
-  moduleId String
-  module   CourseModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  id         String         @id @default(uuid())
+  title      String
+  position   Int
+  duration   Int?
+  kind       LessonKind     @default(VIDEO)
+  contentUrl String?
+  contentKey String?
+  moduleId   String
+  module     CourseModule   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  quiz       Quiz?
+  progress   LessonProgress[]
 
   @@index([moduleId])
   @@map("lessons")
+}
+
+model Enrollment {
+  id             String           @id @default(uuid())
+  userId         String
+  courseId       String
+  enrolledAt     DateTime         @default(now())
+  completedAt    DateTime?
+  lastAccessedAt DateTime?
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course         Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessonProgress LessonProgress[]
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@map("enrollments")
+}
+
+model LessonProgress {
+  id           String     @id @default(uuid())
+  enrollmentId String
+  lessonId     String
+  completedAt  DateTime   @default(now())
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  lesson       Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([enrollmentId, lessonId])
+  @@index([enrollmentId])
+  @@map("lesson_progress")
+}
+
+model Quiz {
+  id              String         @id @default(uuid())
+  lessonId        String         @unique
+  timeLimit       Int
+  passingScore    Int
+  attemptsAllowed Int            @default(2)
+  questionType    String         @default("Multiple Choice")
+  lesson          Lesson         @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  questions       QuizQuestion[]
+  attempts        QuizAttempt[]
+
+  @@map("quizzes")
+}
+
+model QuizQuestion {
+  id       String       @id @default(uuid())
+  quizId   String
+  text     String
+  position Int
+  quiz     Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  options  QuizOption[]
+
+  @@index([quizId])
+  @@map("quiz_questions")
+}
+
+model QuizOption {
+  id         String       @id @default(uuid())
+  questionId String
+  text       String
+  isCorrect  Boolean      @default(false)
+  position   Int
+  question   QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+  @@map("quiz_options")
+}
+
+model QuizAttempt {
+  id          String   @id @default(uuid())
+  quizId      String
+  userId      String
+  score       Int
+  isPassed    Boolean
+  answers     Json
+  completedAt DateTime @default(now())
+  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([quizId, userId])
+  @@map("quiz_attempts")
 }
 
 model Notification {
@@ -161,4 +251,13 @@ enum CourseLevel {
 enum CourseStatus {
   DRAFT
   PUBLISHED
+}
+
+enum LessonKind {
+  VIDEO
+  DOC
+  PDF
+  SCREEN
+  QUIZ
+  ASSESSMENT
 }
