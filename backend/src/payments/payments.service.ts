@@ -5,6 +5,9 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
+import { PaymentFilterDto } from './dto/payment-filter.dto';
+import { DATE_RANGE_MAP } from './constants/date-range-map';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class PaymentService {
@@ -66,6 +69,77 @@ export class PaymentService {
       message: 'Course enrollment successful',
     };
   }
+
+  async findAll(userId: string, query: PaymentFilterDto) {
+    const { status, courseName, range, page = '1', limit = '10' } = query;
+
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+
+    const now = new Date();
+    const fromDate = new Date();
+
+    if (range) {
+      const days = DATE_RANGE_MAP[range];
+      fromDate.setDate(now.getDate() - days);
+    }
+
+    const where: Prisma.PaymentWhereInput = {
+      userId,
+
+      ...(status && { status }),
+
+      ...(range && {
+        createdAt: {
+          gte: fromDate,
+          lte: now,
+        },
+      }),
+
+      ...(courseName && {
+        course: {
+          title: {
+            contains: courseName,
+            mode: 'insensitive',
+          },
+        },
+      }),
+    };
+
+    const data = await this.prisma.payment.findMany({
+      where,
+      skip: (pageNumber - 1) * limitNumber,
+      take: limitNumber,
+      orderBy: {
+        createdAt: 'desc',
+      },
+      select: {
+        id: true,
+        amount: true,
+        status: true,
+        createdAt: true,
+        course: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+      },
+    });
+
+    const total = await this.prisma.payment.count({ where });
+
+    return {
+      data,
+      meta: {
+        total,
+        page: pageNumber,
+        limit: limitNumber,
+        totalPages: Math.ceil(total / limitNumber),
+      },
+    };
+  }
+
   async remove(userId: string, id: string) {
     const payment = await this.prisma.payment.findFirst({
       where: { id, userId },
