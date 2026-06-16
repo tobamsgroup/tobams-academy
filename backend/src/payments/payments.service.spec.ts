@@ -19,7 +19,7 @@ const mockPayment = {
   courseId: 'c1',
   amount: 0,
   status: 'COMPLETED',
-  reference: 'FREE_COURSE_ENROLLMENT',
+  reference: 'FREE-123456',
 };
 
 type MockTx = typeof mockPrisma;
@@ -27,7 +27,7 @@ type MockTx = typeof mockPrisma;
 const mockPrisma: {
   course: { findUnique: jest.Mock };
   enrollment: { findUnique: jest.Mock; create: jest.Mock };
-  payment: { create: jest.Mock };
+  payment: { create: jest.Mock; findFirst: jest.Mock; delete: jest.Mock };
   $transaction: jest.Mock;
 } = {
   course: {
@@ -41,6 +41,8 @@ const mockPrisma: {
 
   payment: {
     create: jest.fn(),
+    findFirst: jest.fn(),
+    delete: jest.fn(),
   },
 
   $transaction: jest.fn((cb: (tx: MockTx) => unknown) => {
@@ -108,5 +110,55 @@ describe('PaymentService - create', () => {
     await expect(service.create('u1', { courseId: 'c1' })).rejects.toThrow(
       'You are already enrolled in this course',
     );
+  });
+});
+
+describe('PaymentService - remove', () => {
+  let service: PaymentService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        PaymentService,
+        { provide: PrismaService, useValue: mockPrisma },
+      ],
+    }).compile();
+
+    service = module.get<PaymentService>(PaymentService);
+
+    jest.clearAllMocks();
+  });
+
+  it('deletes payment history successfully', async () => {
+    mockPrisma.payment.findFirst.mockResolvedValue(mockPayment);
+
+    mockPrisma.payment.delete.mockResolvedValue(mockPayment);
+
+    const result = await service.remove('u1', 'p1');
+
+    expect(result.message).toBe('Payment Record Successfully Deleted');
+
+    expect(mockPrisma.payment.findFirst).toHaveBeenCalledWith({
+      where: {
+        id: 'p1',
+        userId: 'u1',
+      },
+    });
+
+    expect(mockPrisma.payment.delete).toHaveBeenCalledWith({
+      where: {
+        id: 'p1',
+      },
+    });
+  });
+
+  it('throws if payment history does not exist', async () => {
+    mockPrisma.payment.findFirst.mockResolvedValue(null);
+
+    await expect(service.remove('u1', 'p1')).rejects.toThrow(
+      'Payment not found',
+    );
+
+    expect(mockPrisma.payment.delete).not.toHaveBeenCalled();
   });
 });

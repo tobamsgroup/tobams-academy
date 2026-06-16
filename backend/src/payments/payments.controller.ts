@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Request } from '@nestjs/common';
+import { Controller, Post, Body, Request, Delete, Param } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { PaymentService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
@@ -14,5 +14,9 @@ export class PaymentController {
     @Body() dto: CreatePaymentDto,
   ) {
     return this.service.create(req.user.id, dto);
+  }
+  @Delete(':id')
+  remove(@Request() req: { user: { id: string } }, @Param('id') id: string) {
+    return this.service.remove(req.user.id, id);
   }
 }

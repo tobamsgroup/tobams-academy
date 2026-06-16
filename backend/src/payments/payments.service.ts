@@ -45,7 +45,7 @@ export class PaymentService {
           courseId,
           amount: 0,
           status: 'COMPLETED',
-          reference: 'FREE_COURSE_ENROLLMENT',
+          reference: `FREE-${crypto.randomUUID()}`,
         },
       });
 
@@ -65,5 +65,20 @@ export class PaymentService {
       },
       message: 'Course enrollment successful',
     };
+  }
+  async remove(userId: string, id: string) {
+    const payment = await this.prisma.payment.findFirst({
+      where: { id, userId },
+    });
+
+    if (!payment) {
+      throw new NotFoundException('Payment not found');
+    }
+
+    await this.prisma.payment.delete({
+      where: { id },
+    });
+
+    return { message: 'Payment Record Successfully Deleted' };
   }
 }
