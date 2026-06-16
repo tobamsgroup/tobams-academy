@@ -1,4 +1,10 @@
-import { Controller, Get, Param, Query, NotFoundException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Query,
+  NotFoundException,
+} from '@nestjs/common';
 import { ApiTags, ApiParam } from '@nestjs/swagger';
 import { CoursesService } from './courses.service';
 import { ListCoursesDto } from './dto/list-courses.dto';

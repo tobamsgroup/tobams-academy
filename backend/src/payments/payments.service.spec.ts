@@ -1,0 +1,112 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { PaymentService } from './payments.service';
+import { PrismaService } from '../prisma/prisma.service';
+
+const mockCourse = {
+  id: 'c1',
+  status: 'PUBLISHED',
+};
+
+const mockEnrollment = {
+  id: 'e1',
+  userId: 'u1',
+  courseId: 'c1',
+};
+
+const mockPayment = {
+  id: 'p1',
+  userId: 'u1',
+  courseId: 'c1',
+  amount: 0,
+  status: 'COMPLETED',
+  reference: 'FREE_COURSE_ENROLLMENT',
+};
+
+type MockTx = typeof mockPrisma;
+
+const mockPrisma: {
+  course: { findUnique: jest.Mock };
+  enrollment: { findUnique: jest.Mock; create: jest.Mock };
+  payment: { create: jest.Mock };
+  $transaction: jest.Mock;
+} = {
+  course: {
+    findUnique: jest.fn(),
+  },
+
+  enrollment: {
+    findUnique: jest.fn(),
+    create: jest.fn(),
+  },
+
+  payment: {
+    create: jest.fn(),
+  },
+
+  $transaction: jest.fn((cb: (tx: MockTx) => unknown) => {
+    return cb(mockPrisma);
+  }),
+};
+
+describe('PaymentService - create', () => {
+  let service: PaymentService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        PaymentService,
+        { provide: PrismaService, useValue: mockPrisma },
+      ],
+    }).compile();
+
+    service = module.get<PaymentService>(PaymentService);
+    jest.clearAllMocks();
+  });
+
+  // Successful enrollment edge case
+  it('creates payment and enrollment successfully', async () => {
+    mockPrisma.course.findUnique.mockResolvedValue(mockCourse);
+    mockPrisma.enrollment.findUnique.mockResolvedValue(null);
+
+    mockPrisma.payment.create.mockResolvedValue(mockPayment);
+    mockPrisma.enrollment.create.mockResolvedValue(mockEnrollment);
+
+    const result = await service.create('u1', { courseId: 'c1' });
+
+    expect(result.data.courseId).toBe('c1');
+
+    expect(mockPrisma.payment.create).toHaveBeenCalled();
+    expect(mockPrisma.enrollment.create).toHaveBeenCalled();
+  });
+
+  // Course not found edge case
+  it('throws if course does not exist', async () => {
+    mockPrisma.course.findUnique.mockResolvedValue(null);
+
+    await expect(service.create('u1', { courseId: 'c1' })).rejects.toThrow(
+      'Course not found',
+    );
+  });
+
+  // Course not published edge case
+  it('throws if course is not published', async () => {
+    mockPrisma.course.findUnique.mockResolvedValue({
+      id: 'c1',
+      status: 'DRAFT',
+    });
+
+    await expect(service.create('u1', { courseId: 'c1' })).rejects.toThrow(
+      'Course is not available for enrollment',
+    );
+  });
+
+  // User already enrolled in the course
+  it('throws if user already enrolled', async () => {
+    mockPrisma.course.findUnique.mockResolvedValue(mockCourse);
+    mockPrisma.enrollment.findUnique.mockResolvedValue(mockEnrollment);
+
+    await expect(service.create('u1', { courseId: 'c1' })).rejects.toThrow(
+      'You are already enrolled in this course',
+    );
+  });
+});

@@ -3,11 +3,24 @@ import { CoursesService } from './courses.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 const mockCourse = {
-  id: 'c1', title: 'Test Course', slug: 'test-course',
-  description: 'Desc', level: 'BEGINNER', status: 'PUBLISHED',
-  isFeatured: true, price: null, categoryId: 'cat1', instructorId: 'u1',
-  createdAt: new Date(), updatedAt: new Date(),
-  category: { id: 'cat1', name: 'Business', slug: 'business', createdAt: new Date() },
+  id: 'c1',
+  title: 'Test Course',
+  slug: 'test-course',
+  description: 'Desc',
+  level: 'BEGINNER',
+  status: 'PUBLISHED',
+  isFeatured: true,
+  price: null,
+  categoryId: 'cat1',
+  instructorId: 'u1',
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  category: {
+    id: 'cat1',
+    name: 'Business',
+    slug: 'business',
+    createdAt: new Date(),
+  },
   instructor: { id: 'u1', name: 'Jane', email: 'jane@test.com' },
   _count: { modules: 4 },
 };
@@ -42,7 +55,12 @@ describe('CoursesService', () => {
       const result = await service.findAll({ page: 1, limit: 12 });
 
       expect(result.data).toHaveLength(1);
-      expect(result.meta).toEqual({ total: 1, page: 1, limit: 12, totalPages: 1 });
+      expect(result.meta).toEqual({
+        total: 1,
+        page: 1,
+        limit: 12,
+        totalPages: 1,
+      });
     });
 
     it('applies search filter to where clause', async () => {
