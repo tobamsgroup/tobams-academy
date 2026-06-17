@@ -26,6 +26,12 @@ export class PaymentController {
     return this.service.create(req.user.id, dto);
   }
 
+  @ApiParam({ name: 'id', type: String })
+  @Get(':id')
+  findOne(@Request() req: { user: { id: string } }, @Param('id') id: string) {
+    return this.service.findOne(req.user.id, id);
+  }
+
   @Get()
   findAll(
     @Request() req: { user: { id: string } },

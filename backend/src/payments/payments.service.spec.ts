@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PaymentService } from './payments.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaymentStatus } from './dto/payment-filter.dto';
+import { NotFoundException } from '@nestjs/common/exceptions/not-found.exception';
 
 const mockCourse = {
   id: 'c1',
@@ -25,6 +26,33 @@ const mockPayment = {
   createdAt: new Date(),
 };
 
+const mockPaymentDetails = {
+  id: 'pay1',
+  userId: 'user1',
+  courseId: 'course1',
+  amount: 0,
+  status: 'SUCCESS',
+  paymentMethod: null,
+  transactionId: null,
+  createdAt: new Date(),
+
+  course: {
+    title: 'Node Course',
+    price: null,
+    instructor: {
+      name: 'John Doe',
+    },
+    modules: [
+      {
+        lessons: [{ duration: 10 }, { duration: 20 }],
+      },
+      {
+        lessons: [{ duration: 30 }],
+      },
+    ],
+  },
+};
+
 type MockTx = typeof mockPrisma;
 
 const mockPrisma: {
@@ -32,6 +60,7 @@ const mockPrisma: {
   enrollment: { findUnique: jest.Mock; create: jest.Mock };
   payment: {
     create: jest.Mock;
+    findUnique: jest.Mock;
     findFirst: jest.Mock;
     delete: jest.Mock;
     findMany: jest.Mock;
@@ -50,6 +79,7 @@ const mockPrisma: {
 
   payment: {
     create: jest.fn(),
+    findUnique: jest.fn(),
     findFirst: jest.fn(),
     delete: jest.fn(),
     findMany: jest.fn(),
@@ -154,23 +184,20 @@ describe('PaymentService - create', () => {
     });
   });
 
-  const findManyMock = mockPrisma.payment.findMany;
-  const countMock = mockPrisma.payment.count;
-
   describe('findAll', () => {
     it('returns payments with pagination', async () => {
-      findManyMock.mockResolvedValue([mockPayment]);
-      countMock.mockResolvedValue(1);
+      mockPrisma.payment.findMany.mockResolvedValue([mockPayment]);
+      mockPrisma.payment.count.mockResolvedValue(1);
 
       const result = await service.findAll('u1', {
-        page: '1',
-        limit: '10',
+        page: 1,
+        limit: 10,
       });
 
-      expect(findManyMock).toHaveBeenCalled();
-      expect(countMock).toHaveBeenCalled();
+      expect(mockPrisma.payment.findMany).toHaveBeenCalled();
+      expect(mockPrisma.payment.count).toHaveBeenCalled();
 
-      const query = findManyMock.mock.calls[0][0];
+      const query = mockPrisma.payment.findMany.mock.calls[0][0];
 
       expect(query.where.userId).toBe('u1');
       expect(query.skip).toBe(0);
@@ -179,63 +206,95 @@ describe('PaymentService - create', () => {
       expect(result.meta.total).toBe(1);
     });
     it('filters by status', async () => {
-      findManyMock.mockResolvedValue([mockPayment]);
-      countMock.mockResolvedValue(1);
+      mockPrisma.payment.findMany.mockResolvedValue([mockPayment]);
+      mockPrisma.payment.count.mockResolvedValue(1);
 
       await service.findAll('u1', {
         status: PaymentStatus.COMPLETED,
-        page: '1',
-        limit: '10',
+        page: 1,
+        limit: 10,
       });
 
-      const query = findManyMock.mock.calls[0][0];
+      const query = mockPrisma.payment.findMany.mock.calls[0][0];
 
       expect(query.where.status).toBe(PaymentStatus.COMPLETED);
     });
     it('applies pagination correctly', async () => {
-      findManyMock.mockResolvedValue([mockPayment]);
-      countMock.mockResolvedValue(20);
+      mockPrisma.payment.findMany.mockResolvedValue([mockPayment]);
+      mockPrisma.payment.count.mockResolvedValue(20);
 
       await service.findAll('u1', {
-        page: '2',
-        limit: '5',
+        page: 2,
+        limit: 5,
       });
 
-      const query = findManyMock.mock.calls[0][0];
+      const query = mockPrisma.payment.findMany.mock.calls[0][0];
 
       expect(query.skip).toBe(5);
       expect(query.take).toBe(5);
     });
     it('applies date range filter', async () => {
-      findManyMock.mockResolvedValue([mockPayment]);
-      countMock.mockResolvedValue(1);
+      mockPrisma.payment.findMany.mockResolvedValue([mockPayment]);
+      mockPrisma.payment.count.mockResolvedValue(1);
 
       await service.findAll('u1', {
         range: 'LAST_7_DAYS',
-        page: '1',
-        limit: '10',
+        page: 1,
+        limit: 10,
       });
 
-      const query = findManyMock.mock.calls[0][0];
+      const query = mockPrisma.payment.findMany.mock.calls[0][0];
 
       expect(query.where.createdAt).toBeDefined();
 
       expect(query.where.userId).toBe('u1');
     });
     it('filters by course name', async () => {
-      findManyMock.mockResolvedValue([mockPayment]);
-      countMock.mockResolvedValue(1);
+      mockPrisma.payment.findMany.mockResolvedValue([mockPayment]);
+      mockPrisma.payment.count.mockResolvedValue(1);
 
       await service.findAll('u1', {
         courseName: 'nestjs',
-        page: '1',
-        limit: '10',
+        page: 1,
+        limit: 10,
       });
 
-      const query = findManyMock.mock.calls[0][0];
+      const query = mockPrisma.payment.findMany.mock.calls[0][0];
 
       expect(query.where.course.title.contains).toBe('nestjs');
       expect(query.where.course.title.mode).toBe('insensitive');
+    });
+  });
+
+  describe('findOne', () => {
+    it('should return payment details with calculated duration', async () => {
+      mockPrisma.payment.findUnique.mockResolvedValue(mockPaymentDetails);
+
+      const result = await service.findOne('user1', 'pay1');
+
+      expect(result.data.paymentDetails.courseId).toBe('course1');
+      expect(result.data.paymentDetails.paymentMethod).toBe('Free Enrollment');
+      expect(result.data.paymentDetails.transactionId).toBeNull();
+
+      expect(result.data.courseDetails.courseInstructor).toBe('John Doe');
+      expect(result.data.courseDetails.duration).toBe(60);
+
+      expect(result.data.costOverview.totalAmount).toBe(0);
+    });
+
+    it('should throw NotFoundException if payment does not exist', async () => {
+      mockPrisma.payment.findUnique.mockResolvedValue(null);
+
+      await expect(service.findOne('user1', 'pay1')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+    it('should throw NotFoundException if user does not own payment', async () => {
+      mockPrisma.payment.findUnique.mockResolvedValue(mockPaymentDetails);
+
+      await expect(service.findOne('user2', 'pay1')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

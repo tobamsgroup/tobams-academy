@@ -46,7 +46,7 @@ export class PaymentService {
         data: {
           userId,
           courseId,
-          amount: 0,
+          amount: course.price ?? 0,
           status: 'COMPLETED',
           reference: `FREE-${crypto.randomUUID()}`,
         },
@@ -70,11 +70,73 @@ export class PaymentService {
     };
   }
 
-  async findAll(userId: string, query: PaymentFilterDto) {
-    const { status, courseName, range, page = '1', limit = '10' } = query;
+  async findOne(userId: string, id: string) {
+    const payment = await this.prisma.payment.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        course: {
+          include: {
+            instructor: {
+              select: {
+                name: true,
+              },
+            },
+            modules: {
+              include: {
+                lessons: {
+                  select: {
+                    duration: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!payment || payment.userId !== userId) {
+      throw new NotFoundException('Payment not found');
+    }
 
-    const pageNumber = parseInt(page);
-    const limitNumber = parseInt(limit);
+    const duration = payment.course.modules.reduce((total, module) => {
+      const moduleDuration = module.lessons.reduce(
+        (sum, lesson) => sum + (lesson.duration ?? 0),
+        0,
+      );
+
+      return total + moduleDuration;
+    }, 0);
+    return {
+      data: {
+        paymentDetails: {
+          courseId: payment.courseId,
+          paymentDate: payment.createdAt,
+          paymentMethod: payment.paymentMethod || 'Free Enrollment',
+          transactionId: payment.transactionId || null,
+          status: payment.status,
+        },
+
+        courseDetails: {
+          courseTitle: payment.course.title,
+          courseInstructor: payment.course.instructor.name,
+          duration,
+        },
+
+        costOverview: {
+          coursePrice: payment.course.price ?? 0,
+          totalAmount: payment.amount,
+        },
+      },
+    };
+  }
+
+  async findAll(userId: string, query: PaymentFilterDto) {
+    const { status, courseName, range, page = 1, limit = 12 } = query;
+
+    const pageNumber = page;
+    const limitNumber = limit;
 
     const now = new Date();
     const fromDate = new Date();
