@@ -1,3 +1,5 @@
+import type { CourseModule } from '@/types/course'
+
 export type LessonKind = "video" | "doc" | "pdf" | "screen" | "quiz" | "assessment";
 
 export type PlayerLesson = {
@@ -15,7 +17,20 @@ export type PlayerModule = {
   lessons: PlayerLesson[];
 };
 
-/** Shared mock curriculum for any enrolled course (replace with API by course id later). */
+export function mapApiModulesToPlayerModules(modules: CourseModule[]): PlayerModule[] {
+  return modules.map((module) => ({
+    id: module.id,
+    title: module.title,
+    lessons: module.lessons.map((lesson) => ({
+      id: lesson.id,
+      title: lesson.title,
+      durationMin: lesson.duration ?? 0,
+      kind: 'video',
+    })),
+  }))
+}
+
+/** @deprecated Use mapApiModulesToPlayerModules with course.modules from GET /courses/:slug */
 export function getCoursePlayerCurriculum(_courseId: string): PlayerModule[] {
   void _courseId;
   return [

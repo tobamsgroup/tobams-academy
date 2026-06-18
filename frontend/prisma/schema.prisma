@@ -32,6 +32,7 @@ model User {
   courses                  Course[]
   notifications            Notification[]
   notificationPreference   NotificationPreference?
+  enrollments              Enrollment[]
 
   @@map("users")
 }
@@ -84,6 +85,7 @@ model Course {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   modules      CourseModule[]
+  enrollments  Enrollment[]
   category     Category       @relation(fields: [categoryId], references: [id])
   instructor   User           @relation(fields: [instructorId], references: [id])
 
@@ -113,9 +115,40 @@ model Lesson {
   duration Int?
   moduleId String
   module   CourseModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  progress LessonProgress[]
 
   @@index([moduleId])
   @@map("lessons")
+}
+
+model Enrollment {
+  id             String           @id @default(uuid())
+  userId         String
+  courseId       String
+  enrolledAt     DateTime         @default(now())
+  completedAt    DateTime?
+  lastAccessedAt DateTime?
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course         Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessonProgress LessonProgress[]
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+  @@map("enrollments")
+}
+
+model LessonProgress {
+  id           String     @id @default(uuid())
+  enrollmentId String
+  lessonId     String
+  completedAt  DateTime?
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  lesson       Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([enrollmentId, lessonId])
+  @@index([enrollmentId])
+  @@map("lesson_progress")
 }
 
 model Notification {

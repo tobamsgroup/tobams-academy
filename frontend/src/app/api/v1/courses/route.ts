@@ -25,6 +25,7 @@ export const GET = withRoute('/api/v1/courses', async (req: NextRequest) => {
   const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') ?? '12', 10)))
   const search = searchParams.get('search') ?? undefined
   const categoryId = searchParams.get('categoryId') ?? undefined
+  const sort = searchParams.get('sort') ?? 'recent'
   const skip = (page - 1) * limit
 
   const where: Record<string, unknown> = { status: 'PUBLISHED' }
@@ -36,11 +37,16 @@ export const GET = withRoute('/api/v1/courses', async (req: NextRequest) => {
     ]
   }
 
+  const orderBy =
+    sort === 'az'
+      ? { title: 'asc' as const }
+      : { createdAt: 'desc' as const }
+
   const [data, total] = await Promise.all([
     prisma.course.findMany({
       where,
       select: COURSE_LIST_SELECT,
-      orderBy: { createdAt: 'desc' },
+      orderBy,
       skip,
       take: limit,
     }),

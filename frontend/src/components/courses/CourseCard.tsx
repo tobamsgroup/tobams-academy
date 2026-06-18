@@ -1,65 +1,52 @@
+import Image from 'next/image'
 import Link from 'next/link'
-import type { LocalCourse } from '@/types/course'
+import type { Course } from '@/types/course'
+import { formatCoursePrice } from '@/lib/catalogue-courses'
+import { getCourseThumbnail } from '@/lib/dashboard-courses'
 
 interface Props {
-  course: LocalCourse
+  course: Course
+  index?: number
 }
 
-export function CourseCard({ course }: Props) {
-  const fullStars = Math.floor(course.rating)
-  const emptyStars = 5 - fullStars
+export function CourseCard({ course, index = 0 }: Props) {
+  const thumbnail = getCourseThumbnail(course, index)
 
   return (
     <div className="group flex flex-col overflow-hidden rounded-2xl border border-[#D3D2D3] bg-white transition-all hover:-translate-y-1 hover:shadow-lg">
-      {/* Image */}
       <Link href={`/courses/${course.slug}`} tabIndex={-1}>
         <div className="w-full bg-white p-3">
           <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-slate-100">
-            <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-slate-100 to-slate-200 px-4">
-              <span className="text-4xl">📚</span>
-              <span className="line-clamp-2 text-center md:text-[20px] text-lg font-medium text-slate-500">
-                {course.title}
-              </span>
-            </div>
+            <Image
+              src={thumbnail}
+              alt={course.title}
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            />
           </div>
         </div>
       </Link>
 
       <div className="flex flex-1 flex-col px-4 pb-4 pt-2">
-        {/* Provider */}
-        {/* <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-slate-400">
-          Tobams Group Academy
-        </p> */}
+        <span className="mb-2 w-fit rounded-sm bg-[#EEF0F6] px-2.5 py-1 text-xs font-medium text-slate-600">
+          {course.category.name}
+        </span>
 
-        {/* Stars */}
-        {/* <div className="mb-2 flex items-center gap-1">
-          <span className="text-amber-400 text-xs leading-none" aria-label={`${course.rating} stars`}>
-            {'★'.repeat(fullStars)}{'☆'.repeat(emptyStars)}
-          </span>
-          <span className="text-xs text-slate-400">({course.ratingCount})</span>
-        </div> */}
-
-        {/* Title */}
         <Link href={`/courses/${course.slug}`}>
-          <h3 className="mb-1.5 line-clamp-2 md:text-[20px] text-lg font-medium text-heading transition-colors hover:text-[#571244]">
+          <h3 className="mb-1.5 line-clamp-2 text-lg font-medium text-heading transition-colors hover:text-[#571244] md:text-[20px]">
             {course.title}
           </h3>
         </Link>
 
-        {/* Description */}
-        <p className="mb-4 flex-1 line-clamp-2 md:text-lg text-[#3C3C3C]">
+        <p className="mb-4 flex-1 line-clamp-2 text-[#3C3C3C] md:text-lg">
           {course.description}
         </p>
 
-        {/* Footer row */}
         <div className="flex items-center justify-between">
-          <span className="md:text-[20px] text-lg font-bold text-heading">{course.price}</span>
-          {/* <Link
-            href={`/courses/${course.slug}`}
-            className="rounded-lg bg-[#571244] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#571244]/90 transition-colors"
-          >
-            Add to Cart
-          </Link> */}
+          <span className="text-lg font-bold text-heading md:text-[20px]">
+            {formatCoursePrice(course.price)}
+          </span>
         </div>
       </div>
     </div>

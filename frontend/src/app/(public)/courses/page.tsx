@@ -1,4 +1,3 @@
-import { getAllCourses, getCategories } from '@/lib/courseData'
 import { CatalogueClient } from '@/components/courses/CatalogueClient'
 import { Navbar } from '@/components/landing/Navbar'
 import { Footer } from '@/components/landing/Footer'
@@ -11,14 +10,11 @@ export const metadata = {
 }
 
 export default function CoursesPage() {
-  const courses = getAllCourses()
-  const categories = getCategories()
-
   return (
     <div className="min-h-screen bg-white">
       <Navbar shadow={false} />
       <CoursesHero />
-      <CatalogueClient courses={courses} categories={categories} />
+      <CatalogueClient />
       <Newsletter />
       <Footer />
     </div>
