@@ -42,7 +42,7 @@ export class PaymentService {
     }
 
     const result = await this.prisma.$transaction(async (tx) => {
-      await tx.payment.create({
+      const payment = await tx.payment.create({
         data: {
           userId,
           courseId,
@@ -59,12 +59,17 @@ export class PaymentService {
         },
       });
 
-      return enrollment.courseId;
+      return { payment, enrollment };
     });
 
     return {
       data: {
-        courseId: result,
+        courseId: result.enrollment.courseId,
+        enrollmentId: result.enrollment.id,
+        paymentId: result.payment.id,
+        paymentStatus: result.payment.status,
+        reference: result.payment.reference,
+        transactionId: result.payment.transactionId,
       },
       message: 'Course enrollment successful',
     };
