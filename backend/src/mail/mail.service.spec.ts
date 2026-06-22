@@ -13,6 +13,12 @@ const mockConfig = {
     })[key],
 };
 
+type MailServiceMock = {
+  client: {
+    post: jest.Mock;
+  };
+};
+
 describe('MailService', () => {
   let service: MailService;
 
@@ -48,7 +54,9 @@ describe('MailService', () => {
     const mockPost = {
       request: jest.fn().mockRejectedValue(new Error('mailjet error')),
     };
-    (service as any).client = { post: jest.fn().mockReturnValue(mockPost) };
+    (service as unknown as MailServiceMock).client = {
+      post: jest.fn().mockReturnValue(mockPost),
+    };
     await expect(
       service.sendVerificationEmail('a@b.com', 'Alice', 'tok'),
     ).rejects.toThrow('mailjet error');
