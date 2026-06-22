@@ -3,13 +3,14 @@ import { MailService } from './mail.service';
 import { ConfigService } from '@nestjs/config';
 
 const mockConfig = {
-  get: (key: string) => ({
-    MAILJET_API_KEY: 'key',
-    MAILJET_API_SECRET: 'secret',
-    MAILJET_FROM_EMAIL: 'noreply@test.com',
-    MAILJET_FROM_NAME: 'Test',
-    CLIENT_URL: 'http://localhost:3000',
-  }[key]),
+  get: (key: string) =>
+    ({
+      MAILJET_API_KEY: 'key',
+      MAILJET_API_SECRET: 'secret',
+      MAILJET_FROM_EMAIL: 'noreply@test.com',
+      MAILJET_FROM_NAME: 'Test',
+      CLIENT_URL: 'http://localhost:3000',
+    })[key],
 };
 
 describe('MailService', () => {
@@ -52,5 +53,4 @@ describe('MailService', () => {
       service.sendVerificationEmail('a@b.com', 'Alice', 'tok'),
     ).rejects.toThrow('mailjet error');
   });
-
 });

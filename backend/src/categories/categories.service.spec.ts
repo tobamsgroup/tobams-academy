@@ -24,7 +24,9 @@ describe('CategoriesService', () => {
 
   describe('findAll', () => {
     it('returns all categories ordered by name', async () => {
-      const cats = [{ id: '1', name: 'Business', slug: 'business', createdAt: new Date() }];
+      const cats = [
+        { id: '1', name: 'Business', slug: 'business', createdAt: new Date() },
+      ];
       mockPrisma.category.findMany.mockResolvedValue(cats);
 
       const result = await service.findAll();

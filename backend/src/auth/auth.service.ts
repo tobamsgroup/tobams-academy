@@ -74,14 +74,21 @@ export class AuthService {
     if (!passwordMatch) throw new UnauthorizedException('Invalid credentials');
 
     if (!user.emailVerified) {
-      throw new UnauthorizedException('Please verify your email before logging in');
+      throw new UnauthorizedException(
+        'Please verify your email before logging in',
+      );
     }
 
     const tokens = await this.signTokens(user.id, user.email, user.role);
     return {
       data: {
         ...tokens,
-        user: { id: user.id, name: user.name, email: user.email, role: user.role },
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
       },
       message: 'Login successful',
     };
@@ -105,7 +112,8 @@ export class AuthService {
   async forgotPassword(email: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
     // Always return success to avoid email enumeration
-    if (!user) return { message: 'If that email exists, a reset link has been sent' };
+    if (!user)
+      return { message: 'If that email exists, a reset link has been sent' };
 
     const rawToken = crypto.randomBytes(32).toString('hex');
     const resetTokenHash = this.hashToken(rawToken);
@@ -128,7 +136,8 @@ export class AuthService {
         resetTokenExpiry: { gt: new Date() },
       },
     });
-    if (!user) throw new UnauthorizedException('Invalid or expired reset token');
+    if (!user)
+      throw new UnauthorizedException('Invalid or expired reset token');
 
     const passwordHash = await bcrypt.hash(newPassword, 12);
     await this.prisma.user.update({

@@ -197,11 +197,15 @@ describe('PaymentService - create', () => {
       expect(mockPrisma.payment.findMany).toHaveBeenCalled();
       expect(mockPrisma.payment.count).toHaveBeenCalled();
 
-      const query = mockPrisma.payment.findMany.mock.calls[0][0];
-
-      expect(query.where.userId).toBe('u1');
-      expect(query.skip).toBe(0);
-      expect(query.take).toBe(10);
+      expect(mockPrisma.payment.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            userId: 'u1',
+          }) as Record<string, unknown>,
+          skip: 0,
+          take: 10,
+        }),
+      );
 
       expect(result.meta.total).toBe(1);
     });
@@ -214,10 +218,13 @@ describe('PaymentService - create', () => {
         page: 1,
         limit: 10,
       });
-
-      const query = mockPrisma.payment.findMany.mock.calls[0][0];
-
-      expect(query.where.status).toBe(PaymentStatus.COMPLETED);
+      expect(mockPrisma.payment.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            status: PaymentStatus.COMPLETED,
+          }) as Record<string, unknown>,
+        }),
+      );
     });
     it('applies pagination correctly', async () => {
       mockPrisma.payment.findMany.mockResolvedValue([mockPayment]);
@@ -228,10 +235,12 @@ describe('PaymentService - create', () => {
         limit: 5,
       });
 
-      const query = mockPrisma.payment.findMany.mock.calls[0][0];
-
-      expect(query.skip).toBe(5);
-      expect(query.take).toBe(5);
+      expect(mockPrisma.payment.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          skip: 5,
+          take: 5,
+        }),
+      );
     });
     it('applies date range filter', async () => {
       mockPrisma.payment.findMany.mockResolvedValue([mockPayment]);
@@ -243,11 +252,17 @@ describe('PaymentService - create', () => {
         limit: 10,
       });
 
-      const query = mockPrisma.payment.findMany.mock.calls[0][0];
-
-      expect(query.where.createdAt).toBeDefined();
-
-      expect(query.where.userId).toBe('u1');
+      expect(mockPrisma.payment.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            userId: 'u1',
+            createdAt: expect.objectContaining<Record<string, unknown>>({
+              gte: expect.any(Date),
+              lte: expect.any(Date),
+            }) as Record<string, unknown>,
+          }) as Record<string, unknown>,
+        }),
+      );
     });
     it('filters by course name', async () => {
       mockPrisma.payment.findMany.mockResolvedValue([mockPayment]);
@@ -259,10 +274,18 @@ describe('PaymentService - create', () => {
         limit: 10,
       });
 
-      const query = mockPrisma.payment.findMany.mock.calls[0][0];
-
-      expect(query.where.course.title.contains).toBe('nestjs');
-      expect(query.where.course.title.mode).toBe('insensitive');
+      expect(mockPrisma.payment.findMany).toHaveBeenCalledWith(
+        expect.objectContaining<Record<string, unknown>>({
+          where: expect.objectContaining<Record<string, unknown>>({
+            course: expect.objectContaining({
+              title: expect.objectContaining({
+                contains: 'nestjs',
+                mode: 'insensitive',
+              }) as Record<string, unknown>,
+            }),
+          }),
+        }),
+      );
     });
   });
 

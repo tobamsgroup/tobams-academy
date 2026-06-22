@@ -17,7 +17,8 @@ export class MailService {
     });
     this.fromEmail = this.config.get<string>('MAILJET_FROM_EMAIL') ?? '';
     this.fromName = this.config.get<string>('MAILJET_FROM_NAME') ?? '';
-    this.clientUrl = this.config.get<string>('CLIENT_URL') ?? 'http://localhost:3000';
+    this.clientUrl =
+      this.config.get<string>('CLIENT_URL') ?? 'http://localhost:3000';
   }
 
   private async send(

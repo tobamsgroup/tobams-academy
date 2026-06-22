@@ -27,14 +27,22 @@ describe('UsersService', () => {
   describe('findById', () => {
     it('throws NotFoundException when user does not exist', async () => {
       mockPrisma.user.findUnique.mockResolvedValue(null);
-      await expect(service.findById('nonexistent')).rejects.toThrow(NotFoundException);
+      await expect(service.findById('nonexistent')).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('returns user without passwordHash', async () => {
       mockPrisma.user.findUnique.mockResolvedValue({
-        id: '1', name: 'Alice', email: 'a@b.com', role: 'LEARNER',
-        passwordHash: 'secret', emailVerified: true,
-        verifyTokenHash: null, resetTokenHash: null, resetTokenExpiry: null,
+        id: '1',
+        name: 'Alice',
+        email: 'a@b.com',
+        role: 'LEARNER',
+        passwordHash: 'secret',
+        emailVerified: true,
+        verifyTokenHash: null,
+        resetTokenHash: null,
+        resetTokenExpiry: null,
       });
       const result = await service.findById('1');
       expect(result).not.toHaveProperty('passwordHash');
@@ -46,8 +54,14 @@ describe('UsersService', () => {
   describe('updateProfile', () => {
     it('updates and returns the user', async () => {
       mockPrisma.user.update.mockResolvedValue({
-        id: '1', name: 'Bob', email: 'a@b.com', role: 'LEARNER',
-        emailVerified: true, verifyTokenHash: null, resetTokenHash: null, resetTokenExpiry: null,
+        id: '1',
+        name: 'Bob',
+        email: 'a@b.com',
+        role: 'LEARNER',
+        emailVerified: true,
+        verifyTokenHash: null,
+        resetTokenHash: null,
+        resetTokenExpiry: null,
       });
       const result = await service.updateProfile('1', { name: 'Bob' });
       expect(result.name).toBe('Bob');

@@ -69,8 +69,21 @@ describe('CoursesService', () => {
 
       await service.findAll({ page: 1, limit: 12, search: 'python' });
 
-      const callArg = mockPrisma.course.findMany.mock.calls[0][0];
-      expect(callArg.where.OR).toBeDefined();
+      expect(mockPrisma.course.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            OR: expect.arrayContaining([
+              expect.objectContaining({
+                title: expect.objectContaining({
+                  contains: 'python',
+                }),
+              }),
+            ]),
+          }) as Record<string, unknown>,
+        }),
+      );
+      //const callArg = mockPrisma.course.findMany.mock.calls[0][0];
+      //expect(callArg.where.OR).toBeDefined();
     });
 
     it('applies categoryId filter', async () => {
@@ -78,9 +91,13 @@ describe('CoursesService', () => {
       mockPrisma.course.count.mockResolvedValue(0);
 
       await service.findAll({ page: 1, limit: 12, categoryId: 'cat1' });
-
-      const callArg = mockPrisma.course.findMany.mock.calls[0][0];
-      expect(callArg.where.categoryId).toBe('cat1');
+      expect(mockPrisma.course.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            categoryId: 'cat1',
+          }) as Record<string, unknown>,
+        }),
+      );
     });
   });
 
@@ -89,9 +106,14 @@ describe('CoursesService', () => {
       mockPrisma.course.findMany.mockResolvedValue([mockCourse]);
 
       await service.findFeatured();
-
-      const callArg = mockPrisma.course.findMany.mock.calls[0][0];
-      expect(callArg.where).toEqual({ isFeatured: true, status: 'PUBLISHED' });
+      expect(mockPrisma.course.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            isFeatured: true,
+            status: 'PUBLISHED',
+          }) as Record<string, unknown>,
+        }),
+      );
     });
   });
 
