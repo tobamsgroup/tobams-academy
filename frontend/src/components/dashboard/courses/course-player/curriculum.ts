@@ -1,4 +1,5 @@
-import type { CourseModule } from '@/types/course'
+import type { CourseModule, Lesson } from '@/types/course'
+import { isQuizLesson } from '@/lib/quiz-utils'
 
 export type LessonKind = "video" | "doc" | "pdf" | "screen" | "quiz" | "assessment";
 
@@ -17,6 +18,15 @@ export type PlayerModule = {
   lessons: PlayerLesson[];
 };
 
+function mapApiLessonKind(lesson: Lesson): LessonKind {
+  if (isQuizLesson(lesson)) return 'quiz'
+  if (lesson.kind === 'ASSESSMENT') return 'assessment'
+  if (lesson.kind === 'PDF') return 'pdf'
+  if (lesson.kind === 'DOC') return 'doc'
+  if (lesson.kind === 'SCREEN') return 'screen'
+  return 'video'
+}
+
 export function mapApiModulesToPlayerModules(modules: CourseModule[]): PlayerModule[] {
   return modules.map((module) => ({
     id: module.id,
@@ -25,7 +35,7 @@ export function mapApiModulesToPlayerModules(modules: CourseModule[]): PlayerMod
       id: lesson.id,
       title: lesson.title,
       durationMin: lesson.duration ?? 0,
-      kind: 'video',
+      kind: mapApiLessonKind(lesson),
     })),
   }))
 }

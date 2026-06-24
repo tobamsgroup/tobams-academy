@@ -147,9 +147,14 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
                       </Button>
                       {isOpen ? (
                         <ul className="space-y-1 px-4">
-                          {week.topics.map((topic, idx) => (
-                            <li key={idx} className="border-b border-[#E5E7EB] py-3 text-primary">
-                              {topic}
+                          {week.topics.map((topic) => (
+                            <li key={topic.id} className="border-b border-[#E5E7EB] py-3 text-primary">
+                              {topic.title}
+                              {topic.isQuiz ? (
+                                <span className="ml-2 rounded bg-[#EEF0F6] px-2 py-0.5 text-xs font-medium text-[#303869]">
+                                  Quiz
+                                </span>
+                              ) : null}
                             </li>
                           ))}
                         </ul>

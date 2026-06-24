@@ -1,4 +1,5 @@
 import type { Course, CourseDetail } from '@/types/course'
+import { isQuizLesson } from '@/lib/quiz-utils'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api/v1'
 
@@ -42,7 +43,11 @@ export function modulesToCurriculumSections(course: CourseDetail) {
   return course.modules.map((module, index) => ({
     week: index + 1,
     title: module.title,
-    topics: module.lessons.map((lesson) => lesson.title),
+    topics: module.lessons.map((lesson) => ({
+      id: lesson.id,
+      title: lesson.title,
+      isQuiz: isQuizLesson(lesson),
+    })),
   }))
 }
 
