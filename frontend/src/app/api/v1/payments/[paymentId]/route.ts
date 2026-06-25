@@ -109,7 +109,7 @@ export const DELETE = withRoute(
 
     await prisma.payment.delete({
       where: {
-        paymentId,
+        id: paymentId,
       },
     });
 
