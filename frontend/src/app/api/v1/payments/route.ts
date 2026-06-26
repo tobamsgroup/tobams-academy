@@ -50,7 +50,7 @@ export const POST = withRoute("/api/v1/payments", async (req: NextRequest) => {
     );
   }
 
-  const result = await prisma.$transaction(async (tx: typeof prisma) => {
+  const result = await prisma.$transaction(async (tx) => {
     const payment = await tx.payment.create({
       data: {
         userId: user.id,
