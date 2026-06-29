@@ -10,7 +10,11 @@ jest.mock("@/lib/prisma", () => ({
   },
 }));
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+const mockPrisma = prisma as unknown as {
+  course: {
+    findMany: jest.Mock;
+  };
+};
 
 const createRequest = () => {
   return new NextRequest("http://localhost/api/v1/courses/featured", {
@@ -40,7 +44,7 @@ describe("GET /api/v1/courses/featured", () => {
       },
     ]);
 
-    const response = await GET(createRequest());
+    const response = await GET(createRequest(), {});
 
     const body = await response.json();
 
@@ -67,7 +71,7 @@ describe("GET /api/v1/courses/featured", () => {
   it("returns empty array when no featured courses exist", async () => {
     mockPrisma.course.findMany.mockResolvedValue([]);
 
-    const response = await GET(createRequest());
+    const response = await GET(createRequest(), {});
 
     const body = await response.json();
 

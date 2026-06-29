@@ -17,7 +17,13 @@ jest.mock("@/lib/with-auth", () => ({
   getAuthUser: jest.fn(),
 }));
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+const mockPrisma = prisma as unknown as {
+  payment: {
+    findUnique: jest.Mock;
+    findFirst: jest.Mock;
+    delete: jest.Mock;
+  };
+};
 const mockAuth = getAuthUser as jest.Mock;
 
 const user = {
@@ -77,7 +83,7 @@ describe("GET /payments/[paymentId]", () => {
           },
         ],
       },
-    } as any);
+    });
 
     const response = await GET(createRequest(), {
       params: Promise.resolve({
@@ -119,7 +125,7 @@ describe("GET /payments/[paymentId]", () => {
           name: "John",
         },
       },
-    } as any);
+    });
 
     const response = await GET(createRequest(), {
       params: Promise.resolve({
@@ -154,9 +160,9 @@ describe("DELETE /payments/[paymentId]", () => {
     mockPrisma.payment.findFirst.mockResolvedValue({
       id: "p1",
       userId: "u1",
-    } as any);
+    });
 
-    mockPrisma.payment.delete.mockResolvedValue({} as any);
+    mockPrisma.payment.delete.mockResolvedValue({});
 
     const response = await DELETE(createRequest(), {
       params: Promise.resolve({

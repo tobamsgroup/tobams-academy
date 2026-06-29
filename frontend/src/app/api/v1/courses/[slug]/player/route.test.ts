@@ -19,7 +19,15 @@ jest.mock("@/lib/with-auth", () => ({
   getAuthUser: jest.fn(),
 }));
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+const mockPrisma = prisma as unknown as {
+  course: {
+    findUnique: jest.Mock;
+  };
+
+  enrollment: {
+    findUnique: jest.Mock;
+  };
+};
 
 const mockAuth = getAuthUser as jest.Mock;
 

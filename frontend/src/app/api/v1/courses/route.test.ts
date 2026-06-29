@@ -11,7 +11,12 @@ jest.mock("@/lib/prisma", () => ({
   },
 }));
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+const mockPrisma = prisma as unknown as {
+  course: {
+    findMany: jest.Mock;
+    count: jest.Mock;
+  };
+};
 
 const createRequest = (url: string) => {
   return new NextRequest(url, {
@@ -36,6 +41,7 @@ describe("GET /api/v1/courses", () => {
 
     const response = await GET(
       createRequest("http://localhost/api/v1/courses?page=1&limit=10"),
+      {},
     );
 
     const body = await response.json();
@@ -85,6 +91,7 @@ describe("GET /api/v1/courses", () => {
       createRequest(
         "http://localhost/api/v1/courses?page=2&limit=10&categoryId=cat1",
       ),
+      {},
     );
 
     const body = await response.json();
@@ -123,6 +130,7 @@ describe("GET /api/v1/courses", () => {
       createRequest(
         "http://localhost/api/v1/courses?search=node&page=1&limit=10",
       ),
+      {},
     );
 
     const body = await response.json();
@@ -170,6 +178,7 @@ describe("GET /api/v1/courses", () => {
       createRequest(
         "http://localhost/api/v1/courses?categoryId=cat1&search=node",
       ),
+      {},
     );
 
     const body = await response.json();
@@ -196,7 +205,7 @@ describe("GET /api/v1/courses", () => {
 
     mockPrisma.course.count.mockResolvedValue(0);
 
-    await GET(createRequest("http://localhost/api/v1/courses?limit=100"));
+    await GET(createRequest("http://localhost/api/v1/courses?limit=100"), {});
 
     expect(mockPrisma.course.findMany).toHaveBeenCalledWith(
       expect.objectContaining({

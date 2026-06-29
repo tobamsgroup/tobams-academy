@@ -28,7 +28,22 @@ jest.mock("@/lib/with-auth", () => ({
   getAuthUser: jest.fn(),
 }));
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+const mockPrisma = prisma as unknown as {
+  course: {
+    findUnique: jest.Mock;
+  };
+  enrollment: {
+    findUnique: jest.Mock;
+    update: jest.Mock;
+  };
+  payment: {
+    create: jest.Mock;
+    findMany: jest.Mock;
+    count: jest.Mock;
+  };
+  $transaction: jest.Mock;
+};
+
 const mockAuth = getAuthUser as jest.Mock;
 
 const user = {
@@ -65,6 +80,7 @@ describe("POST /api/v1/payments", () => {
       createRequest("POST", {
         courseId: "c1",
       }),
+      {},
     );
 
     expect(response.status).toBe(401);
@@ -73,7 +89,7 @@ describe("POST /api/v1/payments", () => {
   it("returns error if courseId is missing", async () => {
     mockAuth.mockReturnValue(user);
 
-    const response = await POST(createRequest("POST", {}));
+    const response = await POST(createRequest("POST", {}), {});
 
     expect(response.status).toBe(400);
   });
@@ -109,6 +125,7 @@ describe("POST /api/v1/payments", () => {
       createRequest("POST", {
         courseId: "c1",
       }),
+      {},
     );
 
     const body = await response.json();
@@ -129,6 +146,7 @@ describe("POST /api/v1/payments", () => {
       createRequest("POST", {
         courseId: "c2",
       }),
+      {},
     );
 
     expect(response.status).toBe(404);
@@ -149,6 +167,7 @@ describe("POST /api/v1/payments", () => {
       createRequest("POST", {
         courseId: "c1",
       }),
+      {},
     );
 
     const body = await response.json();
@@ -182,6 +201,7 @@ describe("GET /api/v1/payments", () => {
         undefined,
         "http://localhost/api/v1/payments?page=1&limit=10",
       ),
+      {},
     );
 
     const body = await response.json();
@@ -209,6 +229,7 @@ describe("GET /api/v1/payments", () => {
         undefined,
         "http://localhost/api/v1/payments?status=COMPLETED",
       ),
+      {},
     );
 
     expect(mockPrisma.payment.findMany).toHaveBeenCalledWith(
@@ -223,7 +244,7 @@ describe("GET /api/v1/payments", () => {
   it("returns 401 without auth", async () => {
     mockAuth.mockReturnValue(null);
 
-    const response = await GET(createRequest("GET"));
+    const response = await GET(createRequest("GET"), {});
 
     expect(response.status).toBe(401);
   });

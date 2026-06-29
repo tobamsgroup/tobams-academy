@@ -43,7 +43,11 @@ const mockCourse = {
   ],
 };
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+const mockPrisma = prisma as unknown as {
+  course: {
+    findUnique: jest.Mock;
+  };
+};
 
 const createRequest = () => {
   return new NextRequest("http://localhost/api/v1/courses/node-course", {
