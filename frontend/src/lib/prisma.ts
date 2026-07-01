@@ -20,6 +20,7 @@ export const quizQuestionDb = prisma.quizQuestion
 export const quizOptionDb = prisma.quizOption
 export const quizAttemptDb = prisma.quizAttempt
 export const lessonDb = prisma.lesson
+export const paymentDb = prisma.payment
 
 if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma

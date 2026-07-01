@@ -9,10 +9,11 @@ import { ChevronDown } from 'lucide-react'
 import { ICONS } from '@/assets/icons'
 import { Button } from '@/components/ui/Button'
 import type { Course, CourseDetail } from '@/types/course'
-import { formatCoursePrice } from '@/lib/catalogue-courses'
+import { formatCoursePrice, parseCoursePrice } from '@/lib/catalogue-courses'
 import { getCourseThumbnail } from '@/lib/dashboard-courses'
 import { learningOutcomesFromCourse, modulesToCurriculumSections } from '@/lib/course-api'
 import { useEnrollments } from '@/hooks/useEnrollments'
+import { usePayments } from '@/hooks/usePayments'
 
 interface Props {
   course: CourseDetail
@@ -30,13 +31,20 @@ type TabId = (typeof TABS)[number]['id']
 
 export function CourseDetailsBody({ course, relatedCourses }: Props) {
   const router = useRouter()
-  const { status } = useSession()
-  const { isEnrolledIn, enroll, isLoading: enrollmentsLoading, getErrorMessage } = useEnrollments()
+  const { data: session, status } = useSession()
+  const { isEnrolledIn, isLoading: enrollmentsLoading, mutate: mutateEnrollments } = useEnrollments()
+  const { purchaseCourse, getErrorMessage } = usePayments()
   const [enrolling, setEnrolling] = useState(false)
   const [enrollError, setEnrollError] = useState('')
 
   const isEnrolled = isEnrolledIn(course.id)
-  const isAuthenticated = status === 'authenticated'
+  const isAuthenticated = status === 'authenticated' && !!session?.accessToken
+  const isFreeCourse = parseCoursePrice(course.price) <= 0
+  const loginCallbackUrl = `/courses/${course.slug}`
+
+  const redirectToLogin = () => {
+    router.push(`/login?callbackUrl=${encodeURIComponent(loginCallbackUrl)}`)
+  }
 
   const curriculum = useMemo(() => modulesToCurriculumSections(course), [course])
   const learningOutcomes = useMemo(() => learningOutcomesFromCourse(course), [course])
@@ -64,17 +72,33 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
 
   const handleEnroll = async () => {
     setEnrollError('')
+
+    if (status === 'loading') return
+
     if (!isAuthenticated) {
-      router.push(`/login?callbackUrl=${encodeURIComponent(`/courses/${course.slug}`)}`)
+      redirectToLogin()
+      return
+    }
+
+    if (!isFreeCourse) {
+      router.push(
+        `/checkout?courseId=${encodeURIComponent(course.id)}&slug=${encodeURIComponent(course.slug)}`,
+      )
       return
     }
 
     setEnrolling(true)
     try {
-      await enroll({ courseId: course.id })
+      await purchaseCourse({ courseId: course.id })
+      await mutateEnrollments()
       router.push(`/dashboard/courses/${course.slug}`)
     } catch (error) {
-      setEnrollError(getErrorMessage(error) ?? 'Unable to enroll. Please try again.')
+      const message = getErrorMessage(error)
+      if (message === 'Unauthorized') {
+        redirectToLogin()
+        return
+      }
+      setEnrollError(message ?? 'Unable to enroll. Please try again.')
     } finally {
       setEnrolling(false)
     }
@@ -229,10 +253,10 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
                 <Button
                   type="button"
                   onClick={() => void handleEnroll()}
-                  disabled={enrolling || enrollmentsLoading}
+                  disabled={enrolling || enrollmentsLoading || status === 'loading'}
                   className="mb-4 w-full rounded-md bg-primary py-3 font-medium text-white hover:translate-y-0 hover:bg-[#232A59] hover:from-[#232A59] hover:to-[#232A59] md:mb-3 md:text-lg disabled:opacity-60"
                 >
-                  {enrolling ? 'Enrolling…' : isAuthenticated ? 'Enroll Now' : 'Sign in to Enroll'}
+                  {enrolling ? 'Enrolling…' : isAuthenticated ? (isFreeCourse ? 'Enroll Now' : 'Buy Now') : 'Sign in to Enroll'}
                 </Button>
               )}
 

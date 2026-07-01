@@ -173,3 +173,41 @@ export async function getCourseLessonCount(courseId: string): Promise<number> {
     where: { module: { courseId } },
   })
 }
+
+export type CourseProgressResult = {
+  progress: number
+  completedLessonIds: string[]
+  totalLessons: number
+}
+
+export async function getCourseProgressForEnrollment(
+  enrollmentId: string,
+  courseId: string,
+  enrollmentCompletedAt?: Date | null,
+): Promise<CourseProgressResult> {
+  if (enrollmentCompletedAt) {
+    const allLessons = await prisma.lesson.findMany({
+      where: { module: { courseId } },
+      select: { id: true },
+    })
+    return {
+      progress: 100,
+      completedLessonIds: allLessons.map((lesson) => lesson.id),
+      totalLessons: allLessons.length,
+    }
+  }
+
+  const [totalLessons, completedRows] = await Promise.all([
+    getCourseLessonCount(courseId),
+    prisma.lessonProgress.findMany({
+      where: { enrollmentId, completedAt: { not: null } },
+      select: { lessonId: true },
+    }),
+  ])
+
+  const completedLessonIds = completedRows.map((row) => row.lessonId)
+  const progress =
+    totalLessons > 0 ? Math.round((completedLessonIds.length / totalLessons) * 100) : 0
+
+  return { progress, completedLessonIds, totalLessons }
+}

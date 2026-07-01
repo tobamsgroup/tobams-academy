@@ -38,6 +38,12 @@ export interface LessonCompleteResult {
   courseCompleted: boolean
 }
 
+export interface CourseProgress {
+  progress: number
+  completedLessonIds: string[]
+  totalLessons: number
+}
+
 export function computeEnrollmentProgress(
   lessonProgress: ReadonlyArray<{ completedAt: Date | string | null }>,
   enrollmentCompletedAt?: Date | string | null,

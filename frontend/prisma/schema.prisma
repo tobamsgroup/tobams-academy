@@ -34,6 +34,7 @@ model User {
   notificationPreference   NotificationPreference?
   enrollments              Enrollment[]
   quizAttempts             QuizAttempt[]
+  payments                 Payment[]
 
   @@map("users")
 }
@@ -87,6 +88,7 @@ model Course {
   updatedAt    DateTime       @updatedAt
   modules      CourseModule[]
   enrollments  Enrollment[]
+  payments     Payment[]
   category     Category       @relation(fields: [categoryId], references: [id])
   instructor   User           @relation(fields: [instructorId], references: [id])
 
@@ -209,6 +211,26 @@ model QuizAttempt {
   @@map("quiz_attempts")
 }
 
+model Payment {
+  id            String        @id @default(uuid())
+  userId        String
+  courseId      String
+  amount        Decimal       @db.Decimal(10, 2)
+  status        PaymentStatus @default(PENDING)
+  reference     String?
+  transactionId String?
+  paymentMethod String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course        Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([courseId])
+  @@index([status])
+  @@map("payments")
+}
+
 model Notification {
   id        String           @id
   userId    String
@@ -223,6 +245,12 @@ model Notification {
   @@index([userId])
   @@index([userId, isRead])
   @@map("notifications")
+}
+
+enum PaymentStatus {
+  COMPLETED
+  FAILED
+  PENDING
 }
 
 enum Role {

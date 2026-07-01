@@ -15,6 +15,7 @@ import { CoursePlayerSidebar } from "./CoursePlayerSidebar";
 import { LessonCurriculum } from "./lesson-content/LessonCurriculum";
 import { toPlayerCourse } from "./player-course";
 import { useCourseEnrollment } from "@/hooks/useCourseEnrollment";
+import { useCourseProgress } from "@/hooks/useCourseProgress";
 import { useEnrollments } from "@/hooks/useEnrollments";
 
 export default function CoursePlayerView({ course }: { course: CourseDetail }) {
@@ -33,7 +34,9 @@ export default function CoursePlayerView({ course }: { course: CourseDetail }) {
     markCompleteError,
     isLoading: enrollmentLoading,
     error: enrollmentError,
+    enrollment,
   } = useCourseEnrollment(course.id);
+  const { progress: apiProgress, mutate: mutateProgress } = useCourseProgress(course.id);
   const { mutate: mutateEnrollments, mutateStats } = useEnrollments();
 
   const [expandedModuleIds, setExpandedModuleIds] = useState<Set<string>>(
@@ -50,8 +53,7 @@ export default function CoursePlayerView({ course }: { course: CourseDetail }) {
     () => modules.flatMap((m) => m.lessons).filter((l) => completedLessonIds.has(l.id)).length,
     [modules, completedLessonIds],
   );
-  const courseProgress =
-    totalLessons > 0 ? Math.round((completedInCurriculum / totalLessons) * 100) : 0;
+  const courseProgress = apiProgress || enrollment?.progress || 0;
 
   const selected = useMemo(() => findLesson(modules, selectedLessonId), [modules, selectedLessonId]);
   const prevLesson = useMemo(() => findAdjacentLesson(modules, selectedLessonId, "prev"), [modules, selectedLessonId]);
@@ -76,7 +78,7 @@ export default function CoursePlayerView({ course }: { course: CourseDetail }) {
 
     const result = await completeLesson(selectedLessonId);
     if (result) {
-      await Promise.all([mutateEnrollments(), mutateStats()]);
+      await Promise.all([mutateEnrollments(), mutateStats(), mutateProgress()]);
     }
   };
 

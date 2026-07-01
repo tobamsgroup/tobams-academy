@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default async function DashboardGroupLayout({ children }: { children: React.ReactNode }) {
   const session = await auth()
-  if (!session?.user) {
+  if (!session?.user || !session.accessToken || session.error === 'RefreshAccessTokenError') {
     redirect('/login?callbackUrl=/dashboard')
   }
 

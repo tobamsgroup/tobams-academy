@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { Navbar } from '@/components/landing/Navbar'
 import { Footer } from '@/components/landing/Footer'
 import { Newsletter } from '@/components/landing/Newsletter'
@@ -15,7 +16,9 @@ export default function CoursesPage() {
     <div className="min-h-screen bg-white">
       <Navbar shadow={false} />
       <CheckoutHero />
-      <CheckoutSection />
+      <Suspense fallback={<p className="px-6 py-10 text-[#474348]">Loading checkout…</p>}>
+        <CheckoutSection />
+      </Suspense>
       <Newsletter />
       <Footer />
     </div>

@@ -22,6 +22,7 @@ export function useEnrollments() {
   const { data, error, isLoading, mutate } = useSWR<EnrollmentSummary[]>(
     swrKey,
     createFetcher(accessToken),
+    { revalidateOnFocus: true, revalidateOnMount: true },
   )
 
   const {
@@ -29,7 +30,10 @@ export function useEnrollments() {
     error: statsError,
     isLoading: statsLoading,
     mutate: mutateStats,
-  } = useSWR<EnrollmentStats>(statsKey, createFetcher(accessToken))
+  } = useSWR<EnrollmentStats>(statsKey, createFetcher(accessToken), {
+    revalidateOnFocus: true,
+    revalidateOnMount: true,
+  })
 
   const enroll = useCallback(
     async (payload: EnrollPayload): Promise<EnrollmentSummary> => {

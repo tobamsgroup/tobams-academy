@@ -15,7 +15,10 @@ const isPublicPath = (pathname: string) =>
 export default auth((req) => {
   const { pathname } = req.nextUrl
   const session = req.auth
-  const isLoggedIn = !!session
+  const isLoggedIn =
+    !!session?.user &&
+    !!session.accessToken &&
+    session.error !== 'RefreshAccessTokenError'
 
   if (isLoggedIn && AUTH_PAGES.has(pathname)) {
     return NextResponse.redirect(new URL('/dashboard', req.url))
