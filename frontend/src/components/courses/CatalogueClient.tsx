@@ -428,72 +428,9 @@ export function CatalogueClient({ courses, categories }: Props) {
       </div>
 
       {/* Layout */}
-      <div className="mx-auto max-w-7xl flex gap-0">
-        {/* Sidebar */}
-        {/* <aside
-          className={`
-            ${sidebarOpen ? 'block' : 'hidden'} md:block
-            w-64 shrink-0 border-r border-slate-200 bg-white px-5 py-6
-          `}
-        >
-          {categories.length > 1 && (
-            <FilterSection title="Category">
-              {categories.map((cat) => (
-                <CheckboxRow
-                  key={cat}
-                  label={cat}
-                  count={courses.filter((c) => c.category === cat).length}
-                  checked={selCategories.includes(cat)}
-                  onChange={() => setSelCategories(toggle(selCategories, cat))}
-                />
-              ))}
-            </FilterSection>
-          )}
-
-          <FilterSection title="Level">
-            {LEVELS.map((level) => (
-              <CheckboxRow
-                key={level}
-                label={level}
-                count={courses.filter((c) => c.level === level).length}
-                checked={selLevels.includes(level)}
-                onChange={() => setSelLevels(toggle(selLevels, level))}
-              />
-            ))}
-          </FilterSection>
-
-          <FilterSection title="Rating">
-            {RATING_OPTIONS.map((r) => (
-              <CheckboxRow
-                key={r}
-                label={`${'★'.repeat(r)}${'☆'.repeat(5 - r)}  ${r}+`}
-                checked={selRatings.includes(r)}
-                onChange={() => setSelRatings(toggle(selRatings, r))}
-              />
-            ))}
-          </FilterSection>
-
-          <FilterSection title="Price">
-            <p className="text-xs text-slate-500">
-              All courses are{' '}
-              <span className="font-semibold text-[#571244]">Free</span>
-            </p>
-          </FilterSection>
-
-          <FilterSection title="Duration">
-            {allDurations.map((d) => (
-              <CheckboxRow
-                key={d}
-                label={d}
-                checked={selDurations.includes(d)}
-                onChange={() => setSelDurations(toggle(selDurations, d))}
-              />
-            ))}
-          </FilterSection>
-        </aside> */}
-
+      <div className="mx-auto flex w-full max-w-7xl gap-0">
         {/* Course grid */}
-        <main className="py-8 px-6 md:px-0">
+        <main className="w-full flex-1 px-6 py-8 md:px-0">
           {sorted.length > 0 ? (
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {sorted.map((course) => (
@@ -501,7 +438,7 @@ export function CatalogueClient({ courses, categories }: Props) {
               ))}
             </div>
           ) : (
-            <CoursesEmptyState search={search} />
+            <CoursesEmptyState onExplore={resetFilters} />
           )}
         </main>
       </div>
