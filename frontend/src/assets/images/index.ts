@@ -46,6 +46,7 @@ import Image2 from './image2.png'
 import Image3 from './image3.png'
 import Image4 from './image4.png'
 import Image5 from './image5.png'
+import courseComingSoon from './course-coming-soon.png'
 
 
 export const IMAGES = {
@@ -97,4 +98,5 @@ export const IMAGES = {
   Image3,
   Image4,
   Image5,
+  courseComingSoon,
 };

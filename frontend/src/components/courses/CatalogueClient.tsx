@@ -349,8 +349,14 @@ export function CatalogueClient() {
         ) : null}
       </div>
 
-      <div className="mx-auto flex max-w-7xl gap-0">
-        <main className="px-6 py-8 md:px-0">
+      <div className="mx-auto w-full max-w-7xl px-6 md:px-0">
+        <main
+          className={
+            !isLoading && sorted.length === 0
+              ? 'flex w-full min-h-[calc(100vh-260px)] items-center justify-center py-10'
+              : 'w-full py-8'
+          }
+        >
           {error ? (
             <div className="rounded-lg bg-secondary/10 p-4 text-sm text-secondary">
               Unable to load courses. Please try again.
@@ -358,7 +364,7 @@ export function CatalogueClient() {
           ) : null}
 
           {isLoading ? (
-            <div className="py-16 text-center text-sm text-slate-500">Loading courses…</div>
+            <div className="w-full py-16 text-center text-sm text-slate-500">Loading courses…</div>
           ) : sorted.length > 0 ? (
             <>
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -392,7 +398,20 @@ export function CatalogueClient() {
               ) : null}
             </>
           ) : (
-            <CoursesEmptyState search={search} />
+            <CoursesEmptyState
+              onExplore={() => {
+                setSearch('')
+                setSelCategoryIds([])
+                setSelLevels([])
+                setPriceMin('')
+                setPriceMax('')
+                setSelPriceTypes([])
+                setSortBy('trending')
+                setCurrentPage(1)
+                setFilterOpen(false)
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+              }}
+            />
           )}
         </main>
       </div>
