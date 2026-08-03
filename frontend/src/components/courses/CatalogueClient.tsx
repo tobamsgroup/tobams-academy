@@ -10,6 +10,7 @@ import { Button } from '../ui/Button'
 interface Props {
   courses: LocalCourse[]
   categories: string[]
+  initialSearch?: string
 }
 
 const LEVELS = ['Beginner', 'Intermediate', 'Advanced'] as const
@@ -23,8 +24,8 @@ const SORT_OPTIONS = [
 ] as const
 type FilterSectionKey = 'category' | 'level' | 'rating' | 'duration' | 'price'
 
-export function CatalogueClient({ courses, categories }: Props) {
-  const [search, setSearch] = useState('')
+export function CatalogueClient({ courses, categories, initialSearch = '' }: Props) {
+  const [search, setSearch] = useState(initialSearch)
   const [sortBy, setSortBy] = useState('trending')
   const [sortOpen, setSortOpen] = useState(false)
   const [selCategories, setSelCategories] = useState<string[]>([])

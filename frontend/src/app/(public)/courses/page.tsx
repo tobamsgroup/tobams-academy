@@ -10,7 +10,13 @@ export const metadata = {
   description: 'Browse our catalogue of expert-designed courses',
 }
 
-export default function CoursesPage() {
+export default async function CoursesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const params = await searchParams
+  const initialSearch = typeof params.search === 'string' ? params.search : ''
   const courses = getAllCourses()
   const categories = getCategories()
 
@@ -18,7 +24,7 @@ export default function CoursesPage() {
     <div className="min-h-screen bg-white">
       <Navbar shadow={false} />
       <CoursesHero />
-      <CatalogueClient courses={courses} categories={categories} />
+      <CatalogueClient courses={courses} categories={categories} initialSearch={initialSearch} />
       <Newsletter />
       <Footer />
     </div>
