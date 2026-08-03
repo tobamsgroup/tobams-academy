@@ -38,6 +38,7 @@ import wave from './Wave.png'
 import profile from './profile.png'
 import books from './books.png'
 import AudioFrame from './Audio-frame.png'
+import comingSoon from './comingSoon.png'
 
 export const IMAGES = {
   accelerate,
@@ -79,5 +80,6 @@ export const IMAGES = {
   wave,
   profile,
   books,
-  AudioFrame
+  AudioFrame,
+  comingSoon
 };
