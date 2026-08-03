@@ -4,32 +4,38 @@ import { authConfig } from '@/lib/auth.config'
 
 const { auth } = NextAuth(authConfig)
 
-const PUBLIC_PATHS = ['/', '/courses', '/login', '/register', '/forgot-password', '/verify-email']
+const PUBLIC_EXACT = new Set(['/', '/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/otp'])
+const PUBLIC_PREFIXES = ['/courses']
+const AUTH_PAGES = new Set(['/login', '/register', '/forgot-password', '/reset-password', '/otp'])
 const ADMIN_PREFIX = '/admin'
+
+const isPublicPath = (pathname: string) =>
+  PUBLIC_EXACT.has(pathname) || PUBLIC_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))
 
 export default auth((req) => {
   const { pathname } = req.nextUrl
   const session = req.auth
-  const isLoggedIn = !!session
+  const isLoggedIn =
+    !!session?.user &&
+    !!session.accessToken &&
+    session.error !== 'RefreshAccessTokenError'
 
-  // Auth pages (/login, /register, etc.) remain reachable while logged in (no redirect to /dashboard).
+  if (isLoggedIn && AUTH_PAGES.has(pathname)) {
+    return NextResponse.redirect(new URL('/dashboard', req.url))
+  }
 
-  // Protect admin routes
   if (pathname.startsWith(ADMIN_PREFIX)) {
     if (!isLoggedIn) return NextResponse.redirect(new URL('/login', req.url))
     if (session.user.role !== 'ADMIN') {
       return NextResponse.redirect(new URL('/dashboard', req.url))
     }
+    return NextResponse.next()
   }
 
-  // Protect all other non-public routes
-  // Dashboard is temporarily public (no login required) — tighten when auth is required.
-  const isPublic =
-    PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith('/courses')) ||
-    pathname === '/dashboard' ||
-    pathname.startsWith('/dashboard/')
-  if (!isPublic && !isLoggedIn) {
-    return NextResponse.redirect(new URL('/login', req.url))
+  if (!isPublicPath(pathname) && !isLoggedIn) {
+    const loginUrl = new URL('/login', req.url)
+    loginUrl.searchParams.set('callbackUrl', pathname)
+    return NextResponse.redirect(loginUrl)
   }
 
   return NextResponse.next()

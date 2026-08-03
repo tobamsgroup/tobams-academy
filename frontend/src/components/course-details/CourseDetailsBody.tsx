@@ -3,15 +3,21 @@
 import { useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { ChevronDown } from 'lucide-react'
 import { ICONS } from '@/assets/icons'
-import { IMAGES } from '@/assets/images'
 import { Button } from '@/components/ui/Button'
-import type { LocalCourse } from '@/types/course'
+import type { Course, CourseDetail } from '@/types/course'
+import { formatCoursePrice, parseCoursePrice } from '@/lib/catalogue-courses'
+import { getCourseThumbnail } from '@/lib/dashboard-courses'
+import { learningOutcomesFromCourse, modulesToCurriculumSections } from '@/lib/course-api'
+import { useEnrollments } from '@/hooks/useEnrollments'
+import { usePayments } from '@/hooks/usePayments'
 
 interface Props {
-  course: LocalCourse
-  relatedCourses: LocalCourse[]
+  course: CourseDetail
+  relatedCourses: Course[]
 }
 
 const TABS = [
@@ -21,13 +27,31 @@ const TABS = [
   { id: 'feedbacks', label: 'Feedbacks' },
 ] as const
 
-const RELATED_IMAGES = [IMAGES.course1, IMAGES.course2, IMAGES.course3, IMAGES.course4]
-
 type TabId = (typeof TABS)[number]['id']
 
 export function CourseDetailsBody({ course, relatedCourses }: Props) {
+  const router = useRouter()
+  const { data: session, status } = useSession()
+  const { isEnrolledIn, isLoading: enrollmentsLoading, mutate: mutateEnrollments } = useEnrollments()
+  const { purchaseCourse, getErrorMessage } = usePayments()
+  const [enrolling, setEnrolling] = useState(false)
+  const [enrollError, setEnrollError] = useState('')
+
+  const isEnrolled = isEnrolledIn(course.id)
+  const isAuthenticated = status === 'authenticated' && !!session?.accessToken
+  const isFreeCourse = parseCoursePrice(course.price) <= 0
+  const loginCallbackUrl = `/courses/${course.slug}`
+
+  const redirectToLogin = () => {
+    router.push(`/login?callbackUrl=${encodeURIComponent(loginCallbackUrl)}`)
+  }
+
+  const curriculum = useMemo(() => modulesToCurriculumSections(course), [course])
+  const learningOutcomes = useMemo(() => learningOutcomesFromCourse(course), [course])
+  const thumbnail = getCourseThumbnail(course, 0)
+
   const [activeTab, setActiveTab] = useState<TabId>('learn')
-  const [openWeek, setOpenWeek] = useState<number | null>(course.curriculum[0]?.week ?? null)
+  const [openWeek, setOpenWeek] = useState<number | null>(curriculum[0]?.week ?? null)
   const [expandAll, setExpandAll] = useState(false)
 
   const feedbackBars = useMemo(
@@ -46,32 +70,67 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
     document.getElementById(`course-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
+  const handleEnroll = async () => {
+    setEnrollError('')
+
+    if (status === 'loading') return
+
+    if (!isAuthenticated) {
+      redirectToLogin()
+      return
+    }
+
+    if (!isFreeCourse) {
+      router.push(
+        `/checkout?courseId=${encodeURIComponent(course.id)}&slug=${encodeURIComponent(course.slug)}`,
+      )
+      return
+    }
+
+    setEnrolling(true)
+    try {
+      await purchaseCourse({ courseId: course.id })
+      await mutateEnrollments()
+      router.push(`/dashboard/courses/${course.slug}`)
+    } catch (error) {
+      const message = getErrorMessage(error)
+      if (message === 'Unauthorized') {
+        redirectToLogin()
+        return
+      }
+      setEnrollError(message ?? 'Unable to enroll. Please try again.')
+    } finally {
+      setEnrolling(false)
+    }
+  }
+
   return (
-    <div className="mx-auto max-w-[1312px] px-6 py-10  w-full">
-       <div className="hidden md:grid mb-5  grid-cols-2 rounded-[12px] border-[2px] border-[#E5E7EB] bg-white p-2 md:grid-cols-4">
-            {TABS.map((tab) => (
-              <Button
-                key={tab.id}
-                type="button"
-                onClick={() => jumpTo(tab.id)}
-                className={`rounded-lg px-3 py-2.5 text-lg font-normal shadow-none hover:translate-y-0 hover:shadow-none ${
-                  activeTab === tab.id ? 'bg-[#EEF0F6] text-primary' : 'text-[#221D23] bg-white'
-                }`}
-              >
-                {tab.label}
-              </Button>
-            ))}
-          </div>
+    <div className="mx-auto w-full max-w-[1312px] px-6 py-10">
+      <div className="mb-5 hidden grid-cols-2 rounded-[12px] border-[2px] border-[#E5E7EB] bg-white p-2 md:grid md:grid-cols-4">
+        {TABS.map((tab) => (
+          <Button
+            key={tab.id}
+            type="button"
+            onClick={() => jumpTo(tab.id)}
+            className={`rounded-lg px-3 py-2.5 text-lg font-normal shadow-none hover:translate-y-0 hover:shadow-none ${
+              activeTab === tab.id ? 'bg-[#EEF0F6] text-primary' : 'bg-white text-[#221D23]'
+            }`}
+          >
+            {tab.label}
+          </Button>
+        ))}
+      </div>
+
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.45fr_0.85fr]">
-        <div className="order-2 lg:order-1">        
-          <section id="course-learn" className="mb-8 rounded-[12px] border border-[#D3D2D3] bg-white  p-5 md:p-6">
-            <h2 className="mb-4 md:mb-[31px] text-[24px] md:text-[28px] font-medium text-heading">What You&apos;ll Learn</h2>
-            <div className="">
-              <div className="grid grid-cols-1 gap-3 md:text-lg text-[#474348] md:grid-cols-2">
-                {course.keyLearningOutcomes.slice(0, 6).map((item, idx) => (
-                  <p key={idx}>{item}</p>
-                ))}
-              </div>
+        <div className="order-2 lg:order-1">
+          <section id="course-learn" className="mb-8 rounded-[12px] border border-[#D3D2D3] bg-white p-5 md:p-6">
+            <h2 className="mb-4 text-[24px] font-medium text-heading md:mb-[31px] md:text-[28px]">
+              What You&apos;ll Learn
+            </h2>
+            <div className="grid grid-cols-1 gap-3 text-[#474348] md:grid-cols-2 md:text-lg">
+              {learningOutcomes.map((item, idx) => (
+                <p key={idx}>{item}</p>
+              ))}
             </div>
           </section>
 
@@ -80,62 +139,61 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
               <h2 className="text-[24px] font-medium text-heading">Course Content</h2>
               <Button
                 type="button"
-                onClick={() => setExpandAll((v) => !v)}
-                className="px-0 py-0 text-sm font-normal text-primary shadow-none hover:translate-y-0 hover:bg-transparent hover:from-transparent hover:to-transparent hover:shadow-none hover:underline bg-transparent"
+                onClick={() => setExpandAll((value) => !value)}
+                className="bg-transparent px-0 py-0 text-sm font-normal text-primary shadow-none hover:translate-y-0 hover:bg-transparent hover:from-transparent hover:to-transparent hover:shadow-none hover:underline"
               >
                 {expandAll ? 'Collapse all sections' : 'Expand all sections'}
               </Button>
             </div>
 
             <div className="overflow-hidden rounded-lg border border-[#D3D2D3] bg-white">
-              {course.curriculum.map((week) => {
-                const isOpen = expandAll || openWeek === week.week
-                return (
-                  <div key={week.week} className="border-b border-[#E5E7EB] last:border-b-0">
-                    <Button
-                      type="button"
-                      onClick={() => setOpenWeek(isOpen ? null : week.week)}
-                      className="flex w-full items-center justify-between rounded-none px-4 py-3 text-left font-normal shadow-none hover:translate-y-0 hover:bg-[#F8F8FA] hover:from-[#F8F8FA] hover:to-[#F8F8FA] hover:shadow-none bg-transparent"
-                    >
+              {curriculum.length === 0 ? (
+                <p className="px-4 py-6 text-sm text-[#474348]">Course content coming soon.</p>
+              ) : (
+                curriculum.map((week) => {
+                  const isOpen = expandAll || openWeek === week.week
+                  return (
+                    <div key={week.week} className="border-b border-[#E5E7EB] last:border-b-0">
+                      <Button
+                        type="button"
+                        onClick={() => setOpenWeek(isOpen ? null : week.week)}
+                        className="flex w-full items-center justify-between rounded-none bg-transparent px-4 py-3 text-left font-normal shadow-none hover:translate-y-0 hover:bg-[#F8F8FA] hover:from-[#F8F8FA] hover:to-[#F8F8FA] hover:shadow-none"
+                      >
                         <p className="text-lg font-medium text-heading">{week.title}</p>
-                      <div className="flex items-center gap-2">
-                      <p className="text-sm text-heading hidden md:block">
-                          {week.topics.length} lectures
-                        </p>
-                      <ChevronDown className={`h-4 w-4 text-[#696969] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-                      </div>
-                    </Button>
-                    {isOpen ? (
-                      <ul className="space-y-1 px-4 ">
-                        {week.topics.map((topic, idx) => (
-                          <li key={idx} className="text-primary py-3 border-b border-[#E5E7EB]">
-                            {topic}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : null}
-                  </div>
-                )
-              })}
+                        <div className="flex items-center gap-2">
+                          <p className="hidden text-sm text-heading md:block">
+                            {week.topics.length} lectures
+                          </p>
+                          <ChevronDown
+                            className={`h-4 w-4 text-[#696969] transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                          />
+                        </div>
+                      </Button>
+                      {isOpen ? (
+                        <ul className="space-y-1 px-4">
+                          {week.topics.map((topic) => (
+                            <li key={topic.id} className="border-b border-[#E5E7EB] py-3 text-primary">
+                              {topic.title}
+                              {topic.isQuiz ? (
+                                <span className="ml-2 rounded bg-[#EEF0F6] px-2 py-0.5 text-xs font-medium text-[#303869]">
+                                  Quiz
+                                </span>
+                              ) : null}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                    </div>
+                  )
+                })
+              )}
             </div>
-            <Button
-              type="button"
-              onClick={() => setExpandAll(true)}
-              className="mt-4 w-full rounded-md border border-primary bg-transparent py-3 font-medium text-heading text-primary shadow-none hover:translate-y-0 hover:bg-[#F7F7FA] hover:from-[#F7F7FA] hover:to-[#F7F7FA] md:text-lg"
-            >
-              View All Modules
-            </Button>
           </section>
 
           <section id="course-description" className="mb-10">
             <h2 className="mb-3 text-[24px] font-medium text-heading">Description</h2>
-            <div className="space-y-4 md:text-lg tetx-sm leading-relaxed text-[#474348] md:font-medium">
+            <div className="tetx-sm space-y-4 leading-relaxed text-[#474348] md:text-lg md:font-medium">
               <p>{course.description}</p>
-              <p>{course.objective}</p>
-              <p>
-                We take you step-by-step through engaging video tutorials and practical activities so
-                you can apply what you learn immediately.
-              </p>
             </div>
           </section>
 
@@ -144,80 +202,73 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
             <div className="mb-6">
               <div className="grid gap-y-3 md:grid-cols-[100px_1fr_88px] md:items-center md:gap-x-3 md:gap-y-2">
                 <div className="text-center text-[48px] font-bold text-heading md:row-span-5 md:text-left">
-                  {course.rating}
-                  <p className="mt-2 text-center text-sm text-[#474348] font-normal md:-mt-4 md:text-left md:hidden ">Course Rating</p>
+                  4.5
+                  <p className="mt-2 text-center text-sm font-normal text-[#474348] md:-mt-4 md:hidden md:text-left">
+                    Course Rating
+                  </p>
                 </div>
                 {feedbackBars.map((bar) => (
                   <div
                     key={bar.label}
-                    className="grid grid-cols-[1fr_90px] items-center gap-x-1.5 md:col-start-2 md:col-end-4 md:gap-x-3"
+                    className="grid grid-cols-[1fr_90px] items-center gap-x-1.5 md:col-span-2 md:col-end-4 md:gap-x-3"
                   >
                     <div className="h-2 overflow-hidden rounded-full bg-[#D3D2D3]">
                       <div className="h-full rounded bg-primary" style={{ width: bar.width }} />
                     </div>
-                    <span className="text-sm text-[#696969] text-right">{bar.label}</span>
+                    <span className="text-right text-sm text-[#696969]">{bar.label}</span>
                   </div>
                 ))}
               </div>
-              <p className="mt-2 text-center text-sm text-[#474348] md:-mt-4 md:text-left hidden md:block">Course Rating</p>
+              <p className="mt-2 hidden text-center text-sm text-[#474348] md:-mt-4 md:block md:text-left">
+                Course Rating
+              </p>
             </div>
 
-            {[1, 2].map((idx) => (
-              <article key={idx} className="mb-4  border-t border-[#E5E7EB]  p-4">
-                <div className="mb-2 flex items-center gap-2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-semibold text-white">
-                    MJ
-                  </div>
-                  <div>
-                    <p className="md:text-lg text-sm text-heading">Michael J.</p>
-                    <p className="text-xs text-[#474348]">2 weeks ago</p>
-                  </div>
-                </div>
-                <p className="md:text-lg text-sm text-[#474348]">
-                This course is absolutely amazing. The instructor explains everything clearly and the projects are very practical. I went from knowing nothing to building full-stack apps in just a few months. Highly recommended!
-                </p>
-              </article>
-            ))}
-
-            <Button
-              type="button"
-              className="w-full rounded-md border-[2px] border-[#E5E7EB] bg-transparent px-5 py-2 font-medium text-heading shadow-none hover:translate-y-0 hover:bg-[#F7F7FA] hover:from-[#F7F7FA] hover:to-[#F7F7FA] md:w-fit md:text-sm"
-            >
-              See all reviews
-            </Button>
+            <p className="text-sm text-[#474348]">Reviews will appear here once learners start enrolling.</p>
           </section>
         </div>
 
         <aside className="order-1 lg:order-2">
           <div className="sticky top-24 overflow-hidden rounded-lg border-[2px] border-[#E5E7EB]">
             <div className="relative aspect-[16/10]">
-              <Image src={IMAGES.course2} alt={course.title} fill className="object-cover" />
+              <Image src={thumbnail} alt={course.title} fill className="object-cover" />
             </div>
-            <div className="md:p-6 p-4">
-              <p className="text-[28px] md:text-[32px] font-bold text-primary md:mb-4">{course.price}</p>
-              <p className="mb-4 text-sm text-[#B83092]">2 days left at this price!</p>
-              <Button
-                type="button"
-                className="mb-4 w-full rounded-md bg-primary py-3 font-medium text-white hover:translate-y-0 hover:bg-[#232A59] hover:from-[#232A59] hover:to-[#232A59] md:mb-3 md:text-lg"
-              >
-                Add to Cart
-              </Button>
-              <Button
-                type="button"
-                className="mb-4 w-full rounded-md border border-primary bg-transparent py-3 font-semibold text-primary shadow-none hover:translate-y-0 hover:bg-[#F8F8FA] hover:from-[#F8F8FA] hover:to-[#F8F8FA] md:text-lg"
-              >
-                Buy Now
-              </Button>
+            <div className="p-4 md:p-6">
+              <p className="text-[28px] font-bold text-primary md:mb-4 md:text-[32px]">
+                {formatCoursePrice(course.price)}
+              </p>
+
+              {enrollError ? (
+                <p className="mb-3 text-sm text-secondary">{enrollError}</p>
+              ) : null}
+
+              {isEnrolled ? (
+                <Link
+                  href={`/dashboard/courses/${course.slug}`}
+                  className="mb-4 flex w-full items-center justify-center rounded-md bg-primary py-3 text-center text-lg font-medium text-white transition-colors hover:bg-[#232A59] md:mb-3"
+                >
+                  Continue Learning
+                </Link>
+              ) : (
+                <Button
+                  type="button"
+                  onClick={() => void handleEnroll()}
+                  disabled={enrolling || enrollmentsLoading || status === 'loading'}
+                  className="mb-4 w-full rounded-md bg-primary py-3 font-medium text-white hover:translate-y-0 hover:bg-[#232A59] hover:from-[#232A59] hover:to-[#232A59] md:mb-3 md:text-lg disabled:opacity-60"
+                >
+                  {enrolling ? 'Enrolling…' : isAuthenticated ? (isFreeCourse ? 'Enroll Now' : 'Buy Now') : 'Sign in to Enroll'}
+                </Button>
+              )}
 
               <p className="mb-2 text-sm font-semibold text-heading">This course includes</p>
               <ul className="space-y-2 text-sm text-[#474348]">
                 <li className="flex items-center gap-2">
                   <ICONS.Video width={16} height={16} className="shrink-0" />
-                  65.5 hours on-demand video
+                  {course.modules.reduce((total, module) => total + module.lessons.length, 0)} lessons
                 </li>
                 <li className="flex items-center gap-2">
                   <ICONS.BookDownload width={16} height={16} className="shrink-0" />
-                  48 downloadable resources
+                  {course.modules.length} modules
                 </li>
                 <li className="flex items-center gap-2">
                   <ICONS.Device width={16} height={16} className="shrink-0" />
@@ -225,7 +276,7 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
                 </li>
                 <li className="flex items-center gap-2">
                   <ICONS.Lifebuoy width={16} height={16} className="shrink-0" />
-                  Full lifetime access
+                  Instructor support
                 </li>
                 <li className="flex items-center gap-2">
                   <ICONS.Certificate width={16} height={16} className="shrink-0" />
@@ -237,37 +288,41 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
         </aside>
       </div>
 
-      <section className="mt-12">
-        <h2 className="mb-4 text-2xl font-semibold text-heading">People Also View</h2>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {relatedCourses.map((item, idx) => (
-            <Link
-              key={item.slug}
-              href={`/courses/${item.slug}`}
-              className="group flex flex-col overflow-hidden rounded-2xl border border-[#D3D2D3] bg-white transition-all hover:-translate-y-1 hover:shadow-lg"
-            >
-              <div className="w-full bg-white p-3">
-                <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-slate-100">
-                  <Image
-                    src={RELATED_IMAGES[idx % RELATED_IMAGES.length]}
-                    alt={item.title}
-                    fill
-                    className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
-                  />
+      {relatedCourses.length > 0 ? (
+        <section className="mt-12">
+          <h2 className="mb-4 text-2xl font-semibold text-heading">People Also View</h2>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {relatedCourses.map((item, idx) => (
+              <Link
+                key={item.slug}
+                href={`/courses/${item.slug}`}
+                className="group flex flex-col overflow-hidden rounded-2xl border border-[#D3D2D3] bg-white transition-all hover:-translate-y-1 hover:shadow-lg"
+              >
+                <div className="w-full bg-white p-3">
+                  <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-slate-100">
+                    <Image
+                      src={getCourseThumbnail(item, idx)}
+                      alt={item.title}
+                      fill
+                      className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="flex flex-1 flex-col px-4 pb-4 pt-2">
-                <span className="mb-2 w-fit rounded-sm bg-[#EEF0F6] px-2.5 py-1 text-xs font-medium text-slate-600">
-                  {item.category}
-                </span>
-                <h3 className="mb-1.5 line-clamp-1 text-base font-bold text-slate-900">{item.title}</h3>
-                <p className="mb-4 line-clamp-2 flex-1 text-sm leading-relaxed text-slate-500">{item.description}</p>
-                <p className="text-base font-bold text-slate-900">{item.price}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
+                <div className="flex flex-1 flex-col px-4 pb-4 pt-2">
+                  <span className="mb-2 w-fit rounded-sm bg-[#EEF0F6] px-2.5 py-1 text-xs font-medium text-slate-600">
+                    {item.category.name}
+                  </span>
+                  <h3 className="mb-1.5 line-clamp-1 text-base font-bold text-slate-900">{item.title}</h3>
+                  <p className="mb-4 line-clamp-2 flex-1 text-sm leading-relaxed text-slate-500">
+                    {item.description}
+                  </p>
+                  <p className="text-base font-bold text-slate-900">{formatCoursePrice(item.price)}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
     </div>
   )
 }

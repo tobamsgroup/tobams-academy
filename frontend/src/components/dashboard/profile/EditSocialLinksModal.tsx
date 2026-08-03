@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { EditSocialLinksModalProps, SocialLinkData } from "@/types/profile";
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -16,26 +17,12 @@ const BackArrowIcon = () => (
   </svg>
 );
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-
-export interface SocialLinkData {
-  label: string;
-  url: string;
-  placeholder: string;
-}
-
-interface Props {
-  links: SocialLinkData[];
-  onClose: () => void;
-  onSave: (updated: SocialLinkData[]) => void;
-}
-
 // ── Component ─────────────────────────────────────────────────────────────────
 
 const inputClass =
   "w-full rounded border border-[#D3D2D3] bg-white px-2 py-2.5 text-heading placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition";
 
-export default function EditSocialLinksModal({ links, onClose, onSave }: Props) {
+export default function EditSocialLinksModal({ links, onClose, onSave }: EditSocialLinksModalProps) {
   const [values, setValues] = useState<SocialLinkData[]>(links.map((l) => ({ ...l })));
 
   function handleChange(index: number, url: string) {

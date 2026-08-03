@@ -1,3 +1,6 @@
+import type { CourseModule, Lesson } from '@/types/course'
+import { isQuizLesson } from '@/lib/quiz-utils'
+
 export type LessonKind = "video" | "doc" | "pdf" | "screen" | "quiz" | "assessment";
 
 export type PlayerLesson = {
@@ -15,7 +18,29 @@ export type PlayerModule = {
   lessons: PlayerLesson[];
 };
 
-/** Shared mock curriculum for any enrolled course (replace with API by course id later). */
+function mapApiLessonKind(lesson: Lesson): LessonKind {
+  if (isQuizLesson(lesson)) return 'quiz'
+  if (lesson.kind === 'ASSESSMENT') return 'assessment'
+  if (lesson.kind === 'PDF') return 'pdf'
+  if (lesson.kind === 'DOC') return 'doc'
+  if (lesson.kind === 'SCREEN') return 'screen'
+  return 'video'
+}
+
+export function mapApiModulesToPlayerModules(modules: CourseModule[]): PlayerModule[] {
+  return modules.map((module) => ({
+    id: module.id,
+    title: module.title,
+    lessons: module.lessons.map((lesson) => ({
+      id: lesson.id,
+      title: lesson.title,
+      durationMin: lesson.duration ?? 0,
+      kind: mapApiLessonKind(lesson),
+    })),
+  }))
+}
+
+/** @deprecated Use mapApiModulesToPlayerModules with course.modules from GET /courses/:slug */
 export function getCoursePlayerCurriculum(_courseId: string): PlayerModule[] {
   void _courseId;
   return [

@@ -55,6 +55,7 @@ export function BasicsOfInterestPdfLessonContent({
   moduleTitle,
   lesson,
   isCompleted,
+  isMarkingComplete,
   onMarkComplete,
   prevLesson,
   nextLesson,
@@ -183,10 +184,10 @@ export function BasicsOfInterestPdfLessonContent({
           <button
             type="button"
             onClick={onMarkComplete}
-            disabled={isCompleted}
+            disabled={isCompleted || isMarkingComplete}
             className="w-full rounded-lg bg-[#303869] px-5 py-3 text-sm font-medium text-white hover:bg-[#252d56] disabled:cursor-default disabled:opacity-60 md:w-auto"
           >
-            {isCompleted ? "Completed" : "Mark As Completed"}
+            {isCompleted ? "Completed" : isMarkingComplete ? "Saving…" : "Mark As Completed"}
           </button>
         </div>
 

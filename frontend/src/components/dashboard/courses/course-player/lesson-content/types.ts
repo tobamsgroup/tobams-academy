@@ -1,12 +1,13 @@
-import type { EnrolledCourse } from "../../courses-data";
+import type { PlayerCourse } from "./player-course";
 import type { PlayerLesson } from "../curriculum";
 
 export type LessonContentCommonProps = {
-  course: EnrolledCourse;
+  course: PlayerCourse;
   moduleTitle: string;
   lesson: PlayerLesson;
   isCompleted: boolean;
-  onMarkComplete: () => void;
+  isMarkingComplete?: boolean;
+  onMarkComplete: () => void | Promise<void>;
   prevLesson: PlayerLesson | undefined;
   nextLesson: PlayerLesson | undefined;
   onSelectLesson: (id: string) => void;

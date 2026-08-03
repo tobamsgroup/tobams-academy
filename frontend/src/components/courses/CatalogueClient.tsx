@@ -1,19 +1,21 @@
 'use client'
 
-import { useState, useMemo, useRef, useEffect } from 'react'
+import { useState, useMemo, useRef, useEffect, useDeferredValue } from 'react'
 import { Search, ChevronDown, SlidersHorizontal } from 'lucide-react'
 import { CourseCard } from './CourseCard'
 import { CoursesEmptyState } from './CoursesEmptyState'
-import type { LocalCourse } from '@/types/course'
 import { Button } from '../ui/Button'
+import { useCourses } from '@/hooks/useCourses'
+import { useCategories } from '@/hooks/useCategories'
+import {
+  CATALOGUE_PAGE_SIZE,
+  LEVEL_LABELS,
+  LEVEL_OPTIONS,
+  mapCatalogueSortToApi,
+  parseCoursePrice,
+  sortCatalogueCourses,
+} from '@/lib/catalogue-courses'
 
-interface Props {
-  courses: LocalCourse[]
-  categories: string[]
-}
-
-const LEVELS = ['Beginner', 'Intermediate', 'Advanced'] as const
-const RATING_OPTIONS = [4, 3, 2] as const
 const SORT_OPTIONS = [
   { id: 'trending', label: 'Trending' },
   { id: 'oldest', label: 'Oldest' },
@@ -21,45 +23,43 @@ const SORT_OPTIONS = [
   { id: 'highest_price', label: 'Highest Price' },
   { id: 'lowest_price', label: 'Lowest Price' },
 ] as const
-type FilterSectionKey = 'category' | 'level' | 'rating' | 'duration' | 'price'
+type FilterSectionKey = 'category' | 'level' | 'price'
 
-export function CatalogueClient({ courses, categories }: Props) {
+export function CatalogueClient() {
   const [search, setSearch] = useState('')
   const [sortBy, setSortBy] = useState('trending')
   const [sortOpen, setSortOpen] = useState(false)
-  const [selCategories, setSelCategories] = useState<string[]>([])
+  const [selCategoryIds, setSelCategoryIds] = useState<string[]>([])
   const [selLevels, setSelLevels] = useState<string[]>([])
-  const [selRatings, setSelRatings] = useState<number[]>([])
-  const [selDurations, setSelDurations] = useState<string[]>([])
   const [filterOpen, setFilterOpen] = useState(false)
   const [priceMin, setPriceMin] = useState('')
   const [priceMax, setPriceMax] = useState('')
   const [selPriceTypes, setSelPriceTypes] = useState<string[]>([])
+  const [currentPage, setCurrentPage] = useState(1)
   const [filterSectionsOpen, setFilterSectionsOpen] = useState<Record<FilterSectionKey, boolean>>({
     category: true,
     level: true,
-    rating: true,
-    duration: true,
     price: true,
   })
   const controlsRef = useRef<HTMLDivElement>(null)
 
-  const allDurations = useMemo(
-    () =>
-      [...new Set(courses.map((c) => c.duration))].sort((a, b) => {
-        const an = parseInt(a, 10)
-        const bn = parseInt(b, 10)
-        return an - bn
-      }),
-    [courses],
-  )
+  const deferredSearch = useDeferredValue(search.trim())
+  const { categories } = useCategories()
+  const apiCategoryId = selCategoryIds.length === 1 ? selCategoryIds[0] : undefined
+
+  const { courses, meta, error, isLoading } = useCourses({
+    search: deferredSearch || undefined,
+    categoryId: apiCategoryId,
+    page: currentPage,
+    limit: CATALOGUE_PAGE_SIZE,
+    sort: mapCatalogueSortToApi(sortBy),
+  })
 
   const priceCounts = useMemo(() => {
     let paid = 0
     let free = 0
-    courses.forEach((c) => {
-      const n = Number.parseFloat(String(c.price).replace(/[^\d.]/g, ''))
-      if (Number.isFinite(n) && n > 0) paid += 1
+    courses.forEach((course) => {
+      if (parseCoursePrice(course.price) > 0) paid += 1
       else free += 1
     })
     return { paid, free }
@@ -75,20 +75,20 @@ export function CatalogueClient({ courses, categories }: Props) {
     return () => document.removeEventListener('mousedown', onPointerDown)
   }, [])
 
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [deferredSearch, selCategoryIds, selLevels, priceMin, priceMax, selPriceTypes, sortBy])
+
   const filtered = useMemo(() => {
-    const q = search.toLowerCase()
     const minValue = Number.parseFloat(priceMin)
     const maxValue = Number.parseFloat(priceMax)
 
-    return courses.filter((c) => {
-      const priceValue = Number.parseFloat(String(c.price).replace(/[^\d.]/g, '')) || 0
+    return courses.filter((course) => {
+      const priceValue = parseCoursePrice(course.price)
       const isPaid = priceValue > 0
-      if (q && !c.title.toLowerCase().includes(q) && !c.description.toLowerCase().includes(q))
-        return false
-      if (selCategories.length > 0 && !selCategories.includes(c.category)) return false
-      if (selLevels.length > 0 && !selLevels.includes(c.level)) return false
-      if (selRatings.length > 0 && !selRatings.some((r) => c.rating >= r)) return false
-      if (selDurations.length > 0 && !selDurations.includes(c.duration)) return false
+
+      if (selCategoryIds.length > 1 && !selCategoryIds.includes(course.category.id)) return false
+      if (selLevels.length > 0 && !selLevels.includes(LEVEL_LABELS[course.level])) return false
       if (Number.isFinite(minValue) && priceValue < minValue) return false
       if (Number.isFinite(maxValue) && priceValue > maxValue) return false
       if (selPriceTypes.length > 0) {
@@ -97,30 +97,14 @@ export function CatalogueClient({ courses, categories }: Props) {
       }
       return true
     })
-  }, [courses, search, selCategories, selLevels, selRatings, selDurations, priceMin, priceMax, selPriceTypes])
+  }, [courses, selCategoryIds, selLevels, priceMin, priceMax, selPriceTypes])
 
-  const sorted = useMemo(() => {
-    const list = [...filtered]
-    if (sortBy === 'trending') {
-      return list.sort((a, b) => b.rating - a.rating)
-    }
-    if (sortBy === 'latest') return list.reverse()
-    if (sortBy === 'highest_price') {
-      return list.sort(
-        (a, b) =>
-          (Number.parseFloat(String(b.price).replace(/[^\d.]/g, '')) || 0) -
-          (Number.parseFloat(String(a.price).replace(/[^\d.]/g, '')) || 0),
-      )
-    }
-    if (sortBy === 'lowest_price') {
-      return list.sort(
-        (a, b) =>
-          (Number.parseFloat(String(a.price).replace(/[^\d.]/g, '')) || 0) -
-          (Number.parseFloat(String(b.price).replace(/[^\d.]/g, '')) || 0),
-      )
-    }
-    return list
-  }, [filtered, sortBy])
+  const sorted = useMemo(
+    () => sortCatalogueCourses(filtered, sortBy),
+    [filtered, sortBy],
+  )
+
+  const totalPages = meta?.totalPages ?? 1
 
   function toggle<T>(arr: T[], val: T): T[] {
     return arr.includes(val) ? arr.filter((x) => x !== val) : [...arr, val]
@@ -129,13 +113,12 @@ export function CatalogueClient({ courses, categories }: Props) {
   function resetFilters() {
     setSearch('')
     setSortBy('trending')
-    setSelCategories([])
+    setSelCategoryIds([])
     setSelLevels([])
-    setSelRatings([])
-    setSelDurations([])
     setPriceMin('')
     setPriceMax('')
     setSelPriceTypes([])
+    setCurrentPage(1)
   }
 
   function toggleFilterSection(section: FilterSectionKey) {
@@ -144,12 +127,10 @@ export function CatalogueClient({ courses, categories }: Props) {
 
   return (
     <div className="min-h-screen">
-      {/* Top bar */}
       <div className="relative bg-white px-6 py-4" ref={controlsRef}>
         <div className="mx-auto flex max-w-[1312px] items-center gap-3">
-          {/* Mobile filter toggle */}
           <button
-            className={`md:hidden order-2 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border text-slate-600 ${
+            className={`order-2 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border text-slate-600 md:hidden ${
               filterOpen ? 'border-[#E5E7EB] bg-[#EEF0F6]' : 'border-slate-200 bg-white'
             }`}
             onClick={() => setFilterOpen((o) => !o)}
@@ -158,8 +139,7 @@ export function CatalogueClient({ courses, categories }: Props) {
             <SlidersHorizontal className="h-4 w-4" />
           </button>
 
-          {/* Search */}
-          <div className="flex w-full order-1 items-center justify-end gap-3 md:order-2">
+          <div className="order-1 flex w-full items-center justify-end gap-3 md:order-2">
             <div className="relative w-full md:max-w-[520px]">
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
               <input
@@ -221,7 +201,6 @@ export function CatalogueClient({ courses, categories }: Props) {
               </button>
             </div>
           </div>
-
         </div>
 
         {filterOpen ? (
@@ -230,21 +209,19 @@ export function CatalogueClient({ courses, categories }: Props) {
               <div className="ml-auto w-full max-w-[371px] rounded-2xl border border-[#D3D2D3] bg-[#FFFAFA] p-7">
                 <div className="md:hidden">
                   <div className="pb-4 text-left font-medium text-[#221D23]">Sort by:</div>
-                  <div className="">
-                    <div className="relative">
-                      <select
-                        value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value)}
-                        className="h-11 w-full appearance-none rounded-lg border border-[#DEDEDE] bg-white px-4 pr-10 text-sm text-[#221D23] outline-none"
-                      >
-                        {SORT_OPTIONS.map((option) => (
-                          <option key={option.id} value={option.id}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#696969]" />
-                    </div>
+                  <div className="relative">
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value)}
+                      className="h-11 w-full appearance-none rounded-lg border border-[#DEDEDE] bg-white px-4 pr-10 text-sm text-[#221D23] outline-none"
+                    >
+                      {SORT_OPTIONS.map((option) => (
+                        <option key={option.id} value={option.id}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#696969]" />
                   </div>
                 </div>
 
@@ -252,7 +229,7 @@ export function CatalogueClient({ courses, categories }: Props) {
                   <button
                     type="button"
                     onClick={() => toggleFilterSection('category')}
-                    className="flex w-full items-center justify-between p-5 text-left md:text-[20px] font-medium text-[#221D23]"
+                    className="flex w-full items-center justify-between p-5 text-left font-medium text-[#221D23] md:text-[20px]"
                   >
                     Category
                     <ChevronDown
@@ -262,15 +239,17 @@ export function CatalogueClient({ courses, categories }: Props) {
                   {filterSectionsOpen.category ? (
                     <div className="space-y-4 border-t border-[#D3D2D3] p-5">
                       {categories.map((cat) => (
-                        <label key={cat} className="flex cursor-pointer items-center gap-3 text-sm text-[#252A64]">
+                        <label key={cat.id} className="flex cursor-pointer items-center gap-3 text-sm text-[#252A64]">
                           <input
                             type="checkbox"
-                            checked={selCategories.includes(cat)}
-                            onChange={() => setSelCategories(toggle(selCategories, cat))}
+                            checked={selCategoryIds.includes(cat.id)}
+                            onChange={() => setSelCategoryIds(toggle(selCategoryIds, cat.id))}
                             className="h-[18px] w-[18px] rounded border-[#151515] accent-primary"
                           />
-                          <span className="flex-1">{cat}</span>
-                          <span className="text-[#696969]">{courses.filter((c) => c.category === cat).length}</span>
+                          <span className="flex-1">{cat.name}</span>
+                          <span className="text-[#696969]">
+                            {courses.filter((c) => c.category.id === cat.id).length}
+                          </span>
                         </label>
                       ))}
                     </div>
@@ -281,7 +260,7 @@ export function CatalogueClient({ courses, categories }: Props) {
                   <button
                     type="button"
                     onClick={() => toggleFilterSection('level')}
-                    className="flex w-full items-center justify-between p-5 text-left md:text-[20px] font-medium text-[#221D23]"
+                    className="flex w-full items-center justify-between p-5 text-left font-medium text-[#221D23] md:text-[20px]"
                   >
                     Level
                     <ChevronDown
@@ -290,7 +269,7 @@ export function CatalogueClient({ courses, categories }: Props) {
                   </button>
                   {filterSectionsOpen.level ? (
                     <div className="space-y-4 border-t border-[#DEDEDE] p-5">
-                      {LEVELS.map((level) => (
+                      {LEVEL_OPTIONS.map((level) => (
                         <label key={level} className="flex cursor-pointer items-center gap-3 text-sm text-[#252A64]">
                           <input
                             type="checkbox"
@@ -299,66 +278,9 @@ export function CatalogueClient({ courses, categories }: Props) {
                             className="h-[18px] w-[18px] rounded border-[#151515] accent-primary"
                           />
                           <span className="flex-1">{level}</span>
-                          <span className="text-[#696969]">{courses.filter((c) => c.level === level).length}</span>
-                        </label>
-                      ))}
-                    </div>
-                  ) : null}
-                </div>
-
-                <div className="mt-5 rounded-lg border border-[#DEDEDE] bg-white">
-                  <button
-                    type="button"
-                    onClick={() => toggleFilterSection('rating')}
-                    className="flex w-full items-center justify-between p-5 text-left md:text-[20px] font-medium text-[#221D23]"
-                  >
-                    Rating
-                    <ChevronDown
-                      className={`h-4 w-4 transition-transform ${filterSectionsOpen.rating ? 'rotate-180' : ''}`}
-                    />
-                  </button>
-                  {filterSectionsOpen.rating ? (
-                    <div className="space-y-4 border-t border-[#DEDEDE] p-5">
-                      {RATING_OPTIONS.map((rating) => (
-                        <label key={rating} className="flex cursor-pointer items-center gap-3 text-sm text-[#252A64]">
-                          <input
-                            type="checkbox"
-                            checked={selRatings.includes(rating)}
-                            onChange={() => setSelRatings(toggle(selRatings, rating))}
-                            className="h-[18px] w-[18px] rounded border-[#151515] accent-primary"
-                          />
-                          <span className="flex-1">{`${'★'.repeat(rating)}${'☆'.repeat(5 - rating)} ${rating}+`}</span>
-                        </label>
-                      ))}
-                    </div>
-                  ) : null}
-                </div>
-
-                <div className="mt-5 rounded-lg border border-[#DEDEDE] bg-white">
-                  <button
-                    type="button"
-                    onClick={() => toggleFilterSection('duration')}
-                    className="flex w-full items-center justify-between p-5 text-left md:text-[20px] font-medium text-[#221D23]"
-                  >
-                    Duration
-                    <ChevronDown
-                      className={`h-4 w-4 transition-transform ${filterSectionsOpen.duration ? 'rotate-180' : ''}`}
-                    />
-                  </button>
-                  {filterSectionsOpen.duration ? (
-                    <div className="space-y-4 border-t border-[#DEDEDE] p-5">
-                      {allDurations.map((duration) => (
-                        <label
-                          key={duration}
-                          className="flex cursor-pointer items-center gap-3 text-sm text-[#252A64]"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={selDurations.includes(duration)}
-                            onChange={() => setSelDurations(toggle(selDurations, duration))}
-                            className="h-[18px] w-[18px] rounded border-[#151515] accent-primary"
-                          />
-                          <span className="flex-1">{duration}</span>
+                          <span className="text-[#696969]">
+                            {courses.filter((c) => LEVEL_LABELS[c.level] === level).length}
+                          </span>
                         </label>
                       ))}
                     </div>
@@ -369,7 +291,7 @@ export function CatalogueClient({ courses, categories }: Props) {
                   <button
                     type="button"
                     onClick={() => toggleFilterSection('price')}
-                    className="flex w-full items-center justify-between p-5 text-left md:text-[20px] font-medium text-[#221D23]"
+                    className="flex w-full items-center justify-between p-5 text-left font-medium text-[#221D23] md:text-[20px]"
                   >
                     Price
                     <ChevronDown
@@ -383,7 +305,7 @@ export function CatalogueClient({ courses, categories }: Props) {
                           value={priceMin}
                           onChange={(e) => setPriceMin(e.target.value)}
                           placeholder="£ min:"
-                          className="h-[48px] rounded-lg border border-[#DEDEDE] bg-transparent px-4  text-[#3C3C3C] outline-none"
+                          className="h-[48px] rounded-lg border border-[#DEDEDE] bg-transparent px-4 text-[#3C3C3C] outline-none"
                         />
                         <input
                           value={priceMax}
@@ -417,7 +339,7 @@ export function CatalogueClient({ courses, categories }: Props) {
                 <Button
                   type="button"
                   onClick={resetFilters}
-                  className="bg-primary text-white mt-4 font-medium text-base border-[2px] border-primary px-6 py-3 hover:bg-[#162060] hover:from-[#162060] hover:to-[#162060] hover:translate-y-0 w-full"
+                  className="mt-4 w-full border-[2px] border-primary bg-primary px-6 py-3 text-base font-medium text-white hover:translate-y-0 hover:bg-[#162060] hover:from-[#162060] hover:to-[#162060]"
                 >
                   Reset
                 </Button>
@@ -427,131 +349,72 @@ export function CatalogueClient({ courses, categories }: Props) {
         ) : null}
       </div>
 
-      {/* Layout */}
-      <div className="mx-auto max-w-7xl flex gap-0">
-        {/* Sidebar */}
-        {/* <aside
-          className={`
-            ${sidebarOpen ? 'block' : 'hidden'} md:block
-            w-64 shrink-0 border-r border-slate-200 bg-white px-5 py-6
-          `}
+      <div className="mx-auto w-full max-w-7xl px-6 md:px-0">
+        <main
+          className={
+            !isLoading && sorted.length === 0
+              ? 'flex w-full min-h-[calc(100vh-260px)] items-center justify-center py-10'
+              : 'w-full py-8'
+          }
         >
-          {categories.length > 1 && (
-            <FilterSection title="Category">
-              {categories.map((cat) => (
-                <CheckboxRow
-                  key={cat}
-                  label={cat}
-                  count={courses.filter((c) => c.category === cat).length}
-                  checked={selCategories.includes(cat)}
-                  onChange={() => setSelCategories(toggle(selCategories, cat))}
-                />
-              ))}
-            </FilterSection>
-          )}
-
-          <FilterSection title="Level">
-            {LEVELS.map((level) => (
-              <CheckboxRow
-                key={level}
-                label={level}
-                count={courses.filter((c) => c.level === level).length}
-                checked={selLevels.includes(level)}
-                onChange={() => setSelLevels(toggle(selLevels, level))}
-              />
-            ))}
-          </FilterSection>
-
-          <FilterSection title="Rating">
-            {RATING_OPTIONS.map((r) => (
-              <CheckboxRow
-                key={r}
-                label={`${'★'.repeat(r)}${'☆'.repeat(5 - r)}  ${r}+`}
-                checked={selRatings.includes(r)}
-                onChange={() => setSelRatings(toggle(selRatings, r))}
-              />
-            ))}
-          </FilterSection>
-
-          <FilterSection title="Price">
-            <p className="text-xs text-slate-500">
-              All courses are{' '}
-              <span className="font-semibold text-[#571244]">Free</span>
-            </p>
-          </FilterSection>
-
-          <FilterSection title="Duration">
-            {allDurations.map((d) => (
-              <CheckboxRow
-                key={d}
-                label={d}
-                checked={selDurations.includes(d)}
-                onChange={() => setSelDurations(toggle(selDurations, d))}
-              />
-            ))}
-          </FilterSection>
-        </aside> */}
-
-        {/* Course grid */}
-        <main className="py-8 px-6 md:px-0">
-          {sorted.length > 0 ? (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {sorted.map((course) => (
-                <CourseCard key={course.id} course={course} />
-              ))}
+          {error ? (
+            <div className="rounded-lg bg-secondary/10 p-4 text-sm text-secondary">
+              Unable to load courses. Please try again.
             </div>
+          ) : null}
+
+          {isLoading ? (
+            <div className="w-full py-16 text-center text-sm text-slate-500">Loading courses…</div>
+          ) : sorted.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {sorted.map((course, index) => (
+                  <CourseCard key={course.id} course={course} index={index} />
+                ))}
+              </div>
+
+              {totalPages > 1 ? (
+                <div className="mt-10 flex items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    disabled={currentPage <= 1}
+                    onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                    className="rounded-lg border border-[#D3D2D3] px-4 py-2 text-sm text-[#474348] disabled:opacity-40"
+                  >
+                    Previous
+                  </button>
+                  <span className="text-sm text-[#474348]">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <button
+                    type="button"
+                    disabled={currentPage >= totalPages}
+                    onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                    className="rounded-lg border border-[#D3D2D3] px-4 py-2 text-sm text-[#474348] disabled:opacity-40"
+                  >
+                    Next
+                  </button>
+                </div>
+              ) : null}
+            </>
           ) : (
-            <CoursesEmptyState search={search} />
+            <CoursesEmptyState
+              onExplore={() => {
+                setSearch('')
+                setSelCategoryIds([])
+                setSelLevels([])
+                setPriceMin('')
+                setPriceMax('')
+                setSelPriceTypes([])
+                setSortBy('trending')
+                setCurrentPage(1)
+                setFilterOpen(false)
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+              }}
+            />
           )}
         </main>
       </div>
     </div>
-  )
-}
-
-// ── Sub-components ──────────────────────────────────────────────────────────
-
-function FilterSection({ title, children }: { title: string; children: React.ReactNode }) {
-  const [open, setOpen] = useState(true)
-  return (
-    <div className="mb-6">
-      <button
-        onClick={() => setOpen((o) => !o)}
-        className="mb-3 flex w-full items-center justify-between text-sm font-semibold text-slate-800"
-      >
-        {title}
-        <ChevronDown
-          className={`h-4 w-4 text-slate-400 transition-transform ${open ? '' : '-rotate-90'}`}
-        />
-      </button>
-      {open && <div className="space-y-2">{children}</div>}
-    </div>
-  )
-}
-
-function CheckboxRow({
-  label,
-  count,
-  checked,
-  onChange,
-}: {
-  label: string
-  count?: number
-  checked: boolean
-  onChange: () => void
-}) {
-  return (
-    <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-600 hover:text-slate-900">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={onChange}
-        className="h-4 w-4 rounded border-slate-300 accent-[#571244]"
-      />
-      <span className="flex-1">{label}</span>
-      {count !== undefined && (
-        <span className="text-xs text-slate-400">({count})</span>
-      )}
-    </label>
   )
 }

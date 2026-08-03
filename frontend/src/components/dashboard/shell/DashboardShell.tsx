@@ -19,7 +19,8 @@ export function DashboardShell({
 
   const showCoursePlayer = (() => {
     const m = pathname.match(/^\/dashboard\/courses\/([^/]+)$/)
-    return Boolean(m?.[1] && m[1] !== 'learning')
+    const segment = m?.[1]
+    return Boolean(segment && segment !== "learning" && segment !== "explore")
   })()
 
   useEffect(() => {

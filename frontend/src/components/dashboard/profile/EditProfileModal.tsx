@@ -2,56 +2,13 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
-
-// ── Icons ─────────────────────────────────────────────────────────────────────
-
-const CloseIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M18 6 6 18M6 6l12 12" />
-  </svg>
-);
-
-const BackArrowIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M19 12H5M12 19l-7-7 7-7" />
-  </svg>
-);
-
-const UserPlaceholderIcon = () => (
-  <svg width="56" height="56" viewBox="0 0 24 24" fill="currentColor" className="text-gray-400">
-    <path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z" />
-    <path d="M3 21c0-4 4-7 9-7s9 3 9 7" />
-  </svg>
-);
-
-const UploadIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
-  </svg>
-);
-
-// ── Types ─────────────────────────────────────────────────────────────────────
-
-export interface EditProfileData {
-  name: string;
-  email: string;
-  phone: string;
-  bio: string;
-  avatarUrl: string;
-}
-
-interface Props {
-  profile: EditProfileData;
-  onClose: () => void;
-  onSave: (updated: Partial<EditProfileData>) => void;
-}
-
-// ── Component ─────────────────────────────────────────────────────────────────
+import { ICONS } from "@/assets/icons";
+import type { EditProfileModalProps } from "@/types/profile";
 
 const inputClass =
   "w-full rounded border border-[#D3D2D3] bg-white px-2 py-2.5 text-heading placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition";
 
-export default function EditProfileModal({ profile, onClose, onSave }: Props) {
+export default function EditProfileModal({ profile, onClose, onSave }: EditProfileModalProps) {
   const [name, setName] = useState(profile.name);
   const [email, setEmail] = useState(profile.email);
   const [phone, setPhone] = useState(profile.phone);
@@ -65,7 +22,7 @@ export default function EditProfileModal({ profile, onClose, onSave }: Props) {
   }
 
   function handleSave() {
-    onSave({ name, email, phone, bio, avatarUrl: avatarPreview });
+    onSave({ name, phone, bio, avatarUrl: avatarPreview });
     onClose();
   }
 
@@ -76,15 +33,13 @@ export default function EditProfileModal({ profile, onClose, onSave }: Props) {
     >
       <div className="h-full w-full flex flex-col md:h-auto md:max-w-[607px] md:rounded-lg md:max-h-[90vh] md:bg-[#FAFDFF]">
 
-        {/* Mobile header: back arrow + stacked title */}
         <div className="md:hidden px-6 pt-5 pb-4 shrink-0">
           <button onClick={onClose} className="text-heading" aria-label="Back">
-            <BackArrowIcon />
+            <ICONS.ProfileBackArrow />
           </button>
           <h2 className="text-[20px] font-semibold text-heading mt-2">Edit Profile</h2>
         </div>
 
-        {/* Desktop header: title + close button inline */}
         <div className="hidden md:flex items-center justify-between px-6 pt-5 pb-4 shrink-0">
           <h2 className="text-[20px] font-semibold text-heading">Edit Profile</h2>
           <button
@@ -92,13 +47,11 @@ export default function EditProfileModal({ profile, onClose, onSave }: Props) {
             className="flex h-12 w-12 font-semibold items-center justify-center rounded-full bg-[#D3D2D366] text-heading hover:bg-gray-200 transition-colors"
             aria-label="Close"
           >
-            <CloseIcon />
+            <ICONS.ProfileClose />
           </button>
         </div>
 
-        {/* Scrollable body + footer together */}
         <div className="overflow-y-auto px-6 py-5 flex flex-col gap-6 flex-1">
-          {/* Avatar upload */}
           <div className="flex flex-col items-center gap-6">
             <div className="h-[108px] w-[100px] rounded-full bg-gray-100 overflow-hidden flex items-center justify-center ring-2 ring-gray-200">
               {avatarPreview ? (
@@ -111,7 +64,7 @@ export default function EditProfileModal({ profile, onClose, onSave }: Props) {
                   unoptimized={avatarPreview.startsWith("blob:")}
                 />
               ) : (
-                <UserPlaceholderIcon />
+                <ICONS.ProfileUserPlaceholder />
               )}
             </div>
             <button
@@ -119,7 +72,7 @@ export default function EditProfileModal({ profile, onClose, onSave }: Props) {
               onClick={() => fileInputRef.current?.click()}
               className="flex items-center gap-1.5 text-sm text-heading border border-[#D3D2D366] bg-white rounded-lg px-3 py-1.5 hover:bg-gray-50 transition-colors"
             >
-              <UploadIcon />
+              <ICONS.ProfileUpload />
               Change Image
             </button>
             <input
@@ -131,7 +84,6 @@ export default function EditProfileModal({ profile, onClose, onSave }: Props) {
             />
           </div>
 
-          {/* Fields */}
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-heading">Name</label>
@@ -149,9 +101,12 @@ export default function EditProfileModal({ profile, onClose, onSave }: Props) {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className={inputClass}
+                className={`${inputClass} cursor-not-allowed bg-gray-50 text-gray-500`}
                 placeholder="your@email.com"
+                readOnly
+                aria-readonly="true"
               />
+              <span className="text-xs text-gray-500">Email cannot be changed.</span>
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-heading">Phone Number</label>
@@ -175,7 +130,6 @@ export default function EditProfileModal({ profile, onClose, onSave }: Props) {
             </div>
           </div>
 
-          {/* Footer: stacked on mobile (save on top), side-by-side on desktop */}
           <div className="flex flex-col-reverse gap-3 pt-2 pb-4 md:flex-row md:border-t md:border-gray-100 md:pt-4">
             <button
               type="button"
