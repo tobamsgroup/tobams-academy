@@ -1,74 +1,70 @@
 import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getAuthUser } from '@/lib/with-auth'
 import { ok, err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
-import { toLessonCompleteResult, syncLessonProgressForEnrollment } from '@/lib/enrollment-utils'
+import { getAuthUser } from '@/lib/with-auth'
+
+async function computeProgress(enrollmentId: string, courseId: string) {
+  const [allLessons, lessonProgress] = await Promise.all([
+    prisma.lesson.findMany({
+      where: { module: { courseId } },
+      select: { id: true },
+    }),
+    prisma.lessonProgress.findMany({
+      where: { enrollmentId },
+      select: { lessonId: true },
+    }),
+  ])
+
+  const total = allLessons.length
+  const completed = lessonProgress.length
+  const progress = total > 0 ? Math.round((completed / total) * 100) : 0
+  const completedLessonIds = lessonProgress.map((lp) => lp.lessonId)
+
+  return { progress, completedLessonIds }
+}
 
 export const POST = withRoute(
-  '/api/v1/enrollments/:courseId/lessons/:lessonId/complete',
+  '/api/v1/enrollments/[courseId]/lessons/[lessonId]/complete',
   async (req: NextRequest, { params }: { params?: Promise<Record<string, string>> }) => {
-    const authUser = getAuthUser(req)
-    if (!authUser) return err('Unauthorized', 401)
+    const user = getAuthUser(req)
+    if (!user) return err('Unauthorized', 401)
 
     const { courseId, lessonId } = (await params) ?? {}
-    if (!courseId || !lessonId) return err('courseId and lessonId are required', 400)
+    if (!courseId || !lessonId) return err('courseId and lessonId are required')
 
     const enrollment = await prisma.enrollment.findUnique({
-      where: { userId_courseId: { userId: authUser.id, courseId } },
-      include: { lessonProgress: true },
+      where: { userId_courseId: { userId: user.id, courseId } },
     })
-    if (!enrollment) return err('Not enrolled in this course', 404)
+    if (!enrollment) return err('Not enrolled in this course', 403)
 
-    await syncLessonProgressForEnrollment(enrollment.id, courseId)
+    const lesson = await prisma.lesson.findFirst({
+      where: { id: lessonId, module: { courseId } },
+      select: { id: true },
+    })
+    if (!lesson) return err('Lesson not found in this course', 404)
 
-    const refreshedEnrollment = await prisma.enrollment.findUniqueOrThrow({
+    await prisma.lessonProgress.upsert({
+      where: { enrollmentId_lessonId: { enrollmentId: enrollment.id, lessonId } },
+      update: {},
+      create: { enrollmentId: enrollment.id, lessonId },
+    })
+
+    await prisma.enrollment.update({
       where: { id: enrollment.id },
-      include: { lessonProgress: true },
+      data: { lastAccessedAt: new Date() },
     })
 
-    let progressRow = refreshedEnrollment.lessonProgress.find((row) => row.lessonId === lessonId)
-    if (!progressRow) return err('Lesson not found in enrollment', 404)
+    const result = await computeProgress(enrollment.id, courseId)
 
-    const now = new Date()
-
-    if (!progressRow.completedAt) {
-      await prisma.lessonProgress.update({
-        where: { id: progressRow.id },
-        data: { completedAt: now },
+    // Mark enrollment as completed when progress reaches 100%
+    if (result.progress === 100 && !enrollment.completedAt) {
+      await prisma.enrollment.update({
+        where: { id: enrollment.id },
+        data: { completedAt: new Date() },
       })
     }
 
-    const totalLessons = await prisma.lesson.count({
-      where: { module: { courseId } },
-    })
-
-    const completedLessons = await prisma.lessonProgress.count({
-      where: {
-        enrollmentId: refreshedEnrollment.id,
-        completedAt: { not: null },
-      },
-    })
-
-    const courseCompleted = totalLessons > 0 && completedLessons >= totalLessons
-
-    await prisma.enrollment.update({
-      where: { id: refreshedEnrollment.id },
-      data: {
-        lastAccessedAt: now,
-        ...(courseCompleted && !refreshedEnrollment.completedAt ? { completedAt: now } : {}),
-      },
-    })
-
-    return ok(
-      toLessonCompleteResult(
-        lessonId,
-        progressRow.completedAt ?? now,
-        completedLessons,
-        totalLessons,
-        courseCompleted,
-      ),
-      courseCompleted ? 'Course completed' : 'Lesson marked complete',
-    )
+    return ok(result)
   },
 )

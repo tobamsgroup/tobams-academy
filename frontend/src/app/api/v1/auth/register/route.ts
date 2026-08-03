@@ -28,16 +28,7 @@ export const POST = withRoute('/api/v1/auth/register', async (req: NextRequest) 
     data: { email, name: name.trim(), passwordHash, verifyTokenHash },
   })
 
-  if (process.env.NODE_ENV !== 'production') {
-    const clientUrl = process.env.CLIENT_URL ?? 'http://localhost:3000'
-    console.log('[dev] verification link:', `${clientUrl}/verify-email?token=${rawToken}`)
-  }
-
-  try {
-    await sendVerificationEmail(user.email, user.name, rawToken)
-  } catch (e) {
-    console.error('[register] sendVerificationEmail failed:', e)
-  }
+  await sendVerificationEmail(user.email, user.name, rawToken)
 
   return ok(undefined, 'Registration successful. Please verify your email.')
 })

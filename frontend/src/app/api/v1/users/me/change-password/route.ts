@@ -9,15 +9,15 @@ export const PATCH = withRoute('/api/v1/users/me/change-password', async (req: N
   const authUser = getAuthUser(req)
   if (!authUser) return err('Unauthorized', 401)
 
-  const body = (await req.json()) as Record<string, unknown>
+  const body = await req.json()
   const { currentPassword, newPassword } = body ?? {}
 
   if (!currentPassword || typeof currentPassword !== 'string')
     return err('Current password is required')
-  if (!newPassword || typeof newPassword !== 'string')
-    return err('New password is required')
-  if (newPassword.length < 8)
+  if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 8)
     return err('New password must be at least 8 characters')
+  if (currentPassword === newPassword)
+    return err('New password must differ from current password')
 
   const user = await prisma.user.findUnique({ where: { id: authUser.id } })
   if (!user) return err('User not found', 404)
@@ -26,10 +26,7 @@ export const PATCH = withRoute('/api/v1/users/me/change-password', async (req: N
   if (!match) return err('Current password is incorrect', 401)
 
   const passwordHash = await hashPassword(newPassword)
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { passwordHash },
-  })
+  await prisma.user.update({ where: { id: user.id }, data: { passwordHash } })
 
-  return ok(undefined, 'Password changed successfully')
+  return ok(undefined, 'Password updated successfully')
 })

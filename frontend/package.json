@@ -12,6 +12,9 @@
     "db:generate": "node scripts/prisma-with-env.mjs generate",
     "seed:quizzes": "npx tsx scripts/seed-quizzes.ts"
   },
+  "prisma": {
+    "seed": "npx tsx prisma/seed.ts"
+  },
   "dependencies": {
     "@prisma/client": "^6.19.3",
     "@reduxjs/toolkit": "^2.11.2",

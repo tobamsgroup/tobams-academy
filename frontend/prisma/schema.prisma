@@ -8,12 +8,12 @@ datasource db {
 }
 
 model User {
-  id               String          @id @default(uuid())
-  email            String          @unique
+  id               String         @id @default(uuid())
+  email            String         @unique
   name             String
   passwordHash     String
-  role             Role            @default(LEARNER)
-  emailVerified    Boolean         @default(false)
+  role             Role           @default(LEARNER)
+  emailVerified    Boolean        @default(false)
   verifyTokenHash  String?
   resetTokenHash   String?
   resetTokenExpiry DateTime?
@@ -23,43 +23,22 @@ model User {
   linkedinUrl      String?
   facebookUrl      String?
   instagramUrl     String?
-  xUrl             String?
-  twoFactorEnabled Boolean         @default(false)
-  deactivatedAt    DateTime?
+  xUrl               String?
+  twoFactorEnabled   Boolean        @default(false)
+  twoFactorOtpHash   String?
+  twoFactorOtpExpiry DateTime?
+  isActive           Boolean        @default(true)
+  deactivatedAt      DateTime?
   deactivationReason String?
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  courses                  Course[]
-  notifications            Notification[]
-  notificationPreference   NotificationPreference?
-  enrollments              Enrollment[]
-  quizAttempts             QuizAttempt[]
-  payments                 Payment[]
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  courses            Course[]
+  notifications      Notification[]
+  notificationPref   NotificationPreference?
+  enrollments        Enrollment[]
+  quizAttempts       QuizAttempt[]
 
   @@map("users")
-}
-
-model NotificationPreference {
-  id                          String   @id @default(uuid())
-  userId                      String   @unique
-  registrationSetupEmail      Boolean  @default(true)
-  enrollmentConfirmationEmail Boolean  @default(true)
-  enrollmentConfirmationInApp Boolean  @default(true)
-  courseUpdatesEmail          Boolean  @default(true)
-  courseUpdatesInApp          Boolean  @default(true)
-  assessmentRemindersEmail    Boolean  @default(true)
-  assessmentRemindersInApp    Boolean  @default(true)
-  progressTrackingEmail       Boolean  @default(true)
-  progressTrackingInApp       Boolean  @default(true)
-  certificationAlertsEmail    Boolean  @default(true)
-  certificationAlertsInApp    Boolean  @default(true)
-  engagementPromptsEmail      Boolean  @default(true)
-  engagementPromptsInApp      Boolean  @default(true)
-  createdAt                   DateTime @default(now())
-  updatedAt                   DateTime @updatedAt
-  user                        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("notification_preferences")
 }
 
 model Category {
@@ -84,13 +63,12 @@ model Course {
   price        Decimal?       @db.Decimal(10, 2)
   categoryId   String
   instructorId String
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  modules      CourseModule[]
-  enrollments  Enrollment[]
-  payments     Payment[]
   category     Category       @relation(fields: [categoryId], references: [id])
   instructor   User           @relation(fields: [instructorId], references: [id])
+  modules      CourseModule[]
+  enrollments  Enrollment[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 
   @@index([categoryId])
   @@index([instructorId])
@@ -141,7 +119,6 @@ model Enrollment {
 
   @@unique([userId, courseId])
   @@index([userId])
-  @@index([courseId])
   @@map("enrollments")
 }
 
@@ -149,7 +126,7 @@ model LessonProgress {
   id           String     @id @default(uuid())
   enrollmentId String
   lessonId     String
-  completedAt  DateTime?
+  completedAt  DateTime   @default(now())
   enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
   lesson       Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
@@ -211,52 +188,58 @@ model QuizAttempt {
   @@map("quiz_attempts")
 }
 
-model Payment {
-  id            String        @id @default(uuid())
-  userId        String
-  courseId      String
-  amount        Decimal       @db.Decimal(10, 2)
-  status        PaymentStatus @default(PENDING)
-  reference     String?
-  transactionId String?
-  paymentMethod String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course        Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([courseId])
-  @@index([status])
-  @@map("payments")
-}
-
 model Notification {
-  id        String           @id
+  id        String           @id @default(uuid())
   userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   title     String
   message   String
   type      NotificationType @default(SYSTEM)
   isRead    Boolean          @default(false)
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([userId, isRead])
   @@map("notifications")
 }
 
-enum PaymentStatus {
-  COMPLETED
-  FAILED
-  PENDING
+model NotificationPreference {
+  id                       String   @id @default(uuid())
+  userId                   String   @unique
+  user                     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  registrationSetupEmail   Boolean  @default(true)
+  registrationSetupInApp   Boolean  @default(true)
+  enrollmentConfirmEmail   Boolean  @default(true)
+  enrollmentConfirmInApp   Boolean  @default(true)
+  courseUpdatesEmail       Boolean  @default(true)
+  courseUpdatesInApp       Boolean  @default(true)
+  assessmentRemindersEmail Boolean  @default(false)
+  assessmentRemindersInApp Boolean  @default(true)
+  progressTrackingEmail    Boolean  @default(false)
+  progressTrackingInApp    Boolean  @default(true)
+  certificationAlertsEmail Boolean  @default(true)
+  certificationAlertsInApp Boolean  @default(true)
+  engagementPromptsEmail   Boolean  @default(true)
+  engagementPromptsInApp   Boolean  @default(true)
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  @@map("notification_preferences")
 }
 
 enum Role {
   LEARNER
   INSTRUCTOR
   ADMIN
+}
+
+enum NotificationType {
+  COURSE_UPDATE
+  ENROLLMENT
+  PAYMENT
+  SYSTEM
+  ANNOUNCEMENT
 }
 
 enum CourseLevel {
@@ -268,14 +251,6 @@ enum CourseLevel {
 enum CourseStatus {
   DRAFT
   PUBLISHED
-}
-
-enum NotificationType {
-  COURSE_UPDATE
-  ENROLLMENT
-  PAYMENT
-  SYSTEM
-  ANNOUNCEMENT
 }
 
 enum LessonKind {

@@ -1,14 +1,21 @@
 import { NextRequest } from 'next/server'
-import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { getAuthUser } from '@/lib/with-auth'
 import { ok, err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
 
+const SAFE_FIELDS = [
+  'id', 'email', 'name', 'role', 'emailVerified',
+  'phone', 'bio', 'avatarUrl',
+  'linkedinUrl', 'facebookUrl', 'instagramUrl', 'xUrl',
+  'twoFactorEnabled', 'isActive',
+  'createdAt', 'updatedAt',
+]
+
 function safeUser(user: Record<string, unknown>) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { passwordHash, verifyTokenHash, resetTokenHash, resetTokenExpiry, ...safe } = user
-  return safe
+  return Object.fromEntries(
+    SAFE_FIELDS.filter((k) => k in user).map((k) => [k, user[k]])
+  )
 }
 
 export const GET = withRoute('/api/v1/users/me', async (req: NextRequest) => {
@@ -21,44 +28,27 @@ export const GET = withRoute('/api/v1/users/me', async (req: NextRequest) => {
   return ok(safeUser(user as Record<string, unknown>))
 })
 
-const PROFILE_TEXT_FIELDS = ['phone', 'bio', 'avatarUrl'] as const
-type ProfileTextField = (typeof PROFILE_TEXT_FIELDS)[number]
-type ProfileUpdateData = Partial<Record<ProfileTextField, string | null>> & { name?: string }
-
-function readNullableString(body: Record<string, unknown>, key: ProfileTextField) {
-  if (!(key in body)) return { present: false as const }
-  const value = body[key]
-  if (value === null) return { present: true as const, value: null }
-  if (typeof value !== 'string') return { invalid: true as const }
-  return { present: true as const, value: value.trim() || null }
-}
-
 export const PATCH = withRoute('/api/v1/users/me', async (req: NextRequest) => {
   const authUser = getAuthUser(req)
   if (!authUser) return err('Unauthorized', 401)
 
-  const body = (await req.json()) as Record<string, unknown>
-  const data: ProfileUpdateData = {}
+  const body = await req.json()
+  const { name, phone, bio, avatarUrl } = body ?? {}
 
-  if ('name' in body) {
-    const { name } = body
-    if (typeof name !== 'string' || name.trim().length === 0)
-      return err('Name cannot be empty')
-    data.name = name.trim()
-  }
+  if (name !== undefined && (typeof name !== 'string' || name.trim().length === 0))
+    return err('Name must be a non-empty string')
 
-  for (const field of PROFILE_TEXT_FIELDS) {
-    const result = readNullableString(body, field)
-    if ('invalid' in result) return err(`Invalid ${field}`)
-    if (result.present) data[field] = result.value
-  }
+  const data: Record<string, unknown> = {}
+  if (name !== undefined) data.name = name.trim()
+  if (phone !== undefined) data.phone = typeof phone === 'string' ? phone.trim() || null : null
+  if (bio !== undefined) data.bio = typeof bio === 'string' ? bio.trim() || null : null
+  if (avatarUrl !== undefined) data.avatarUrl = typeof avatarUrl === 'string' ? avatarUrl.trim() || null : null
 
-  if (Object.keys(data).length === 0)
-    return err('No supported fields to update')
+  if (Object.keys(data).length === 0) return err('No fields provided')
 
   const user = await prisma.user.update({
     where: { id: authUser.id },
-    data: data as Prisma.UserUpdateInput,
+    data,
   })
 
   return ok(safeUser(user as Record<string, unknown>), 'Profile updated')

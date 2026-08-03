@@ -1,57 +1,34 @@
 import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getAuthUser } from '@/lib/with-auth'
-import { err, created } from '@/lib/api-utils'
+import { ok, created, err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
-import { enrollmentInclude, toEnrollmentSummary } from '@/lib/enrollment-utils'
+import { getAuthUser } from '@/lib/with-auth'
 
 export const POST = withRoute('/api/v1/enrollments', async (req: NextRequest) => {
-  const authUser = getAuthUser(req)
-  if (!authUser) return err('Unauthorized', 401)
+  const user = getAuthUser(req)
+  if (!user) return err('Unauthorized', 401)
 
-  const body = (await req.json()) as Record<string, unknown>
-  const { courseId } = body ?? {}
+  const body = await req.json().catch(() => null)
+  const courseId = body?.courseId as string | undefined
+  if (!courseId) return err('courseId is required')
 
-  if (!courseId || typeof courseId !== 'string')
-    return err('courseId is required')
-
-  const existing = await prisma.enrollment.findUnique({
-    where: { userId_courseId: { userId: authUser.id, courseId } },
-    include: enrollmentInclude,
-  })
-  if (existing) return err('Already enrolled in this course', 409)
-
-  const course = await prisma.course.findFirst({
-    where: { id: courseId, status: 'PUBLISHED' },
-    include: { modules: { include: { lessons: { select: { id: true } } } } },
-  })
+  const course = await prisma.course.findUnique({ where: { id: courseId, status: 'PUBLISHED' } })
   if (!course) return err('Course not found', 404)
 
-  const lessonIds = course.modules.flatMap((module) => module.lessons.map((lesson) => lesson.id))
-
-  const enrollment = await prisma.$transaction(async (tx) => {
-    const createdEnrollment = await tx.enrollment.create({
-      data: {
-        userId: authUser.id,
-        courseId,
-        lastAccessedAt: new Date(),
-      },
+  const existing = await prisma.enrollment.findUnique({
+    where: { userId_courseId: { userId: user.id, courseId } },
+  })
+  if (existing) {
+    await prisma.enrollment.update({
+      where: { id: existing.id },
+      data: { lastAccessedAt: new Date() },
     })
+    return ok({ id: existing.id, courseId, enrolledAt: existing.enrolledAt }, 'Already enrolled')
+  }
 
-    if (lessonIds.length > 0) {
-      await tx.lessonProgress.createMany({
-        data: lessonIds.map((lessonId) => ({
-          enrollmentId: createdEnrollment.id,
-          lessonId,
-        })),
-      })
-    }
-
-    return tx.enrollment.findUniqueOrThrow({
-      where: { id: createdEnrollment.id },
-      include: enrollmentInclude,
-    })
+  const enrollment = await prisma.enrollment.create({
+    data: { userId: user.id, courseId, lastAccessedAt: new Date() },
   })
 
-  return created(toEnrollmentSummary(enrollment, lessonIds.length), 'Enrolled successfully')
+  return created({ id: enrollment.id, courseId, enrolledAt: enrollment.enrolledAt }, 'Enrolled successfully')
 })

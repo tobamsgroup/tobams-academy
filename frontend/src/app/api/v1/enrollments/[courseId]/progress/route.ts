@@ -3,10 +3,6 @@ import { prisma } from '@/lib/prisma'
 import { ok, err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
 import { getAuthUser } from '@/lib/with-auth'
-import {
-  getCourseProgressForEnrollment,
-  syncLessonProgressForEnrollment,
-} from '@/lib/enrollment-utils'
 
 export const GET = withRoute(
   '/api/v1/enrollments/[courseId]/progress',
@@ -19,18 +15,19 @@ export const GET = withRoute(
 
     const enrollment = await prisma.enrollment.findUnique({
       where: { userId_courseId: { userId: user.id, courseId } },
-      select: { id: true, completedAt: true },
+      include: { lessonProgress: { select: { lessonId: true } } },
     })
     if (!enrollment) return err('Not enrolled in this course', 403)
 
-    await syncLessonProgressForEnrollment(enrollment.id, courseId)
+    const allLessons = await prisma.lesson.findMany({
+      where: { module: { courseId } },
+      select: { id: true },
+    })
 
-    const { progress, completedLessonIds, totalLessons } = await getCourseProgressForEnrollment(
-      enrollment.id,
-      courseId,
-      enrollment.completedAt,
-    )
+    const total = allLessons.length
+    const completedLessonIds = enrollment.lessonProgress.map((lp) => lp.lessonId)
+    const progress = total > 0 ? Math.round((completedLessonIds.length / total) * 100) : 0
 
-    return ok({ progress, completedLessonIds, totalLessons })
+    return ok({ progress, completedLessonIds })
   },
 )

@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { quizAttemptDb, quizDb } from '@/lib/prisma'
+import { prisma } from '@/lib/prisma'
 import { ok, err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
 import { getAuthUser } from '@/lib/with-auth'
@@ -17,7 +17,7 @@ export const POST = withRoute(
     const answers = body?.answers as Record<string, string> | undefined
     if (!answers || typeof answers !== 'object') return err('answers is required')
 
-    const quiz = await quizDb.findUnique({
+    const quiz = await prisma.quiz.findUnique({
       where: { id: quizId },
       include: {
         questions: {
@@ -28,7 +28,7 @@ export const POST = withRoute(
     if (!quiz) return err('Quiz not found', 404)
 
     // Enforce attempt limit
-    const attemptCount = await quizAttemptDb.count({
+    const attemptCount = await prisma.quizAttempt.count({
       where: { quizId, userId: user.id },
     })
     if (attemptCount >= quiz.attemptsAllowed) {
@@ -40,9 +40,7 @@ export const POST = withRoute(
     const correctAnswers: Record<string, string> = {}
 
     for (const question of quiz.questions) {
-      const correctOption = question.options.find(
-        (o: { id: string; isCorrect: boolean }) => o.isCorrect,
-      )
+      const correctOption = question.options.find((o) => o.isCorrect)
       if (correctOption) {
         correctAnswers[question.id] = correctOption.id
         if (answers[question.id] === correctOption.id) correct++
@@ -53,7 +51,7 @@ export const POST = withRoute(
     const score = total > 0 ? Math.round((correct / total) * 100) : 0
     const isPassed = score >= quiz.passingScore
 
-    await quizAttemptDb.create({
+    await prisma.quizAttempt.create({
       data: {
         quizId,
         userId: user.id,

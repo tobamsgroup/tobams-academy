@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { quizDb } from '@/lib/prisma'
+import { prisma } from '@/lib/prisma'
 import { ok, err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
 import { getAuthUser } from '@/lib/with-auth'
@@ -13,7 +13,7 @@ export const GET = withRoute(
     const { lessonId } = (await params) ?? {}
     if (!lessonId) return err('lessonId is required')
 
-    const quiz = await quizDb.findUnique({
+    const quiz = await prisma.quiz.findUnique({
       where: { lessonId },
       include: {
         questions: {
@@ -38,19 +38,12 @@ export const GET = withRoute(
       attemptsAllowed: quiz.attemptsAllowed,
       questionType: quiz.questionType,
       totalQuestions: quiz.questions.length,
-      questions: quiz.questions.map(
-        (q: {
-          id: string
-          text: string
-          position: number
-          options: { id: string; text: string; position: number }[]
-        }) => ({
-          id: q.id,
-          text: q.text,
-          position: q.position,
-          options: q.options,
-        }),
-      ),
+      questions: quiz.questions.map((q) => ({
+        id: q.id,
+        text: q.text,
+        position: q.position,
+        options: q.options,
+      })),
     })
   },
 )

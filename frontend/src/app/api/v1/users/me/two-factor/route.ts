@@ -5,17 +5,11 @@ import { getAuthUser } from '@/lib/with-auth'
 import { ok, err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
 
-function safeUser(user: Record<string, unknown>) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { passwordHash, verifyTokenHash, resetTokenHash, resetTokenExpiry, ...safe } = user
-  return safe
-}
-
 export const PATCH = withRoute('/api/v1/users/me/two-factor', async (req: NextRequest) => {
   const authUser = getAuthUser(req)
   if (!authUser) return err('Unauthorized', 401)
 
-  const body = (await req.json()) as Record<string, unknown>
+  const body = await req.json()
   const { password, enable } = body ?? {}
 
   if (!password || typeof password !== 'string')
@@ -29,17 +23,17 @@ export const PATCH = withRoute('/api/v1/users/me/two-factor', async (req: NextRe
   const match = await comparePassword(password, user.passwordHash)
   if (!match) return err('Incorrect password', 401)
 
-  if (enable === user.twoFactorEnabled)
-    return err(enable ? 'Two-factor authentication is already enabled' : 'Two-factor authentication is already disabled')
+  if (user.twoFactorEnabled === enable)
+    return ok(
+      { twoFactorEnabled: user.twoFactorEnabled },
+      `Two-factor authentication is already ${enable ? 'enabled' : 'disabled'}`,
+    )
 
   const updated = await prisma.user.update({
     where: { id: user.id },
     data: { twoFactorEnabled: enable },
   })
 
-  const message = enable
-    ? 'Two-factor authentication activated'
-    : 'Two-factor authentication deactivated'
-
-  return ok(safeUser(updated as Record<string, unknown>), message)
+  const action = enable ? 'enabled' : 'disabled'
+  return ok({ twoFactorEnabled: updated.twoFactorEnabled }, `Two-factor authentication ${action}`)
 })
