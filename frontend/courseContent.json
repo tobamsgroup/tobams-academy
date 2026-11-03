@@ -983,5 +983,121 @@
         ]
       }
     ]
+  },
+  {
+    "id": "time-intelligence-masterclass",
+    "title": "Time Intelligence Masterclass",
+    "category": "Personal Development",
+    "description": "Time Intelligence is a transformational six-week masterclass designed to help individuals rethink how they understand, prioritise, manage and use their time.",
+    "objective": "The programme moves beyond traditional time-management techniques, diaries and to-do lists to address the underlying decisions, behaviours, habits and systems that influence personal effectiveness.",
+    "targetAudience": [
+      "Professionals managing a career",
+      "Business owners and entrepreneurs",
+      "Students",
+      "Parents raising a family",
+      "Anyone pursuing personal ambitions or balancing multiple responsibilities"
+    ],
+    "keyLearningOutcomes": [
+      "Greater clarity about how they use their time and where improvements are needed.",
+      "A structured approach to identifying and managing meaningful priorities.",
+      "Better understanding of personal capacity and competing commitments.",
+      "Practical strategies for protecting attention and reducing distractions.",
+      "Improved ability to overcome procrastination and strengthen execution.",
+      "Sustainable routines and a personalised time-management system.",
+      "A 90-day action plan for continued development."
+    ],
+    "duration": "6 Weeks",
+    "curriculum": [
+      {
+        "week": 1,
+        "title": "Module 1: Time Awareness",
+        "topics": [
+          "Understanding your personal relationship with time.",
+          "Exploring the 168-hour week and the reality of available time.",
+          "Distinguishing between being busy, productive and effective.",
+          "Identifying time leaks, hidden time consumers and recurring inefficiencies.",
+          "Examining how daily habits and decisions influence time utilisation.",
+          "Understanding the impact of personal roles, responsibilities and commitments.",
+          "Establishing your baseline through the Time Intelligence Diagnostic."
+        ]
+      },
+      {
+        "week": 2,
+        "title": "Module 2: Priority Intelligence",
+        "topics": [
+          "Understanding the relationship between time, values, priorities and personal goals.",
+          "Distinguishing between urgent, important and low-value activities.",
+          "Identifying meaningful priorities across different areas of life.",
+          "Managing competing responsibilities and conflicting expectations.",
+          "Understanding the hidden cost of saying yes to too many commitments.",
+          "Learning when to eliminate, reduce, delegate, defer or decline activities.",
+          "Developing a personal priority hierarchy and decision-making framework."
+        ]
+      },
+      {
+        "week": 3,
+        "title": "Module 3: Capacity Intelligence",
+        "topics": [
+          "Understanding the difference between available time and productive capacity.",
+          "Recognising personal energy patterns and periods of peak effectiveness.",
+          "Identifying the causes and consequences of overcommitment.",
+          "Managing multiple responsibilities without compromising effectiveness.",
+          "Matching activities and expectations to realistic personal capacity.",
+          "Understanding the importance of boundaries, rest, recovery and renewal.",
+          "Developing strategies for creating capacity for meaningful priorities."
+        ]
+      },
+      {
+        "week": 4,
+        "title": "Module 4: Focus Intelligence",
+        "topics": [
+          "Understanding attention as a valuable and limited personal resource.",
+          "Identifying internal and external sources of distraction.",
+          "Managing digital interruptions, notifications and unnecessary demands.",
+          "Understanding the limitations of multitasking and frequent task-switching.",
+          "Developing strategies for sustained concentration and focused activity.",
+          "Establishing boundaries around availability, interruptions and competing requests.",
+          "Designing a personal environment that supports deeper focus and effectiveness."
+        ]
+      },
+      {
+        "week": 5,
+        "title": "Module 5: Execution Intelligence",
+        "topics": [
+          "Understanding procrastination and its impact on personal progress.",
+          "Identifying common procrastination patterns and their underlying causes.",
+          "Recognising avoidance, perfectionism, overwhelm and indecision.",
+          "Breaking large goals and complex responsibilities into manageable actions.",
+          "Developing strategies for initiating tasks and maintaining momentum.",
+          "Strengthening discipline, consistency and accountability beyond motivation.",
+          "Building habits that support completion and measurable progress."
+        ]
+      },
+      {
+        "week": 6,
+        "title": "Module 6: Time Architecture",
+        "topics": [
+          "Moving beyond time management towards intentional time design.",
+          "Connecting personal values, responsibilities and long-term goals with time allocation.",
+          "Designing an effective and realistic weekly structure.",
+          "Establishing sustainable routines and personal operating rhythms.",
+          "Creating boundaries and non-negotiables that protect important priorities.",
+          "Developing a practical 90-day personal execution plan.",
+          "Building and sustaining a Personal Time Intelligence Operating System."
+        ]
+      }
+    ],
+    "price": 699,
+    "earlyBirdPrice": 299,
+    "format": "Live Online Masterclass",
+    "delivery": "Interactive Learning, Practical Tools and Applied Project",
+    "organiser": "Tobams Group Limited",
+    "tagline": "You do not need more time. You need greater intelligence about what you do with the time you already have.",
+    "overview": [
+      "Time Intelligence is a transformational six-week masterclass designed to help individuals rethink how they understand, prioritise, manage and use their time.",
+      "The programme moves beyond traditional time-management techniques, diaries and to-do lists to address the underlying decisions, behaviours, habits and systems that influence personal effectiveness.",
+      "Whether managing a career, running a business, studying, raising a family, pursuing personal ambitions or balancing multiple responsibilities, participants will develop practical approaches to using their time more intentionally.",
+      "The masterclass is built around six interconnected dimensions of Time Intelligence, enabling participants to understand their current behaviours, identify barriers to effectiveness and develop sustainable systems for achieving meaningful results."
+    ]
   }
 ]

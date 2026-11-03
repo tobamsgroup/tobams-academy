@@ -36,6 +36,7 @@ export interface Course {
   thumbnail: string | null
   level: CourseLevel
   price: string | null
+  earlyBirdPrice: string | null
   isFeatured: boolean
   createdAt: string
   category: Pick<Category, 'id' | 'name' | 'slug'>
@@ -77,8 +78,16 @@ export interface LocalCourse {
   keyLearningOutcomes: string[]
   duration: string          // e.g. "12 Weeks"
   curriculum: CurriculumWeek[]
+  // optional details for paid / live programmes
+  format?: string           // e.g. "Live Online Masterclass"
+  delivery?: string
+  organiser?: string
+  tagline?: string
+  overview?: string[]       // long-form description paragraphs
   // enriched fields
-  price: string             // always "Free"
+  price: string             // display price: "Free", or the current price e.g. "£299"
+  originalPrice?: string    // standard price shown struck through during early bird, e.g. "£699"
+  isEarlyBird: boolean
   level: LocalCourseLevel
   rating: number            // 4.5
   ratingCount: number       // 5

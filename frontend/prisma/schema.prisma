@@ -60,7 +60,8 @@ model Course {
   level        CourseLevel    @default(BEGINNER)
   status       CourseStatus   @default(DRAFT)
   isFeatured   Boolean        @default(false)
-  price        Decimal?       @db.Decimal(10, 2)
+  price          Decimal?       @db.Decimal(10, 2)
+  earlyBirdPrice Decimal?       @db.Decimal(10, 2)
   categoryId   String
   instructorId String
   category     Category       @relation(fields: [categoryId], references: [id])

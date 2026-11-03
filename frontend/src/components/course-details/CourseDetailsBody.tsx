@@ -41,6 +41,22 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
     [],
   )
 
+  const programmeDetails = useMemo(
+    () =>
+      (
+        [
+          ['Programme', course.title],
+          ['Duration', course.duration],
+          ['Format', course.format],
+          ['Delivery', course.delivery],
+          ['Standard Fee', course.originalPrice ?? (course.price !== 'Free' ? course.price : undefined)],
+          ['Early Bird Fee', course.isEarlyBird ? course.price : undefined],
+          ['Organised by', course.organiser],
+        ] as [string, string | undefined][]
+      ).filter((entry): entry is [string, string] => Boolean(entry[1])),
+    [course],
+  )
+
   const jumpTo = (id: TabId) => {
     setActiveTab(id)
     document.getElementById(`course-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -68,7 +84,7 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
             <h2 className="mb-4 md:mb-[31px] text-[24px] md:text-[28px] font-medium text-heading">What You&apos;ll Learn</h2>
             <div className="">
               <div className="grid grid-cols-1 gap-3 md:text-lg text-[#474348] md:grid-cols-2">
-                {course.keyLearningOutcomes.slice(0, 6).map((item, idx) => (
+                {course.keyLearningOutcomes.map((item, idx) => (
                   <p key={idx}>{item}</p>
                 ))}
               </div>
@@ -129,14 +145,33 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
 
           <section id="course-description" className="mb-10">
             <h2 className="mb-3 text-[24px] font-medium text-heading">Description</h2>
-            <div className="space-y-4 md:text-lg tetx-sm leading-relaxed text-[#474348] md:font-medium">
-              <p>{course.description}</p>
-              <p>{course.objective}</p>
-              <p>
-                We take you step-by-step through engaging video tutorials and practical activities so
-                you can apply what you learn immediately.
-              </p>
-            </div>
+            {course.overview ? (
+              <div className="space-y-4 md:text-lg text-sm leading-relaxed text-[#474348] md:font-medium">
+                {programmeDetails.length > 0 ? (
+                  <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 rounded-[12px] border border-[#D3D2D3] bg-white p-5">
+                    {programmeDetails.map(([label, value]) => (
+                      <div key={label} className="contents">
+                        <dt className="font-semibold text-heading">{label}:</dt>
+                        <dd>{value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                ) : null}
+                {course.tagline ? <p className="font-semibold text-heading">{course.tagline}</p> : null}
+                {course.overview.map((paragraph, idx) => (
+                  <p key={idx}>{paragraph}</p>
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-4 md:text-lg tetx-sm leading-relaxed text-[#474348] md:font-medium">
+                <p>{course.description}</p>
+                <p>{course.objective}</p>
+                <p>
+                  We take you step-by-step through engaging video tutorials and practical activities so
+                  you can apply what you learn immediately.
+                </p>
+              </div>
+            )}
           </section>
 
           <section id="course-feedbacks">
@@ -194,8 +229,15 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
               <Image src={IMAGES.course2} alt={course.title} fill className="object-cover" />
             </div>
             <div className="md:p-6 p-4">
-              <p className="text-[28px] md:text-[32px] font-bold text-primary md:mb-4">{course.price}</p>
-              <p className="mb-4 text-sm text-[#B83092]">2 days left at this price!</p>
+              <div className="flex items-baseline gap-3 md:mb-4">
+                <p className="text-[28px] md:text-[32px] font-bold text-primary">{course.price}</p>
+                {course.originalPrice ? (
+                  <p className="text-lg text-[#696969] line-through">{course.originalPrice}</p>
+                ) : null}
+              </div>
+              <p className="mb-4 text-sm text-[#B83092]">
+                {course.isEarlyBird ? 'Early bird price — limited time only!' : '2 days left at this price!'}
+              </p>
               <Button
                 type="button"
                 className="mb-4 w-full rounded-md bg-primary py-3 font-medium text-white hover:translate-y-0 hover:bg-[#232A59] hover:from-[#232A59] hover:to-[#232A59] md:mb-3 md:text-lg"
@@ -210,6 +252,29 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
               </Button>
 
               <p className="mb-2 text-sm font-semibold text-heading">This course includes</p>
+              {course.format ? (
+                <ul className="space-y-2 text-sm text-[#474348]">
+                  <li className="flex items-center gap-2">
+                    <ICONS.Video width={16} height={16} className="shrink-0" />
+                    {course.format} · {course.duration}
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <ICONS.BookDownload width={16} height={16} className="shrink-0" />
+                    {course.curriculum.length} modules ·{' '}
+                    {course.curriculum.reduce((n, m) => n + m.topics.length, 0)} lectures
+                  </li>
+                  {course.delivery ? (
+                    <li className="flex items-center gap-2">
+                      <ICONS.Lifebuoy width={16} height={16} className="shrink-0" />
+                      {course.delivery}
+                    </li>
+                  ) : null}
+                  <li className="flex items-center gap-2">
+                    <ICONS.Certificate width={16} height={16} className="shrink-0" />
+                    Certificate of completion
+                  </li>
+                </ul>
+              ) : (
               <ul className="space-y-2 text-sm text-[#474348]">
                 <li className="flex items-center gap-2">
                   <ICONS.Video width={16} height={16} className="shrink-0" />
@@ -232,6 +297,7 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
                   Certificate of completion
                 </li>
               </ul>
+              )}
             </div>
           </div>
         </aside>
@@ -262,7 +328,12 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
                 </span>
                 <h3 className="mb-1.5 line-clamp-1 text-base font-bold text-slate-900">{item.title}</h3>
                 <p className="mb-4 line-clamp-2 flex-1 text-sm leading-relaxed text-slate-500">{item.description}</p>
-                <p className="text-base font-bold text-slate-900">{item.price}</p>
+                <p className="text-base font-bold text-slate-900">
+                  {item.price}
+                  {item.originalPrice ? (
+                    <span className="ml-2 text-sm font-normal text-[#696969] line-through">{item.originalPrice}</span>
+                  ) : null}
+                </p>
               </div>
             </Link>
           ))}

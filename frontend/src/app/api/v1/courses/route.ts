@@ -11,6 +11,7 @@ const COURSE_LIST_SELECT = {
   thumbnail: true,
   level: true,
   price: true,
+  earlyBirdPrice: true,
   isFeatured: true,
   createdAt: true,
   category: { select: { id: true, name: true, slug: true } },

@@ -13,7 +13,7 @@ const categories = [
   { name: 'Marketing', slug: 'marketing' },
 ];
 
-type LessonSeed = { title: string; duration: number; kind: LessonKind; contentKey?: string };
+type LessonSeed = { title: string; duration?: number; kind: LessonKind; contentKey?: string };
 type ModuleSeed = { title: string; lessons: LessonSeed[] };
 
 const sampleCourses = [
@@ -188,7 +188,84 @@ const sampleCourses = [
       },
     ] satisfies ModuleSeed[],
   },
+  {
+    title: 'Time Intelligence Masterclass',
+    slug: 'time-intelligence-masterclass',
+    description:
+      'Time Intelligence is a transformational six-week masterclass designed to help individuals rethink how they understand, prioritise, manage and use their time.',
+    level: CourseLevel.BEGINNER,
+    status: CourseStatus.PUBLISHED,
+    isFeatured: true,
+    categorySlug: 'personal-development',
+    price: 699,
+    earlyBirdPrice: 299,
+    modules: timeIntelligenceModules(),
+  },
 ];
+
+// Paid live masterclass — six modules of seven live lectures each.
+function timeIntelligenceModules(): ModuleSeed[] {
+  const outline: [string, string[]][] = [
+    ['Time Awareness', [
+      'Understanding your personal relationship with time',
+      'Exploring the 168-hour week and the reality of available time',
+      'Distinguishing between being busy, productive and effective',
+      'Identifying time leaks, hidden time consumers and recurring inefficiencies',
+      'Examining how daily habits and decisions influence time utilisation',
+      'Understanding the impact of personal roles, responsibilities and commitments',
+      'Establishing your baseline through the Time Intelligence Diagnostic',
+    ]],
+    ['Priority Intelligence', [
+      'Understanding the relationship between time, values, priorities and personal goals',
+      'Distinguishing between urgent, important and low-value activities',
+      'Identifying meaningful priorities across different areas of life',
+      'Managing competing responsibilities and conflicting expectations',
+      'Understanding the hidden cost of saying yes to too many commitments',
+      'Learning when to eliminate, reduce, delegate, defer or decline activities',
+      'Developing a personal priority hierarchy and decision-making framework',
+    ]],
+    ['Capacity Intelligence', [
+      'Understanding the difference between available time and productive capacity',
+      'Recognising personal energy patterns and periods of peak effectiveness',
+      'Identifying the causes and consequences of overcommitment',
+      'Managing multiple responsibilities without compromising effectiveness',
+      'Matching activities and expectations to realistic personal capacity',
+      'Understanding the importance of boundaries, rest, recovery and renewal',
+      'Developing strategies for creating capacity for meaningful priorities',
+    ]],
+    ['Focus Intelligence', [
+      'Understanding attention as a valuable and limited personal resource',
+      'Identifying internal and external sources of distraction',
+      'Managing digital interruptions, notifications and unnecessary demands',
+      'Understanding the limitations of multitasking and frequent task-switching',
+      'Developing strategies for sustained concentration and focused activity',
+      'Establishing boundaries around availability, interruptions and competing requests',
+      'Designing a personal environment that supports deeper focus and effectiveness',
+    ]],
+    ['Execution Intelligence', [
+      'Understanding procrastination and its impact on personal progress',
+      'Identifying common procrastination patterns and their underlying causes',
+      'Recognising avoidance, perfectionism, overwhelm and indecision',
+      'Breaking large goals and complex responsibilities into manageable actions',
+      'Developing strategies for initiating tasks and maintaining momentum',
+      'Strengthening discipline, consistency and accountability beyond motivation',
+      'Building habits that support completion and measurable progress',
+    ]],
+    ['Time Architecture', [
+      'Moving beyond time management towards intentional time design',
+      'Connecting personal values, responsibilities and long-term goals with time allocation',
+      'Designing an effective and realistic weekly structure',
+      'Establishing sustainable routines and personal operating rhythms',
+      'Creating boundaries and non-negotiables that protect important priorities',
+      'Developing a practical 90-day personal execution plan',
+      'Building and sustaining a Personal Time Intelligence Operating System',
+    ]],
+  ];
+  return outline.map(([title, lectures], i) => ({
+    title: `Module ${i + 1}: ${title}`,
+    lessons: lectures.map((lecture) => ({ title: lecture, kind: LessonKind.VIDEO })),
+  }));
+}
 
 // Quiz seed data — one quiz per course's first QUIZ lesson
 const quizSeeds: Record<string, {
@@ -372,14 +449,27 @@ async function main() {
     },
   });
 
-  // Seed courses with full module + lesson data
-  for (const courseData of sampleCourses) {
+  // Seed courses with full module + lesson data.
+  // SEED_ONLY=<slug>[,<slug>] limits seeding to those courses, so re-seeding one course
+  // doesn't wipe modules (and learners' lesson progress) of the others.
+  const only = process.env.SEED_ONLY?.split(',').map((s) => s.trim()).filter(Boolean);
+  const coursesToSeed = only?.length ? sampleCourses.filter((c) => only.includes(c.slug)) : sampleCourses;
+  if (only?.length && coursesToSeed.length !== only.length) {
+    throw new Error(`SEED_ONLY contains unknown course slug(s): ${only.join(', ')}`);
+  }
+
+  for (const courseData of coursesToSeed) {
     const category = await prisma.category.findUniqueOrThrow({ where: { slug: courseData.categorySlug } });
     const { modules: modulesData, categorySlug: _, ...courseFields } = courseData;
 
     const course = await prisma.course.upsert({
       where: { slug: courseFields.slug },
-      update: { title: courseFields.title, description: courseFields.description },
+      update: {
+        title: courseFields.title,
+        description: courseFields.description,
+        price: 'price' in courseFields ? courseFields.price : undefined,
+        earlyBirdPrice: 'earlyBirdPrice' in courseFields ? courseFields.earlyBirdPrice : undefined,
+      },
       create: { ...courseFields, categoryId: category.id, instructorId: instructor.id },
     });
 
@@ -398,7 +488,7 @@ async function main() {
           data: {
             title: lessonData.title,
             position: li + 1,
-            duration: lessonData.duration,
+            duration: lessonData.duration ?? null,
             kind: lessonData.kind,
             contentKey: lessonData.contentKey ?? null,
             moduleId: mod.id,

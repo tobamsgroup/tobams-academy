@@ -53,7 +53,12 @@ export function CourseCard({ course }: Props) {
 
         {/* Footer row */}
         <div className="flex items-center justify-between">
-          <span className="md:text-[20px] text-lg font-bold text-heading">{course.price}</span>
+          <span className="md:text-[20px] text-lg font-bold text-heading">
+            {course.price}
+            {course.originalPrice ? (
+              <span className="ml-2 text-sm font-normal text-[#696969] line-through">{course.originalPrice}</span>
+            ) : null}
+          </span>
           {/* <Link
             href={`/courses/${course.slug}`}
             className="rounded-lg bg-[#571244] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#571244]/90 transition-colors"

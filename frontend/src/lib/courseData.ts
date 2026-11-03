@@ -11,6 +11,22 @@ function deriveLevel(duration: string): LocalCourseLevel {
   return 'Advanced'
 }
 
+function formatGBP(amount: number): string {
+  return `£${amount.toLocaleString('en-GB')}`
+}
+
+function derivePricing(raw: RawCourse): Pick<LocalCourse, 'price' | 'originalPrice' | 'isEarlyBird'> {
+  if (!raw.price) return { price: 'Free', isEarlyBird: false }
+  if (raw.earlyBirdPrice && raw.earlyBirdPrice < raw.price) {
+    return {
+      price: formatGBP(raw.earlyBirdPrice),
+      originalPrice: formatGBP(raw.price),
+      isEarlyBird: true,
+    }
+  }
+  return { price: formatGBP(raw.price), isEarlyBird: false }
+}
+
 function enrich(raw: RawCourse): LocalCourse {
   return {
     id: raw.id,
@@ -23,7 +39,12 @@ function enrich(raw: RawCourse): LocalCourse {
     keyLearningOutcomes: raw.keyLearningOutcomes,
     duration: raw.duration,
     curriculum: raw.curriculum as CurriculumWeek[],
-    price: 'Free',
+    format: raw.format,
+    delivery: raw.delivery,
+    organiser: raw.organiser,
+    tagline: raw.tagline,
+    overview: raw.overview,
+    ...derivePricing(raw),
     level: deriveLevel(raw.duration),
     rating: 4.5,
     ratingCount: 5,
