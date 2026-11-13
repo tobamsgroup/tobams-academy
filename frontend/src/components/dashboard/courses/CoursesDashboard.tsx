@@ -1,15 +1,19 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import Image from "next/image";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import {
-  COURSES_PAGE_SIZE,
-  ENROLLED_COURSES,
-  type EnrolledCourse,
-} from "./courses-data";
 import CourseSortDropdown, { type CourseSortKey } from "./CourseSortDropdown";
+import { EnrolledCourseCard } from "./EnrolledCourseCard";
 import { ICONS } from "@/assets/icons";
+import { useEnrollments } from "@/hooks/useEnrollments";
+import {
+  DASHBOARD_COURSES_PAGE_SIZE,
+  countCoursesInTab,
+  formatLearningHours,
+  matchesCourseTab,
+  sortDashboardCourses,
+  toDashboardCourseFromEnrollment,
+} from "@/lib/dashboard-courses";
 
 function buildPageItems(current: number, total: number): (number | "ellipsis")[] {
   if (total <= 7) {
@@ -30,10 +34,13 @@ function buildPageItems(current: number, total: number): (number | "ellipsis")[]
   return out;
 }
 
-function matchesTab(course: EnrolledCourse, tab: "all" | "inProgress" | "completed") {
-  if (tab === "all") return true;
-  if (tab === "completed") return course.progress >= 100;
-  return course.progress < 100;
+function matchesSearch(
+  course: { title: string; description: string; category: { name: string } },
+  query: string,
+): boolean {
+  if (!query) return true;
+  const haystack = `${course.title} ${course.description} ${course.category.name}`.toLowerCase();
+  return haystack.includes(query.toLowerCase());
 }
 
 export default function CoursesDashboard() {
@@ -42,61 +49,62 @@ export default function CoursesDashboard() {
   const [sortBy, setSortBy] = useState<CourseSortKey>("recent");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const tabCounts = useMemo(() => {
-    const all = ENROLLED_COURSES.length;
-    const inProgress = ENROLLED_COURSES.filter((c) => c.progress < 100).length;
-    const completed = ENROLLED_COURSES.filter((c) => c.progress >= 100).length;
-    return { all, inProgress, completed };
-  }, []);
+  const deferredSearch = useDeferredValue(searchQuery.trim());
 
-  const filtered = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    return ENROLLED_COURSES.filter((c) => {
-      if (!matchesTab(c, activeTab)) return false;
-      if (!q) return true;
-      return c.title.toLowerCase().includes(q);
-    });
-  }, [activeTab, searchQuery]);
+  const { enrollments, stats: enrollmentStats, isLoading, error, mutate } = useEnrollments();
 
-  const sortedFiltered = useMemo(() => {
-    const arr = [...filtered];
-    switch (sortBy) {
-      case "recent":
-        arr.sort((a, b) => Number(b.id) - Number(a.id));
-        break;
-      case "active":
-        arr.sort((a, b) => b.progress - a.progress || Number(b.id) - Number(a.id));
-        break;
-      case "az":
-        arr.sort((a, b) => a.title.localeCompare(b.title));
-        break;
-      default:
-        break;
-    }
-    return arr;
-  }, [filtered, sortBy]);
+  useEffect(() => {
+    void mutate();
+  }, [mutate]);
 
-  const totalPages = Math.max(1, Math.ceil(sortedFiltered.length / COURSES_PAGE_SIZE));
+  const dashboardCourses = useMemo(
+    () => enrollments.map(toDashboardCourseFromEnrollment),
+    [enrollments],
+  );
+
+  const filteredCourses = useMemo(() => {
+    const tabbed = dashboardCourses.filter((course) => matchesCourseTab(course, activeTab));
+    const searched = tabbed.filter((course) => matchesSearch(course, deferredSearch));
+    return sortDashboardCourses(searched, sortBy);
+  }, [dashboardCourses, activeTab, deferredSearch, sortBy]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredCourses.length / DASHBOARD_COURSES_PAGE_SIZE));
   const safePage = Math.min(currentPage, totalPages);
 
   useEffect(() => {
-    setCurrentPage((p) => Math.min(p, totalPages));
+    setCurrentPage((page) => Math.min(page, totalPages));
   }, [totalPages]);
 
-  const pageSlice = useMemo(() => {
-    const page = Math.min(currentPage, totalPages);
-    const start = (page - 1) * COURSES_PAGE_SIZE;
-    return sortedFiltered.slice(start, start + COURSES_PAGE_SIZE);
-  }, [sortedFiltered, currentPage, totalPages]);
+  const visibleCourses = useMemo(() => {
+    const start = (safePage - 1) * DASHBOARD_COURSES_PAGE_SIZE;
+    return filteredCourses.slice(start, start + DASHBOARD_COURSES_PAGE_SIZE);
+  }, [filteredCourses, safePage]);
+
+  const tabCounts = useMemo(
+    () => ({
+      all: dashboardCourses.length,
+      inProgress: countCoursesInTab(dashboardCourses, "inProgress"),
+      completed: countCoursesInTab(dashboardCourses, "completed"),
+    }),
+    [dashboardCourses],
+  );
 
   const stats = useMemo(() => {
-    const inProgress = ENROLLED_COURSES.filter((c) => c.progress < 100).length;
-    const totalHours = 156;
-    const avgProgress = Math.round(
-      ENROLLED_COURSES.reduce((s, c) => s + c.progress, 0) / ENROLLED_COURSES.length
-    );
-    return { inProgress, totalHours, avgProgress };
-  }, []);
+    const avgProgress =
+      dashboardCourses.length > 0
+        ? Math.round(
+            dashboardCourses.reduce((sum, course) => sum + course.progress, 0) /
+              dashboardCourses.length,
+          )
+        : 0;
+    return {
+      inProgress: enrollmentStats?.coursesInProgress ?? 0,
+      totalHours: formatLearningHours(enrollmentStats?.totalLearningHours ?? 0),
+      avgProgress,
+    };
+  }, [dashboardCourses, enrollmentStats]);
+
+  const hasNoEnrollments = !isLoading && !error && dashboardCourses.length === 0;
 
   return (
     <div className="mx-auto max-w-7xl">
@@ -197,7 +205,7 @@ export default function CoursesDashboard() {
                 : "border border-[#D3D2D366] bg-white text-[#474348] hover:bg-gray-100"
             }`}
           >
-            In progress
+            In progress ({tabCounts.inProgress})
           </button>
           <button
             type="button"
@@ -211,15 +219,15 @@ export default function CoursesDashboard() {
                 : "border border-[#D3D2D366] bg-white text-[#474348] hover:bg-gray-100"
             }`}
           >
-            Completed
+            Completed ({tabCounts.completed})
           </button>
         </div>
 
         <div className="order-3 flex w-full justify-end lg:order-3 lg:w-auto lg:shrink-0">
           <CourseSortDropdown
             value={sortBy}
-            onChange={(v) => {
-              setSortBy(v);
+            onChange={(value) => {
+              setSortBy(value);
               setCurrentPage(1);
             }}
             className="w-auto min-w-0 max-w-full"
@@ -227,68 +235,46 @@ export default function CoursesDashboard() {
         </div>
       </div>
 
-      {pageSlice.length === 0 ? (
+      {error ? (
+        <div className="mb-6 rounded-lg bg-secondary/10 p-4 text-sm text-secondary">
+          Unable to load courses. Please try again.
+        </div>
+      ) : null}
+
+      {isLoading ? (
         <div className="rounded-xl border border-gray-200 bg-white py-16 text-center text-sm text-gray-500">
-          No courses match your filters.
+          Loading courses…
+        </div>
+      ) : hasNoEnrollments ? (
+        <div className="rounded-xl border border-gray-200 bg-white py-16 text-center">
+          <p className="mb-4 text-sm text-gray-500">You haven&apos;t enrolled in any courses yet.</p>
+          <Link
+            href="/courses"
+            className="inline-flex items-center justify-center rounded-lg bg-[#303869] px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-[#252b54]"
+          >
+            Browse courses
+          </Link>
+        </div>
+      ) : visibleCourses.length === 0 ? (
+        <div className="rounded-xl border border-gray-200 bg-white py-16 text-center text-sm text-gray-500">
+          {activeTab === "all"
+            ? "No courses match your search."
+            : `No ${activeTab === "completed" ? "completed" : "in-progress"} courses yet.`}
         </div>
       ) : (
         <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {pageSlice.map((course) => (
-            <article
-              key={course.id}
-              className="group overflow-hidden rounded-xl hover:shadow-md"
-            >
-              <Link href={`/dashboard/courses/${course.id}`} className="block">
-                <div className="relative h-[200px] w-full bg-gray-200">
-                  <Image
-                    src={course.thumbnail}
-                    alt={course.title}
-                    fill
-                    className="object-cover transition-transform group-hover:scale-[1.02]"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                </div>
-
-              <div className="p-5 bg-white">
-                <h3 className="mb-4 text-lg font-semibold text-heading group-hover:text-slate-800">
-                  {course.title}
-                </h3>
-
-                  <div className="mb-3 bg-white">
-                    <div className="mb-2 flex items-center justify-between">
-                      <div className="mr-3 h-2 flex-1 rounded-full bg-gray-200">
-                        <div
-                          className="h-2 rounded-full bg-[#303869] transition-all"
-                          style={{ width: `${course.progress}%` }}
-                        />
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">{course.progress}%</span>
-                    </div>
-                  </div>
-
-                  <p className="text-sm text-gray-500">Last accessed : {course.lastAccessed}</p>
-                </div>
-              </Link>
-
-              <div className="border-t border-[#F0F0F0] px-5 pb-5 pt-3">
-                <Link
-                  href="/dashboard/courses/learning"
-                  className="flex w-full items-center justify-center rounded-lg bg-[#EEF0F6] py-3 text-center text-sm font-medium text-[#303869] transition-colors hover:bg-gray-200"
-                >
-                  Continue Learning
-                </Link>
-              </div>
-            </article>
+          {visibleCourses.map((course, index) => (
+            <EnrolledCourseCard key={course.id} course={course} index={index} />
           ))}
         </div>
       )}
 
-      {totalPages > 1 ? (
+      {!hasNoEnrollments && totalPages > 1 ? (
         <div className="flex flex-wrap items-center justify-end gap-6">
           <button
             type="button"
             disabled={safePage <= 1}
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
             className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 transition-colors hover:bg-gray-50 disabled:pointer-events-none disabled:opacity-40"
             aria-label="Previous page"
           >
@@ -315,13 +301,13 @@ export default function CoursesDashboard() {
               >
                 {item}
               </button>
-            )
+            ),
           )}
 
           <button
             type="button"
             disabled={safePage >= totalPages}
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
             className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#474348] transition-colors hover:bg-gray-50 disabled:pointer-events-none disabled:opacity-40"
             aria-label="Next page"
           >

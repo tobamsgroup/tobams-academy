@@ -8,16 +8,23 @@ import {
 } from "lucide-react";
 import type { PlayerLesson, PlayerModule } from "./curriculum";
 import { cn } from "@/lib/utils";
+import { ICONS } from "@/assets/icons";
 
 function LessonKindIcon({ kind, className }: { kind: PlayerLesson["kind"]; className?: string }) {
-  const c = cn("h-4 w-4 shrink-0", className);
+  const c = cn(className);
   switch (kind) {
     case "video":
-      return <MonitorPlay className={c} strokeWidth={2} aria-hidden />;
+      return <ICONS.ManageVideo className={c}/>;
     case "screen":
-      return <MonitorPlay className={c} strokeWidth={2} aria-hidden />;
+      return <ICONS.ManageCancelVideo className={c}/>;
+    case "pdf":
+      return <ICONS.ManagePdf className={c}/>;
+    case "quiz":
+      return <ICONS.ManageFileSearch className={c}/>;
+    case "assessment":
+      return <ICONS.ManageFilePencil className={c}/>;
     default:
-      return <FileText className={c} strokeWidth={2} aria-hidden />;
+      return <ICONS.ManageFile className={c}/>;
   }
 }
 

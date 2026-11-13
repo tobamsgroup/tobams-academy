@@ -1,4 +1,3 @@
-import { getAllCourses, getCategories } from '@/lib/courseData'
 import { CatalogueClient } from '@/components/courses/CatalogueClient'
 import { Navbar } from '@/components/landing/Navbar'
 import { Footer } from '@/components/landing/Footer'
@@ -17,14 +16,12 @@ export default async function CoursesPage({
 }) {
   const params = await searchParams
   const initialSearch = typeof params.search === 'string' ? params.search : ''
-  const courses = getAllCourses()
-  const categories = getCategories()
 
   return (
     <div className="min-h-screen bg-white">
       <Navbar shadow={false} />
       <CoursesHero />
-      <CatalogueClient courses={courses} categories={categories} initialSearch={initialSearch} />
+      <CatalogueClient initialSearch={initialSearch} />
       <Newsletter />
       <Footer />
     </div>

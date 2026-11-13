@@ -11,6 +11,7 @@ export function WantsVsNeedsArticleLessonContent({
   moduleTitle,
   lesson,
   isCompleted,
+  isMarkingComplete,
   onMarkComplete,
   prevLesson,
   nextLesson,
@@ -71,10 +72,10 @@ export function WantsVsNeedsArticleLessonContent({
         <button
           type="button"
           onClick={onMarkComplete}
-          disabled={isCompleted}
+          disabled={isCompleted || isMarkingComplete}
           className="rounded-lg bg-[#303869] px-5 py-3 text-sm font-medium text-white hover:bg-[#252d56] disabled:cursor-default disabled:opacity-60 w-full md:w-auto"
         >
-          {isCompleted ? "Completed" : "Mark As Completed"}
+          {isCompleted ? "Completed" : isMarkingComplete ? "Saving…" : "Mark As Completed"}
         </button>
       </div>
 

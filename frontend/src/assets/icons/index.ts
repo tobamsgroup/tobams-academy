@@ -59,6 +59,10 @@ import ProfileSuccess from "./profile-icons/Success";
 import ProfileFailed from "./profile-icons/Failed";
 import ProfileMail from "./profile-icons/Mail";
 import ProfilePhone from "./profile-icons/Phone";
+import ProfileClose from "./profile-icons/Close";
+import ProfileBackArrow from "./profile-icons/BackArrow";
+import ProfileUserPlaceholder from "./profile-icons/UserPlaceholder";
+import ProfileUpload from "./profile-icons/Upload";
 import PaymentSearch from "./payment-icons/Search";
 import PaymentDate from "./payment-icons/Date";
 import PaymentFlash from "./payment-icons/Flash";
@@ -67,6 +71,20 @@ import PaymentMenu from "./payment-icons/Menu";
 import Progress from "./Progress";
 import Sort from "./Sort";
 import Check from "./Check";
+import ManageFile from "./manage-icons/File";
+import ManageFilePencil from "./manage-icons/FilePencil";
+import ManageFileSearch from "./manage-icons/FileSearch";
+import ManagePdf from "./manage-icons/Pdf";
+import ManageVideo from "./manage-icons/Video";
+import ManageCancelVideo from "./manage-icons/CancelVideo";
+import ManagePlaylistAdd from "./manage-icons/PlaylistAdd";
+import ManagePause from "./manage-icons/Pause";
+import ManageReload from "./manage-icons/Reload";
+import ManageRotateClock from "./manage-icons/RotateClock";
+import ManageArrowsHorizontal from "./manage-icons/ArrowsHorizontal";
+import StarsIcon from "./StarsIcon";
+import EyeFill from "./EyeFill";
+import SettingsEyeIcon from "./settings-icons/EyeIcon";
 
 export const ICONS = {
     Thunder,
@@ -130,6 +148,10 @@ export const ICONS = {
     ProfileFailed,
     ProfileMail,
     ProfilePhone,
+    ProfileClose,
+    ProfileBackArrow,
+    ProfileUserPlaceholder,
+    ProfileUpload,
     PaymentSearch,
     PaymentDate,
     PaymentFlash,
@@ -138,4 +160,18 @@ export const ICONS = {
     Progress,
     Sort,
     Check,
+    ManageFile,
+    ManageFilePencil,
+    ManageFileSearch,
+    ManagePdf,
+    ManageVideo,
+    ManageCancelVideo,
+    ManagePlaylistAdd,
+    ManagePause,
+    ManageReload,
+    ManageRotateClock,
+    ManageArrowsHorizontal,
+    StarsIcon,
+    EyeFill,
+    SettingsEyeIcon,
 }

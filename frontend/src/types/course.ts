@@ -5,11 +5,14 @@ export interface Category {
   createdAt: string
 }
 
+export type LessonKind = 'VIDEO' | 'DOC' | 'PDF' | 'SCREEN' | 'QUIZ' | 'ASSESSMENT'
+
 export interface Lesson {
   id: string
   title: string
   position: number
   duration: number | null
+  kind?: LessonKind
 }
 
 export interface CourseModule {

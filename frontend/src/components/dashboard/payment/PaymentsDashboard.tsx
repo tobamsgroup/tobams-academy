@@ -8,11 +8,10 @@ import DeletePaymentConfirmModal from "./DeletePaymentConfirmModal";
 import PaymentDeletedSuccessModal from "./PaymentDeletedSuccessModal";
 import {
   DATE_RANGE_OPTIONS,
-  matchesDateRangeFilter,
   PAGE_SIZE,
-  SAMPLE_PAYMENTS,
   type DateRangeFilter,
 } from "./payments-data";
+import { usePayments } from "@/hooks/usePayments";
 
 export default function PaymentsDashboard() {
   const router = useRouter();
@@ -23,41 +22,26 @@ export default function PaymentsDashboard() {
   const [statusMenuOpen, setStatusMenuOpen] = useState(false);
   const [dateMenuOpen, setDateMenuOpen] = useState(false);
   const [actionMenu, setActionMenu] = useState<ActionMenuPosition | null>(null);
-  const [removedPaymentIds, setRemovedPaymentIds] = useState<string[]>([]);
   const [deleteModalPaymentId, setDeleteModalPaymentId] = useState<string | null>(null);
   const [deleteSuccessOpen, setDeleteSuccessOpen] = useState(false);
   const statusRef = useRef<HTMLDivElement>(null);
   const dateRef = useRef<HTMLDivElement>(null);
 
-  const visiblePayments = useMemo(
-    () => SAMPLE_PAYMENTS.filter((p) => !removedPaymentIds.includes(p.id)),
-    [removedPaymentIds]
-  );
+  const { payments, meta, isLoading, deletePayment } = usePayments({
+    page: currentPage,
+    limit: PAGE_SIZE,
+    courseName: searchQuery.trim() || undefined,
+    status: statusFilter,
+    range: dateFilter,
+  });
 
   const actionPayment = useMemo(
-    () => (actionMenu ? visiblePayments.find((p) => p.id === actionMenu.paymentId) : undefined),
-    [actionMenu, visiblePayments]
+    () => (actionMenu ? payments.find((p) => p.id === actionMenu.paymentId) : undefined),
+    [actionMenu, payments]
   );
 
-  const filtered = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    return visiblePayments.filter((p) => {
-      if (statusFilter !== "all" && p.status !== statusFilter) return false;
-      if (!matchesDateRangeFilter(p.date, dateFilter)) return false;
-      if (!q) return true;
-      return (
-        p.courseName.toLowerCase().includes(q) || p.courseId.toLowerCase().includes(q)
-      );
-    });
-  }, [searchQuery, statusFilter, dateFilter, visiblePayments]);
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const totalPages = meta?.totalPages ?? 1;
   const safePage = Math.min(currentPage, totalPages);
-  const pageSlice = useMemo(() => {
-    const page = Math.min(currentPage, totalPages);
-    const start = (page - 1) * PAGE_SIZE;
-    return filtered.slice(start, start + PAGE_SIZE);
-  }, [filtered, currentPage, totalPages]);
 
   const dateFilterLabel =
     DATE_RANGE_OPTIONS.find((o) => o.value === dateFilter)?.label ?? "All dates";
@@ -96,8 +80,7 @@ export default function PaymentsDashboard() {
   }, [actionMenu]);
 
   const handleExport = () => {
-    // Placeholder until API / CSV export exists
-    console.log("Exporting payment history...", filtered.length, "rows");
+    console.log("Exporting payment history...", payments.length, "rows");
   };
 
   const statusAriaLabel =
@@ -153,7 +136,7 @@ export default function PaymentsDashboard() {
         </div>
 
         <h2 className="row-start-2 font-medium text-[#221D23] md:col-start-1 md:row-start-2">
-          All Payments ({filtered.length})
+          All Payments ({meta?.total ?? payments.length})
         </h2>
 
         <div
@@ -273,47 +256,50 @@ export default function PaymentsDashboard() {
         </div>
       </div>
 
-      <PaymentsTable
-        rows={pageSlice}
-        totalPages={totalPages}
-        safePage={safePage}
-        onPageChange={setCurrentPage}
-        actionMenu={actionMenu}
-        actionPayment={actionPayment}
-        onCloseActionMenu={() => setActionMenu(null)}
-        onRowMenuButtonClick={(e, paymentId) => {
-          const r = e.currentTarget.getBoundingClientRect();
-          setActionMenu((prev) =>
-            prev?.paymentId === paymentId
-              ? null
-              : {
-                  paymentId,
-                  top: r.bottom + 4,
-                  right: window.innerWidth - r.right,
-                }
-          );
-          setStatusMenuOpen(false);
-          setDateMenuOpen(false);
-        }}
-        onViewDetails={(paymentId) => {
-          router.push(`/dashboard/payment/${paymentId}`);
-        }}
-        onRequestDelete={(paymentId) => {
-          setActionMenu(null);
-          setDeleteModalPaymentId(paymentId);
-        }}
-      />
+      {isLoading ? (
+        <p className="text-[#474348]">Loading payments…</p>
+      ) : (
+        <PaymentsTable
+          rows={payments}
+          totalPages={totalPages}
+          safePage={safePage}
+          onPageChange={setCurrentPage}
+          actionMenu={actionMenu}
+          actionPayment={actionPayment}
+          onCloseActionMenu={() => setActionMenu(null)}
+          onRowMenuButtonClick={(e, paymentId) => {
+            const r = e.currentTarget.getBoundingClientRect();
+            setActionMenu((prev) =>
+              prev?.paymentId === paymentId
+                ? null
+                : {
+                    paymentId,
+                    top: r.bottom + 4,
+                    right: window.innerWidth - r.right,
+                  }
+            );
+            setStatusMenuOpen(false);
+            setDateMenuOpen(false);
+          }}
+          onViewDetails={(paymentId) => {
+            router.push(`/dashboard/payment/${paymentId}`);
+          }}
+          onRequestDelete={(paymentId) => {
+            setActionMenu(null);
+            setDeleteModalPaymentId(paymentId);
+          }}
+        />
+      )}
 
       <DeletePaymentConfirmModal
         isOpen={deleteModalPaymentId !== null}
         onCancel={() => setDeleteModalPaymentId(null)}
         onConfirm={() => {
           if (!deleteModalPaymentId) return;
-          setRemovedPaymentIds((prev) =>
-            prev.includes(deleteModalPaymentId) ? prev : [...prev, deleteModalPaymentId]
-          );
-          setDeleteModalPaymentId(null);
-          setDeleteSuccessOpen(true);
+          void deletePayment(deleteModalPaymentId).then(() => {
+            setDeleteModalPaymentId(null);
+            setDeleteSuccessOpen(true);
+          });
         }}
       />
 

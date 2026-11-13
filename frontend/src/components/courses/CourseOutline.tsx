@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronDown, Clock, PlayCircle } from 'lucide-react'
+import { ChevronDown, Clock, ClipboardList, PlayCircle } from 'lucide-react'
 import type { CourseModule } from '@/types/course'
+import { isQuizLesson } from '@/lib/quiz-utils'
 
 interface Props {
   modules: CourseModule[]
@@ -30,17 +31,31 @@ export function CourseOutline({ modules }: Props) {
           </button>
           {open === mod.id && (
             <ul className="border-t border-slate-100 bg-slate-50 px-4 py-2">
-              {mod.lessons.map((lesson) => (
+              {mod.lessons.map((lesson) => {
+                const isQuiz = isQuizLesson(lesson)
+                return (
                 <li key={lesson.id} className="flex items-center gap-2 py-1.5 text-xs text-slate-600">
-                  <PlayCircle className="h-3.5 w-3.5 shrink-0 text-[#571244]" />
-                  <span className="flex-1">{lesson.title}</span>
+                  {isQuiz ? (
+                    <ClipboardList className="h-3.5 w-3.5 shrink-0 text-[#571244]" />
+                  ) : (
+                    <PlayCircle className="h-3.5 w-3.5 shrink-0 text-[#571244]" />
+                  )}
+                  <span className="flex-1">
+                    {lesson.title}
+                    {isQuiz ? (
+                      <span className="ml-2 rounded bg-[#EEF0F6] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[#303869]">
+                        Quiz
+                      </span>
+                    ) : null}
+                  </span>
                   {lesson.duration && (
                     <span className="flex items-center gap-0.5 text-slate-400">
                       <Clock className="h-3 w-3" /> {lesson.duration}m
                     </span>
                   )}
                 </li>
-              ))}
+                )
+              })}
             </ul>
           )}
         </div>

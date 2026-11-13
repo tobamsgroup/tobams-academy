@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "postinstall": "prisma generate",
+    "db:push": "node scripts/prisma-with-env.mjs db push",
+    "db:generate": "node scripts/prisma-with-env.mjs generate",
+    "seed:quizzes": "npx tsx scripts/seed-quizzes.ts"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
