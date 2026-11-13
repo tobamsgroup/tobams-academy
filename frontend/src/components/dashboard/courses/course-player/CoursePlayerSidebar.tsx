@@ -1,14 +1,17 @@
-import {
-  ChevronDown,
-  ChevronRight,
-  FileText,
-  MonitorPlay,
-  PanelLeftClose,
-  PanelLeftOpen,
-} from "lucide-react";
+import { ChevronDown, ChevronRight, FileText, MonitorPlay, PanelLeftClose, PanelLeftOpen, CheckCircle2 } from "lucide-react";
 import type { PlayerLesson, PlayerModule } from "./curriculum";
 import { cn } from "@/lib/utils";
 import { ICONS } from "@/assets/icons";
+
+/** Short description under a lesson title in the outline. */
+function lessonMeta(lesson: PlayerLesson): string {
+  if (lesson.kind === "quiz") return lesson.durationMin > 0 ? `Quiz · ${lesson.durationMin} min` : "Quiz";
+  if (lesson.kind === "pdf" && lesson.contentKey) {
+    return lesson.pageStart && lesson.pageEnd ? `Reading · pages ${lesson.pageStart}–${lesson.pageEnd}` : "Reading";
+  }
+  if (!lesson.contentUrl && !lesson.contentKey) return "Coming soon";
+  return lesson.durationMin > 0 ? `${lesson.durationMin} min` : "";
+}
 
 function LessonKindIcon({ kind, className }: { kind: PlayerLesson["kind"]; className?: string }) {
   const c = cn(className);
@@ -104,6 +107,7 @@ export function CoursePlayerSidebar({
                 <ul className="mt-0.5 space-y-0.5 pb-2">
                   {m.lessons.map((lesson) => {
                     const active = lesson.id === selectedLessonId;
+                    const done = completedLessonIds.has(lesson.id);
                     return (
                       <li key={lesson.id}>
                         <button
@@ -128,9 +132,15 @@ export function CoursePlayerSidebar({
                                 active ? "text-white/80" : "text-[#9CA3AF]",
                               )}
                             >
-                              {lesson.durationMin}min
+                              {lessonMeta(lesson)}
                             </p>
                           </div>
+                          {done ? (
+                            <CheckCircle2
+                              className={cn("mt-0.5 h-5 w-5 shrink-0", active ? "text-white" : "text-[#4CAF50]")}
+                              aria-label="Completed"
+                            />
+                          ) : null}
                         </button>
                       </li>
                     );

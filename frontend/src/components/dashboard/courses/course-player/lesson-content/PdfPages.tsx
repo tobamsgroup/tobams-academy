@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/TextLayer.css";
 import "react-pdf/dist/Page/AnnotationLayer.css";
@@ -17,10 +17,12 @@ type Props = {
   pageEnd?: number;
   width: number;
   onPageCount?: (total: number) => void;
+  /** Called once the last page of the range is mostly on screen (the learner reached the end). */
+  onReachedEnd?: () => void;
 };
 
 /** Renders a page range of a PDF. Loaded with next/dynamic (ssr: false): pdf.js needs the DOM. */
-export default function PdfPages({ data, pageStart, pageEnd, width, onPageCount }: Props) {
+export default function PdfPages({ data, pageStart, pageEnd, width, onPageCount, onReachedEnd }: Props) {
   const file = useMemo(() => ({ data: new Uint8Array(data.slice(0)) }), [data]);
   const [numPages, setNumPages] = useState<number | null>(null);
   const [failed, setFailed] = useState(false);
@@ -31,6 +33,27 @@ export default function PdfPages({ data, pageStart, pageEnd, width, onPageCount 
     const end = Math.min(Math.max(start, pageEnd ?? numPages), numPages);
     return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   }, [numPages, pageStart, pageEnd]);
+
+  const lastPageRef = useRef<HTMLDivElement>(null);
+  // Latest callback, read by the observer without re-subscribing on every render.
+  const reachedEnd = useRef(onReachedEnd);
+  useEffect(() => {
+    reachedEnd.current = onReachedEnd;
+  });
+  const lastPage = pages[pages.length - 1];
+
+  useEffect(() => {
+    const el = lastPageRef.current;
+    if (!el || lastPage === undefined) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) reachedEnd.current?.();
+      },
+      { threshold: 0.6 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [lastPage]);
 
   if (failed) {
     return <p className="p-6 text-sm text-secondary">This reading could not be displayed. Please refresh and try again.</p>;
@@ -48,7 +71,7 @@ export default function PdfPages({ data, pageStart, pageEnd, width, onPageCount 
     >
       <div className="flex flex-col items-center gap-4">
         {pages.map((n) => (
-          <div key={n} className="shadow-sm ring-1 ring-[#E5E7EB]">
+          <div key={n} ref={n === lastPage ? lastPageRef : undefined} className="shadow-sm ring-1 ring-[#E5E7EB]">
             <Page
               pageNumber={n}
               width={width}

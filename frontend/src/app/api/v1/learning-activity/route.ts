@@ -13,7 +13,8 @@ function utcDay(date = new Date()): Date {
 
 /**
  * POST /api/v1/learning-activity  { lessonId, seconds }
- * Records time a learner actively spent with a lesson open (tab visible).
+ * Records time a learner actively spent with a lesson open (tab visible), and remembers the
+ * lesson as the one to resume. seconds = 0 is a "visit": it only updates the resume point.
  */
 export const POST = withRoute('/api/v1/learning-activity', async (req: NextRequest) => {
   const user = getAuthUser(req)
@@ -23,7 +24,7 @@ export const POST = withRoute('/api/v1/learning-activity', async (req: NextReque
   const lessonId = body?.lessonId
   const rawSeconds = Number(body?.seconds)
   if (typeof lessonId !== 'string' || !lessonId) return err('lessonId is required')
-  if (!Number.isFinite(rawSeconds) || rawSeconds <= 0) return err('seconds must be a positive number')
+  if (!Number.isFinite(rawSeconds) || rawSeconds < 0) return err('seconds must be zero or a positive number')
   const seconds = Math.min(Math.round(rawSeconds), MAX_SECONDS_PER_HEARTBEAT)
 
   const lesson = await prisma.lesson.findUnique({
@@ -39,18 +40,24 @@ export const POST = withRoute('/api/v1/learning-activity', async (req: NextReque
   })
   if (!enrollment) return err('Not enrolled in this course', 403)
 
-  const day = utcDay()
-  await prisma.$transaction([
-    prisma.learningActivity.upsert({
-      where: { userId_lessonId_day: { userId: user.id, lessonId, day } },
-      update: { seconds: { increment: seconds } },
-      create: { userId: user.id, courseId, lessonId, day, seconds },
-    }),
-    prisma.enrollment.update({
-      where: { id: enrollment.id },
-      data: { lastAccessedAt: new Date() },
-    }),
-  ])
+  const touchEnrollment = prisma.enrollment.update({
+    where: { id: enrollment.id },
+    data: { lastAccessedAt: new Date(), lastLessonId: lessonId },
+  })
+
+  if (seconds === 0) {
+    await touchEnrollment
+  } else {
+    const day = utcDay()
+    await prisma.$transaction([
+      prisma.learningActivity.upsert({
+        where: { userId_lessonId_day: { userId: user.id, lessonId, day } },
+        update: { seconds: { increment: seconds } },
+        create: { userId: user.id, courseId, lessonId, day, seconds },
+      }),
+      touchEnrollment,
+    ])
+  }
 
   return ok({ recorded: seconds })
 })

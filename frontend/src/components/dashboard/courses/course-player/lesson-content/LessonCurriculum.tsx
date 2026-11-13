@@ -30,7 +30,7 @@ export function LessonCurriculum(props: LessonContentCommonProps) {
 
   // Reading lessons backed by a PDF document (contentKey is the document path).
   if (props.lesson.kind === "pdf" && props.lesson.contentKey?.endsWith(".pdf")) {
-    return <PdfLessonContent {...props} />;
+    return <PdfLessonContent key={props.lesson.id} {...props} />;
   }
 
   const key = props.lesson.contentKey ?? "default";

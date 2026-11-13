@@ -76,6 +76,7 @@ export function toEnrollmentSummary(
     enrolledAt: Date
     completedAt: Date | null
     lastAccessedAt: Date | null
+    lastLessonId?: string | null
     course: unknown
     lessonProgress: ReadonlyArray<{ lessonId?: string; completedAt: Date | null }>
   },
@@ -88,6 +89,7 @@ export function toEnrollmentSummary(
     enrolledAt: enrollment.enrolledAt.toISOString(),
     completedAt: enrollment.completedAt?.toISOString() ?? null,
     lastAccessedAt: enrollment.lastAccessedAt?.toISOString() ?? null,
+    lastLessonId: enrollment.lastLessonId ?? null,
     progress: computeEnrollmentProgress(
       enrollment.lessonProgress,
       enrollment.completedAt,
@@ -105,6 +107,7 @@ export function toEnrollmentDetail(
     enrolledAt: Date
     completedAt: Date | null
     lastAccessedAt: Date | null
+    lastLessonId?: string | null
     course: unknown
     lessonProgress: ReadonlyArray<{ lessonId: string; completedAt: Date | null }>
   },

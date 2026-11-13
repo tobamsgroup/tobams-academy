@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import type { DashboardOverview } from '@/types/dashboard'
+import { resumeLessonId } from '@/lib/resume-lesson'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 
@@ -79,7 +80,12 @@ export async function getDashboardOverview(userId: string, now = new Date()): Pr
     )
     const completed = lessons.filter((l) => done.has(l.id)).length
     const isCompleted = Boolean(enrollment.completedAt) || (lessons.length > 0 && completed === lessons.length)
-    const next = lessons.find((l) => !done.has(l.id))
+    const resumeId = resumeLessonId(
+      lessons.map((l) => l.id),
+      done,
+      enrollment.lastLessonId,
+    )
+    const next = lessons.find((l) => l.id === resumeId)
     return {
       courseId: enrollment.course.id,
       title: enrollment.course.title,

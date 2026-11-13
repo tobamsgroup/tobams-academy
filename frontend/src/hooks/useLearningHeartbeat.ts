@@ -51,6 +51,12 @@ export function useLearningHeartbeat(lessonId: string | undefined, enabled = tru
 
     visibleSince.current = document.visibilityState === 'visible' ? Date.now() : null
     pendingMs.current = 0
+    // Record the visit right away so "Resume" brings the learner back to this lesson.
+    void fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ lessonId, seconds: 0 }),
+    }).catch(() => undefined)
     const interval = window.setInterval(() => send(), TICK_MS)
     const onPageHide = () => send(true)
     document.addEventListener('visibilitychange', onVisibility)

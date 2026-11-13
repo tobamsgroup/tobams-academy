@@ -7,7 +7,7 @@ export interface ContinueLearningCourse {
   /** When the learner last opened the course (falls back to the enrollment date). */
   lastAccessedAt: string
   timeSpentSeconds: number
-  /** First lesson in course order that isn't completed yet. */
+  /** Lesson "Resume" opens: where the learner left off (see resumeLessonId). */
   nextLesson: { id: string; title: string; moduleNumber: number; moduleTitle: string } | null
 }
 

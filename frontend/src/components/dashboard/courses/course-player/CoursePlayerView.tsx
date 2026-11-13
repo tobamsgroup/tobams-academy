@@ -18,6 +18,7 @@ import { useCourseEnrollment } from "@/hooks/useCourseEnrollment";
 import { useCourseProgress } from "@/hooks/useCourseProgress";
 import { useEnrollments } from "@/hooks/useEnrollments";
 import { useLearningHeartbeat } from "@/hooks/useLearningHeartbeat";
+import { resumeLessonId } from "@/lib/resume-lesson";
 
 export default function CoursePlayerView({
   course,
@@ -46,17 +47,30 @@ export default function CoursePlayerView({
   const { progress: apiProgress, mutate: mutateProgress } = useCourseProgress(course.id);
   const { mutate: mutateEnrollments, mutateStats } = useEnrollments();
 
-  // Open the requested lesson (e.g. from a "Resume" link) if it belongs to this course.
-  const initial = initialLessonId ? findLesson(modules, initialLessonId) : undefined;
-  const startModule = initial?.module ?? firstModule;
-  const startLesson = initial?.lesson ?? firstLesson;
+  // Which lesson is open: the learner's own choice once they pick one; before that, the lesson
+  // from a ?lesson= link, or where they left off (last lesson opened / next unfinished one).
+  const [chosenLessonId, setChosenLessonId] = useState<string | null>(null);
+  const resumeId = useMemo(
+    () =>
+      resumeLessonId(
+        modules.flatMap((m) => m.lessons.map((l) => l.id)),
+        completedLessonIds,
+        enrollment?.lastLessonId,
+      ),
+    [modules, completedLessonIds, enrollment?.lastLessonId],
+  );
+  const linked = initialLessonId ? findLesson(modules, initialLessonId)?.lesson.id : undefined;
+  const selectedLessonId = chosenLessonId ?? linked ?? resumeId ?? firstLesson?.id ?? "";
 
-  const [expandedModuleIds, setExpandedModuleIds] = useState<Set<string>>(
-    () => new Set(startModule ? [startModule.id] : []),
+  // Modules start collapsed except the one holding the open lesson, until the learner toggles.
+  const [expandedOverride, setExpandedOverride] = useState<Set<string> | null>(null);
+  const selectedModuleId = findLesson(modules, selectedLessonId)?.module.id ?? firstModule?.id;
+  const expandedModuleIds = useMemo(
+    () => expandedOverride ?? new Set(selectedModuleId ? [selectedModuleId] : []),
+    [expandedOverride, selectedModuleId],
   );
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileOutlineOpen, setMobileOutlineOpen] = useState(false);
-  const [selectedLessonId, setSelectedLessonId] = useState(startLesson?.id ?? "");
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   // Track real time spent on the open lesson (powers the dashboard's time metrics).
   useLearningHeartbeat(selectedLessonId, Boolean(enrollment));
@@ -74,13 +88,16 @@ export default function CoursePlayerView({
   const nextLesson = useMemo(() => findAdjacentLesson(modules, selectedLessonId, "next"), [modules, selectedLessonId]);
 
   const selectLesson = (id: string) => {
-    setSelectedLessonId(id);
+    setChosenLessonId(id);
+    // Keep the newly opened lesson's module visible in the outline.
+    const moduleId = findLesson(modules, id)?.module.id;
+    if (moduleId) setExpandedOverride((prev) => (prev ? new Set(prev).add(moduleId) : null));
     setMobileOutlineOpen(false);
   };
 
   const toggleModule = (id: string) => {
-    setExpandedModuleIds((prev) => {
-      const n = new Set(prev);
+    setExpandedOverride((prev) => {
+      const n = new Set(prev ?? expandedModuleIds);
       if (n.has(id)) n.delete(id);
       else n.add(id);
       return n;
@@ -89,6 +106,8 @@ export default function CoursePlayerView({
 
   const markComplete = async () => {
     if (!selectedLessonId || completedLessonIds.has(selectedLessonId)) return;
+    // Pin the open lesson: completing it changes the resume target, and the page must not jump.
+    setChosenLessonId(selectedLessonId);
 
     const result = await completeLesson(selectedLessonId);
     if (result) {

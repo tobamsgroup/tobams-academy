@@ -7,6 +7,8 @@ export interface EnrollmentSummary {
   enrolledAt: string
   completedAt: string | null
   lastAccessedAt: string | null
+  /** Lesson the learner last had open (used to resume). */
+  lastLessonId: string | null
   progress: number
   course: Course
 }

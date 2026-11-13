@@ -12,6 +12,8 @@ const PdfPages = dynamic(() => import("./PdfPages"), {
   loading: () => <p className="p-6 text-sm text-[#6C686C]">Loading reading…</p>,
 });
 
+/** A reading only auto-completes after it has been open this long (so clicking through doesn't). */
+const MIN_READ_MS = 15_000;
 const ZOOM_MIN = 70;
 const ZOOM_MAX = 160;
 const ZOOM_STEP = 15;
@@ -59,6 +61,27 @@ export function PdfLessonContent({
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
+
+  // Reaching the last page of the section marks the lesson complete (once it's been open a bit).
+  const openedAt = useRef(0);
+  const completeTimer = useRef<number | null>(null);
+  const autoCompleted = useRef(false);
+  useEffect(() => {
+    openedAt.current = Date.now();
+    return () => {
+      if (completeTimer.current) window.clearTimeout(completeTimer.current);
+    };
+  }, []);
+
+  const handleReachedEnd = () => {
+    if (isCompleted || autoCompleted.current || completeTimer.current) return;
+    const wait = Math.max(0, MIN_READ_MS - (Date.now() - openedAt.current));
+    completeTimer.current = window.setTimeout(() => {
+      completeTimer.current = null;
+      autoCompleted.current = true;
+      void onMarkComplete();
+    }, wait);
+  };
 
   const pageWidth = Math.round(Math.min(containerWidth, MAX_PAGE_WIDTH) * (zoom / 100));
   const pageStart = lesson.pageStart ?? 1;
@@ -117,6 +140,7 @@ export function PdfLessonContent({
               pageEnd={lesson.pageEnd}
               width={pageWidth}
               onPageCount={setTotalPages}
+              onReachedEnd={handleReachedEnd}
             />
           ) : (
             <p className="p-6 text-sm text-[#6C686C]">Loading reading…</p>
@@ -132,6 +156,11 @@ export function PdfLessonContent({
           >
             {isCompleted ? "Completed" : isMarkingComplete ? "Saving…" : "Mark As Completed"}
           </button>
+          {!isCompleted ? (
+            <p className="-mt-8 text-xs text-[#6C686C]">
+              This lesson is marked complete automatically when you reach the end of the reading.
+            </p>
+          ) : null}
         </div>
 
         <div className="mt-10 flex items-center justify-between px-6 pt-6 md:px-0">

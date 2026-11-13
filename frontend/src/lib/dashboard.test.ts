@@ -84,6 +84,24 @@ describe("getDashboardOverview", () => {
     });
   });
 
+  it("resumes at the lesson the learner last had open", async () => {
+    mockPrisma.enrollment.findMany.mockResolvedValueOnce([
+      {
+        enrolledAt: new Date("2026-11-01"),
+        lastAccessedAt: new Date("2026-11-12"),
+        completedAt: null,
+        lastLessonId: "a4",
+        lessonProgress: [{ lessonId: "a1" }],
+        course: course("a", ["a1", "a2", "a3", "a4"]),
+      },
+    ]);
+
+    const overview = await getDashboardOverview("u1", now);
+
+    // a2 is the first unfinished lesson, but the learner was last on a4.
+    expect(overview.continueLearning[0].nextLesson).toMatchObject({ id: "a4", moduleNumber: 2 });
+  });
+
   it("computes insights from real data", async () => {
     const { insights } = await getDashboardOverview("u1", now);
 
