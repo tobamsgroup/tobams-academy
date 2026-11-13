@@ -5,6 +5,7 @@ import { hashPassword, hashToken } from '@/lib/auth-helpers'
 import { sendVerificationEmail } from '@/lib/mail'
 import { ok, err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
+import { notify } from '@/lib/notifications'
 
 export const POST = withRoute('/api/v1/auth/register', async (req: NextRequest) => {
   const body = await req.json()
@@ -29,6 +30,12 @@ export const POST = withRoute('/api/v1/auth/register', async (req: NextRequest) 
   })
 
   await sendVerificationEmail(user.email, user.name, rawToken)
+
+  await notify(user.id, {
+    title: 'Welcome to Tobams Academy',
+    message: `Hi ${user.name}, your account has been created. Explore our courses to start learning.`,
+    category: 'registrationSetup',
+  })
 
   return ok(undefined, 'Registration successful. Please verify your email.')
 })

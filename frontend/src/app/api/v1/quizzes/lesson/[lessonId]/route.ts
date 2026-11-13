@@ -31,6 +31,12 @@ export const GET = withRoute(
 
     if (!quiz) return err('Quiz not found', 404)
 
+    const enrolled = await prisma.enrollment.findFirst({
+      where: { userId: user.id, course: { modules: { some: { lessons: { some: { id: lessonId } } } } } },
+      select: { id: true },
+    })
+    if (!enrolled) return err('Not enrolled in this course', 403)
+
     return ok({
       id: quiz.id,
       timeLimit: quiz.timeLimit,

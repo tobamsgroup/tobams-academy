@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { ok, err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
 import { getAuthUser } from '@/lib/with-auth'
+import { getTrackedSeconds } from '@/lib/dashboard'
 
 export const GET = withRoute('/api/v1/enrollments/me/stats', async (req: NextRequest) => {
   const user = getAuthUser(req)
@@ -14,7 +15,7 @@ export const GET = withRoute('/api/v1/enrollments/me/stats', async (req: NextReq
       course: {
         select: {
           modules: {
-            include: { lessons: { select: { id: true, duration: true } } },
+            include: { lessons: { select: { id: true } } },
           },
         },
       },
@@ -22,7 +23,6 @@ export const GET = withRoute('/api/v1/enrollments/me/stats', async (req: NextReq
     },
   })
 
-  let totalLearningMinutes = 0
   let totalProgress = 0
 
   for (const enrollment of enrollments) {
@@ -31,15 +31,12 @@ export const GET = withRoute('/api/v1/enrollments/me/stats', async (req: NextReq
     const completedCount = enrollment.lessonProgress.length
     const progress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0
     totalProgress += progress
-
-    // Sum minutes only for completed lessons
-    const completedIds = new Set(enrollment.lessonProgress.map((lp) => lp.lessonId))
-    for (const lesson of allLessons) {
-      if (completedIds.has(lesson.id) && lesson.duration) {
-        totalLearningMinutes += lesson.duration
-      }
-    }
   }
+
+  // Real time spent with lessons open (recorded by the course player), not lesson lengths.
+  const { total: trackedSeconds } = await getTrackedSeconds(user.id)
+  const totalLearningMinutes = Math.round(trackedSeconds / 60)
+  const totalLearningHours = Math.round((trackedSeconds / 3600) * 10) / 10
 
   const total = enrollments.length
   const coursesInProgress = enrollments.filter((e) => {
@@ -52,5 +49,5 @@ export const GET = withRoute('/api/v1/enrollments/me/stats', async (req: NextReq
 
   const averageProgress = total > 0 ? Math.round(totalProgress / total) : 0
 
-  return ok({ coursesInProgress, totalLearningMinutes, averageProgress })
+  return ok({ coursesInProgress, totalLearningMinutes, totalLearningHours, averageProgress })
 })

@@ -7,11 +7,14 @@ import { GettingStartedLessonContent } from "./GettingStartedLessonContent";
 import { BasicsOfInterestPdfLessonContent } from "./BasicsOfInterestPdfLessonContent";
 import { InterestLiveHaulLessonContent } from "./InterestLiveHaulLessonContent";
 import { WantsVsNeedsArticleLessonContent } from "./WantsVsNeedsArticleLessonContent";
+import { PdfLessonContent } from "./PdfLessonContent";
+import { ComingSoonLessonContent } from "./ComingSoonLessonContent";
 
 export function LessonCurriculum(props: LessonContentCommonProps) {
   if (props.lesson.kind === "quiz") {
     return (
       <QuizLessonContent
+        key={props.lesson.id}
         lessonId={props.lesson.id}
         lessonTitle={props.lesson.title}
         moduleTitle={props.moduleTitle}
@@ -23,6 +26,11 @@ export function LessonCurriculum(props: LessonContentCommonProps) {
         onSelectLesson={props.onSelectLesson}
       />
     );
+  }
+
+  // Reading lessons backed by a PDF document (contentKey is the document path).
+  if (props.lesson.kind === "pdf" && props.lesson.contentKey?.endsWith(".pdf")) {
+    return <PdfLessonContent {...props} />;
   }
 
   const key = props.lesson.contentKey ?? "default";
@@ -38,5 +46,9 @@ export function LessonCurriculum(props: LessonContentCommonProps) {
   if (key === "interest-live-haul") {
     return <InterestLiveHaulLessonContent {...props} />;
   }
-  return <DefaultLessonContent {...props} />;
+  if (props.lesson.contentUrl) {
+    return <DefaultLessonContent {...props} />;
+  }
+  // No published material for this lesson yet.
+  return <ComingSoonLessonContent {...props} />;
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
-import Image from "next/image";
+import { useState } from "react";
+import { InitialAvatar } from "@/components/ui/InitialAvatar";
 import { ICONS } from "@/assets/icons";
 import type { EditProfileModalProps } from "@/types/profile";
 
@@ -13,16 +13,10 @@ export default function EditProfileModal({ profile, onClose, onSave }: EditProfi
   const [email, setEmail] = useState(profile.email);
   const [phone, setPhone] = useState(profile.phone);
   const [bio, setBio] = useState(profile.bio);
-  const [avatarPreview, setAvatarPreview] = useState(profile.avatarUrl);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) setAvatarPreview(URL.createObjectURL(file));
-  }
 
   function handleSave() {
-    onSave({ name, phone, bio, avatarUrl: avatarPreview });
+    // Profile pictures aren't supported yet, so avatarUrl is never sent.
+    onSave({ name, phone, bio });
     onClose();
   }
 
@@ -52,36 +46,8 @@ export default function EditProfileModal({ profile, onClose, onSave }: EditProfi
         </div>
 
         <div className="overflow-y-auto px-6 py-5 flex flex-col gap-6 flex-1">
-          <div className="flex flex-col items-center gap-6">
-            <div className="h-[108px] w-[100px] rounded-full bg-gray-100 overflow-hidden flex items-center justify-center ring-2 ring-gray-200">
-              {avatarPreview ? (
-                <Image
-                  src={avatarPreview}
-                  alt="Avatar preview"
-                  width={100}
-                  height={108}
-                  className="h-full w-full object-cover"
-                  unoptimized={avatarPreview.startsWith("blob:")}
-                />
-              ) : (
-                <ICONS.ProfileUserPlaceholder />
-              )}
-            </div>
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-1.5 text-sm text-heading border border-[#D3D2D366] bg-white rounded-lg px-3 py-1.5 hover:bg-gray-50 transition-colors"
-            >
-              <ICONS.ProfileUpload />
-              Change Image
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleImageChange}
-            />
+          <div className="flex flex-col items-center">
+            <InitialAvatar name={name || profile.name} className="h-[100px] w-[100px] text-[40px] ring-2 ring-gray-200" />
           </div>
 
           <div className="flex flex-col gap-4">

@@ -3,12 +3,13 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { Menu, X } from 'lucide-react'
 import Image from 'next/image'
 import { IMAGES } from '@/assets/images'
-import { ICONS } from '@/assets/icons'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
+import { CartLink } from '@/components/cart/CartLink'
 
 const NAVBAR_DROP_SHADOW = 'shadow-[0px_4px_15px_0px_#00000033]'
 
@@ -19,6 +20,15 @@ export type NavbarProps = {
 export function Navbar({ shadow = true }: NavbarProps) {
   const [open, setOpen] = useState(false)
   const router = useRouter()
+  const { status } = useSession()
+  // Signed-in users get a way back to their dashboard instead of "Login".
+  // Nothing renders while the session loads, so "Login" never flashes for signed-in users.
+  const account =
+    status === 'authenticated'
+      ? { href: '/dashboard', label: 'Dashboard' }
+      : status === 'unauthenticated'
+        ? { href: '/login', label: 'Login' }
+        : null
 
   return (
     <nav
@@ -45,23 +55,25 @@ export function Navbar({ shadow = true }: NavbarProps) {
         </div>
 
         <div className='flex items-center gap-10 hidden md:flex'>
-          <Link href="/cart" className="transition-colors hover:text-primary">  
-          <ICONS.Cart width={24} height={24} />
-          </Link>
+          <CartLink />
 
-          <Button
-            type="button"
-            variant="primary"
-            className="rounded-lg bg-gradient-to-r from-[#303869] to-[#303869] px-6 py-3 text-sm font-bold shadow-none hover:shadow-lg hover:shadow-primary/25"
-            onClick={() => router.push('/login')}
-          >
-            Login
-          </Button>
+          {account ? (
+            <Button
+              type="button"
+              variant="primary"
+              className="rounded-lg bg-gradient-to-r from-[#303869] to-[#303869] px-6 py-3 text-sm font-bold shadow-none hover:shadow-lg hover:shadow-primary/25"
+              onClick={() => router.push(account.href)}
+            >
+              {account.label}
+            </Button>
+          ) : (
+            <span className="inline-block w-[92px]" aria-hidden />
+          )}
         </div>
 
         {/* Mobile hamburger */}
         <div className='md:hidden flex items-center gap-6'>
-        <ICONS.Cart width={24} height={24} />
+        <CartLink />
         <button
           className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 md:hidden"
           onClick={() => setOpen(!open)}
@@ -80,13 +92,15 @@ export function Navbar({ shadow = true }: NavbarProps) {
             <Link href="/courses" className="py-1 text-slate-600 hover:text-primary" onClick={() => setOpen(false)}>Courses</Link>
             <Link href="/corporate-training" className="py-1 text-slate-600 hover:text-primary" onClick={() => setOpen(false)}>Corporate Training</Link>
             <hr className="border-[#E5E7EB]" />
-            <Link
-              href="/login"
-              className="mt-12 rounded-lg bg-primary px-5 py-2.5 text-center font-bold text-white"
-              onClick={() => setOpen(false)}
-            >
-            Login
-            </Link>
+            {account ? (
+              <Link
+                href={account.href}
+                className="mt-12 rounded-lg bg-primary px-5 py-2.5 text-center font-bold text-white"
+                onClick={() => setOpen(false)}
+              >
+                {account.label}
+              </Link>
+            ) : null}
           </div>
         </div>
       )}

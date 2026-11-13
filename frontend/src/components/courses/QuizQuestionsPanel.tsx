@@ -35,9 +35,15 @@ export function QuizQuestionsPanel({
   }, [pageIndex, questions]);
 
   const allAnswered = questions.every((question) => answers[question.id]);
+  const firstOnPage = pageIndex * QUESTIONS_PER_PAGE + 1;
+  const lastOnPage = Math.min(questions.length, firstOnPage + QUESTIONS_PER_PAGE - 1);
+  const unanswered = questions.length - questions.filter((question) => answers[question.id]).length;
 
   return (
     <div className="rounded-xl border border-[#D3D2D333] bg-white p-6 md:p-8">
+      <p className="mb-6 text-xs font-semibold uppercase tracking-wide text-[#6C686C]">
+        Questions {firstOnPage}–{lastOnPage} of {questions.length}
+      </p>
       <div className="space-y-10">
         {pageQuestions.map((question, idx) => {
           const number = pageIndex * QUESTIONS_PER_PAGE + idx + 1;
@@ -93,7 +99,7 @@ export function QuizQuestionsPanel({
             )}
           >
             <ChevronLeft className="h-4 w-4" strokeWidth={2} />
-            Previous
+            Previous questions
           </button>
           {!isLastPage ? (
             <button
@@ -102,13 +108,19 @@ export function QuizQuestionsPanel({
               disabled={isSubmitting}
               className="inline-flex items-center gap-1 text-sm font-semibold text-[#303869] hover:underline disabled:cursor-default disabled:text-[#9CA3AF] disabled:no-underline"
             >
-              Next
+              Next questions
               <ChevronRight className="h-4 w-4" strokeWidth={2} />
             </button>
           ) : null}
         </div>
 
         {isLastPage ? (
+          <div className="flex flex-col items-stretch gap-2 sm:items-end">
+          {!allAnswered ? (
+            <p className="text-sm text-[#6C686C]">
+              Answer all questions to submit ({unanswered} left).
+            </p>
+          ) : null}
           <button
             type="button"
             onClick={onSubmit}
@@ -117,6 +129,7 @@ export function QuizQuestionsPanel({
           >
             {isSubmitting ? "Submitting…" : "Submit Quiz"}
           </button>
+          </div>
         ) : null}
       </div>
     </div>

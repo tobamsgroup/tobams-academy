@@ -2,6 +2,7 @@ import { POST } from "./route";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { getAuthUser } from "@/lib/with-auth";
+import { notify } from "@/lib/notifications";
 
 jest.mock("@/lib/prisma", () => ({
   prisma: {
@@ -18,8 +19,13 @@ jest.mock("@/lib/prisma", () => ({
     lessonProgress: {
       upsert: jest.fn(),
       findMany: jest.fn(),
+      findUnique: jest.fn(),
     },
   },
+}));
+
+jest.mock("@/lib/notifications", () => ({
+  notify: jest.fn(),
 }));
 
 jest.mock("@/lib/with-auth", () => ({
@@ -71,6 +77,7 @@ describe("POST /enrollments/[courseId]/lessons/[lessonId]/complete", () => {
     mockPrisma.enrollment.findUnique.mockResolvedValue({
       id: "e1",
       completedAt: null,
+      course: { title: "Node Course" },
     });
 
     mockPrisma.lesson.findFirst.mockResolvedValue({
@@ -131,6 +138,12 @@ describe("POST /enrollments/[courseId]/lessons/[lessonId]/complete", () => {
         lessonId: "l1",
       },
     });
+
+    // 1 of 2 lessons: crossing 50% sends the halfway notification
+    expect(notify).toHaveBeenCalledWith(
+      "u1",
+      expect.objectContaining({ title: "Halfway there", category: "progressTracking" }),
+    );
   });
 
   it("returns 401 when user is not authenticated", async () => {
@@ -215,6 +228,7 @@ describe("POST /enrollments/[courseId]/lessons/[lessonId]/complete", () => {
       id: "e1",
 
       completedAt: null,
+      course: { title: "Node Course" },
     });
 
     mockPrisma.lesson.findFirst.mockResolvedValue({
@@ -252,6 +266,11 @@ describe("POST /enrollments/[courseId]/lessons/[lessonId]/complete", () => {
           completedAt: expect.any(Date),
         },
       }),
+    );
+
+    expect(notify).toHaveBeenCalledWith(
+      "u1",
+      expect.objectContaining({ title: "Course completed", category: "progressTracking" }),
     );
   });
 });

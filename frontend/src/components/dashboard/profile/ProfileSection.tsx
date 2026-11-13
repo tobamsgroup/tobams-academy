@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import { ICONS } from "@/assets/icons";
 import { IMAGES } from "@/assets/images";
+import { InitialAvatar } from "@/components/ui/InitialAvatar";
 import EditProfileModal from "./EditProfileModal";
 import EditSocialLinksModal from "./EditSocialLinksModal";
 import ProfileSuccessModal from "./ProfileSuccessModal";
@@ -51,13 +52,9 @@ function ProfileHeader({ profile, onEdit }: ProfileHeaderProps) {
 
       <div className="px-6 pb-6 relative">
         <div className="absolute -top-10 left-1/2 -translate-x-1/2 md:left-6 md:translate-x-0 ring-4 ring-white rounded-full shadow-md">
-          <Image
-            src={profile.avatarUrl}
-            alt={profile.name}
-            width={175}
-            height={175}
-            className="rounded-full object-cover md:w-[175px] md:h-[175px] w-[95px] h-[95px]"
-            unoptimized={profile.avatarUrl.startsWith("blob:")}
+          <InitialAvatar
+            name={profile.name}
+            className="h-[95px] w-[95px] text-[40px] md:h-[175px] md:w-[175px] md:text-[72px]"
           />
         </div>
 
@@ -173,7 +170,7 @@ export default function ProfileSection() {
       email: apiProfile.email,
       phone: apiProfile.phone ?? FALLBACK_PHONE,
       bio: apiProfile.bio ?? FALLBACK_BIO,
-      avatarUrl: apiProfile.avatarUrl ?? IMAGES.profile.src,
+      avatarUrl: apiProfile.avatarUrl ?? "",
       socialLinks: [
         {
           icon: <ICONS.ProfileLinkedIn width={16} height={16} />,
@@ -210,7 +207,7 @@ export default function ProfileSection() {
       email: apiProfile.email,
       phone: apiProfile.phone ?? "",
       bio: apiProfile.bio ?? "",
-      avatarUrl: apiProfile.avatarUrl ?? IMAGES.profile.src,
+      avatarUrl: apiProfile.avatarUrl ?? "",
     };
   }, [apiProfile]);
 

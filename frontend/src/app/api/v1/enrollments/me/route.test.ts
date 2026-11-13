@@ -5,9 +5,8 @@ import { getAuthUser } from "@/lib/with-auth";
 
 jest.mock("@/lib/prisma", () => ({
   prisma: {
-    enrollment: {
-      findMany: jest.fn(),
-    },
+    enrollment: { findMany: jest.fn() },
+    courseModule: { findMany: jest.fn() },
   },
 }));
 
@@ -16,212 +15,120 @@ jest.mock("@/lib/with-auth", () => ({
 }));
 
 const mockPrisma = prisma as unknown as {
-  enrollment: {
-    findMany: jest.Mock;
-  };
+  enrollment: { findMany: jest.Mock };
+  courseModule: { findMany: jest.Mock };
 };
-
 const mockAuth = getAuthUser as jest.Mock;
 
-const user = {
-  id: "u1",
-  email: "test@email.com",
-  role: "LEARNER",
-};
+const user = { id: "u1", email: "test@email.com", role: "LEARNER" };
 
-const mockEnrollments = [
-  {
-    id: "e1",
-    courseId: "c1",
-    lastAccessedAt: null,
-    completedAt: null,
+const courseSummary = (id: string, title: string) => ({
+  id,
+  title,
+  slug: title.toLowerCase().replace(/\s+/g, "-"),
+  description: "",
+  thumbnail: null,
+  level: "BEGINNER",
+  price: null,
+  earlyBirdPrice: null,
+  isFeatured: false,
+  createdAt: new Date("2026-01-01"),
+  category: { id: "cat", name: "Tech", slug: "tech" },
+  instructor: { id: "i1", name: "Instructor" },
+  _count: { modules: 1 },
+});
 
-    course: {
-      id: "c1",
-      title: "Node Backend",
-      thumbnail: "node.png",
+const enrollment = (id: string, courseId: string, title: string, done: string[], lastAccessedAt: Date | null) => ({
+  id,
+  userId: "u1",
+  courseId,
+  enrolledAt: new Date("2026-11-01"),
+  lastAccessedAt,
+  completedAt: null,
+  course: courseSummary(courseId, title),
+  lessonProgress: done.map((lessonId) => ({ lessonId, completedAt: new Date() })),
+});
 
-      modules: [
-        {
-          lessons: [
-            {
-              id: "l1",
-              duration: 10,
-            },
-            {
-              id: "l2",
-              duration: 20,
-            },
-          ],
-        },
-      ],
-    },
-
-    lessonProgress: [
-      {
-        lessonId: "l1",
-      },
-    ],
-  },
-
-  {
-    id: "e2",
-    courseId: "c2",
-    lastAccessedAt: null,
-    completedAt: null,
-
-    course: {
-      id: "c2",
-      title: "React Course",
-      thumbnail: "react.png",
-
-      modules: [
-        {
-          lessons: [
-            {
-              id: "l3",
-              duration: 20,
-            },
-          ],
-        },
-      ],
-    },
-
-    lessonProgress: [],
-  },
-];
-
-const createRequest = (url = "http://localhost/api/v1/enrollments/me") => {
-  return new NextRequest(url, {
-    method: "GET",
-  });
-};
+const createRequest = (query = "") => new NextRequest(`http://localhost/api/v1/enrollments/me${query}`);
 
 describe("GET /api/v1/enrollments/me", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-  });
-
-  it("returns user enrollments with progress and pagination", async () => {
     mockAuth.mockReturnValue(user);
-
-    mockPrisma.enrollment.findMany.mockResolvedValue(mockEnrollments);
-
-    const response = await GET(
-      createRequest("http://localhost/api/v1/enrollments/me?page=1&limit=6"),
-      {},
-    );
-
-    const body = await response.json();
-    expect(response.status).toBe(200);
-    expect(body.data).toHaveLength(2);
-
-    expect(body.data[0]).toEqual(
-      expect.objectContaining({
-        enrollmentId: "e1",
-        courseId: "c1",
-        courseTitle: "Node Backend",
-        progress: 50,
-      }),
-    );
-
-    expect(body.meta).toEqual({
-      total: 2,
-      page: 1,
-      limit: 6,
-      totalPages: 1,
-    });
-
-    expect(mockPrisma.enrollment.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: {
-          userId: "u1",
-        },
-        orderBy: {
-          enrolledAt: "desc",
-        },
-      }),
-    );
+    mockPrisma.enrollment.findMany.mockResolvedValue([
+      enrollment("e1", "c1", "Node Backend", ["l1"], new Date("2026-11-10")),
+      enrollment("e2", "c2", "React Course", [], new Date("2026-11-12")),
+    ]);
+    // c1 has 2 lessons (across two modules), c2 has 1
+    mockPrisma.courseModule.findMany.mockResolvedValue([
+      { courseId: "c1", _count: { lessons: 1 } },
+      { courseId: "c1", _count: { lessons: 1 } },
+      { courseId: "c2", _count: { lessons: 1 } },
+    ]);
   });
 
-  it("returns 401 when user is not authenticated", async () => {
-    mockAuth.mockReturnValue(null);
-
+  it("returns enrollment summaries with the course the dashboard renders", async () => {
     const response = await GET(createRequest(), {});
+    const body = await response.json();
 
-    expect(response.status).toBe(401);
+    expect(response.status).toBe(200);
+    const node = body.data.find((e: { courseId: string }) => e.courseId === "c1");
+    expect(node).toEqual(
+      expect.objectContaining({
+        id: "e1",
+        courseId: "c1",
+        progress: 50,
+        course: expect.objectContaining({
+          title: "Node Backend",
+          slug: "node-backend",
+          level: "BEGINNER",
+          category: { id: "cat", name: "Tech", slug: "tech" },
+        }),
+      }),
+    );
   });
 
-  it("filters enrollments by course title search", async () => {
-    mockAuth.mockReturnValue(user);
+  it("returns every enrollment by default, most recently studied first", async () => {
+    const body = await (await GET(createRequest(), {})).json();
 
-    mockPrisma.enrollment.findMany.mockResolvedValue(mockEnrollments);
+    expect(body.data.map((e: { courseId: string }) => e.courseId)).toEqual(["c2", "c1"]);
+    expect(body.meta).toEqual({ total: 2, page: 1, limit: 100, totalPages: 1 });
+  });
 
-    const response = await GET(
-      createRequest("http://localhost/api/v1/enrollments/me?search=node"),
-      {},
-    );
+  it("paginates when page and limit are given", async () => {
+    const body = await (await GET(createRequest("?page=2&limit=1"), {})).json();
 
-    const body = await response.json();
     expect(body.data).toHaveLength(1);
-    expect(body.data[0].courseTitle).toBe("Node Backend");
+    expect(body.data[0].courseId).toBe("c1");
+    expect(body.meta).toEqual({ total: 2, page: 2, limit: 1, totalPages: 2 });
   });
 
-  it("returns completed courses only", async () => {
-    mockAuth.mockReturnValue(user);
+  it("filters by course title search", async () => {
+    const body = await (await GET(createRequest("?search=node"), {})).json();
 
-    const completedEnrollments = [
-      {
-        ...mockEnrollments[0],
-
-        lessonProgress: [
-          {
-            lessonId: "l1",
-          },
-
-          {
-            lessonId: "l2",
-          },
-        ],
-      },
-    ];
-
-    mockPrisma.enrollment.findMany.mockResolvedValue(completedEnrollments);
-
-    const response = await GET(
-      createRequest("http://localhost/api/v1/enrollments/me?tab=completed"),
-      {},
-    );
-
-    const body = await response.json();
-    expect(body.data[0].progress).toBe(100);
+    expect(body.data).toHaveLength(1);
+    expect(body.data[0].course.title).toBe("Node Backend");
   });
 
-  it("sorts enrollments by progress when sort is active", async () => {
-    mockAuth.mockReturnValue(user);
+  it("filters by tab", async () => {
+    const inProgress = await (await GET(createRequest("?tab=inProgress"), {})).json();
+    expect(inProgress.data).toHaveLength(2);
 
-    mockPrisma.enrollment.findMany.mockResolvedValue(mockEnrollments);
-
-    const response = await GET(
-      createRequest("http://localhost/api/v1/enrollments/me?sort=active"),
-      {},
-    );
-
-    const body = await response.json();
-    expect(body.data[0].progress).toBeGreaterThanOrEqual(body.data[1].progress);
+    const completed = await (await GET(createRequest("?tab=completed"), {})).json();
+    expect(completed.data).toHaveLength(0);
   });
 
-  it("sorts enrollments alphabetically by course title", async () => {
-    mockAuth.mockReturnValue(user);
+  it("sorts alphabetically and by progress", async () => {
+    const az = await (await GET(createRequest("?sort=az"), {})).json();
+    expect(az.data[0].course.title).toBe("Node Backend");
 
-    mockPrisma.enrollment.findMany.mockResolvedValue(mockEnrollments);
+    const active = await (await GET(createRequest("?sort=active"), {})).json();
+    expect(active.data[0].progress).toBe(50);
+  });
 
-    const response = await GET(
-      createRequest("http://localhost/api/v1/enrollments/me?sort=az"),
-      {},
-    );
-
-    const body = await response.json();
-    expect(body.data[0].courseTitle).toBe("Node Backend");
+  it("returns 401 without authentication", async () => {
+    mockAuth.mockReturnValue(null);
+    const response = await GET(createRequest(), {});
+    expect(response.status).toBe(401);
   });
 });

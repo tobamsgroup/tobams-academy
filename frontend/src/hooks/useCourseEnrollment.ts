@@ -12,6 +12,18 @@ function extractApiError(error: unknown): string | undefined {
   return undefined
 }
 
+// Progress rows only exist for completed lessons, so add one if it isn't there yet.
+function markLessonCompleted<T extends { lessonId: string; completedAt: string | null }>(
+  rows: T[],
+  lessonId: string,
+  completedAt: string,
+): T[] {
+  if (rows.some((row) => row.lessonId === lessonId)) {
+    return rows.map((row) => (row.lessonId === lessonId ? { ...row, completedAt } : row))
+  }
+  return [...rows, { lessonId, completedAt } as T]
+}
+
 export function useCourseEnrollment(courseId: string | undefined) {
   const { data: session, status } = useSession()
   const accessToken = session?.accessToken
@@ -54,9 +66,7 @@ export function useCourseEnrollment(courseId: string | undefined) {
             const completedAt = new Date().toISOString()
             return {
               ...current,
-              lessonProgress: current.lessonProgress.map((row) =>
-                row.lessonId === lessonId ? { ...row, completedAt } : row,
-              ),
+              lessonProgress: markLessonCompleted(current.lessonProgress, lessonId, completedAt),
             }
           },
           { revalidate: false },
@@ -78,10 +88,10 @@ export function useCourseEnrollment(courseId: string | undefined) {
                     ? result.completedAt
                     : current.completedAt,
                   lastAccessedAt: result.completedAt,
-                  lessonProgress: current.lessonProgress.map((row) =>
-                    row.lessonId === lessonId
-                      ? { ...row, completedAt: result.completedAt }
-                      : row,
+                  lessonProgress: markLessonCompleted(
+                    current.lessonProgress,
+                    lessonId,
+                    result.completedAt,
                   ),
                 }
               : current,

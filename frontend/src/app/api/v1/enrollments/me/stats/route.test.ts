@@ -8,6 +8,9 @@ jest.mock("@/lib/prisma", () => ({
     enrollment: {
       findMany: jest.fn(),
     },
+    learningActivity: {
+      groupBy: jest.fn(),
+    },
   },
 }));
 
@@ -18,6 +21,9 @@ jest.mock("@/lib/with-auth", () => ({
 const mockPrisma = prisma as unknown as {
   enrollment: {
     findMany: jest.Mock;
+  };
+  learningActivity: {
+    groupBy: jest.Mock;
   };
 };
 
@@ -42,6 +48,11 @@ describe("GET /enrollments/me/stats", () => {
 
   it("returns learning statistics successfully", async () => {
     mockAuth.mockReturnValue(user);
+    // Learning time comes from tracked activity: 70 minutes across two courses.
+    mockPrisma.learningActivity.groupBy.mockResolvedValue([
+      { courseId: "c1", _sum: { seconds: 3000 } },
+      { courseId: "c2", _sum: { seconds: 1200 } },
+    ]);
 
     mockPrisma.enrollment.findMany.mockResolvedValue([
       {
@@ -99,6 +110,7 @@ describe("GET /enrollments/me/stats", () => {
     expect(body.data).toEqual({
       coursesInProgress: 1,
       totalLearningMinutes: 70,
+      totalLearningHours: 1.2,
       averageProgress: 75,
     });
   });
@@ -112,6 +124,7 @@ describe("GET /enrollments/me/stats", () => {
   it("returns zero stats when user has no enrollments", async () => {
     mockAuth.mockReturnValue(user);
     mockPrisma.enrollment.findMany.mockResolvedValue([]);
+    mockPrisma.learningActivity.groupBy.mockResolvedValue([]);
 
     const response = await GET(createRequest(), {});
     const body = await response.json();
@@ -119,6 +132,7 @@ describe("GET /enrollments/me/stats", () => {
     expect(body.data).toEqual({
       coursesInProgress: 0,
       totalLearningMinutes: 0,
+      totalLearningHours: 0,
       averageProgress: 0,
     });
   });

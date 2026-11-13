@@ -139,35 +139,6 @@ export function toLessonCompleteResult(
   }
 }
 
-export async function syncLessonProgressForEnrollment(
-  enrollmentId: string,
-  courseId: string,
-): Promise<void> {
-  const lessons = await prisma.lesson.findMany({
-    where: { module: { courseId } },
-    select: { id: true },
-  })
-
-  if (lessons.length === 0) return
-
-  const existing = await prisma.lessonProgress.findMany({
-    where: { enrollmentId },
-    select: { lessonId: true },
-  })
-  const existingIds = new Set(existing.map((row) => row.lessonId))
-
-  const missing = lessons
-    .filter((lesson) => !existingIds.has(lesson.id))
-    .map((lesson) => ({ enrollmentId, lessonId: lesson.id }))
-
-  if (missing.length > 0) {
-    await prisma.lessonProgress.createMany({
-      data: missing,
-      skipDuplicates: true,
-    })
-  }
-}
-
 export async function getCourseLessonCount(courseId: string): Promise<number> {
   return prisma.lesson.count({
     where: { module: { courseId } },

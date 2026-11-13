@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { hashPassword, hashToken } from '@/lib/auth-helpers'
 import { ok, err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
+import { notify } from '@/lib/notifications'
 
 export const POST = withRoute('/api/v1/auth/reset-password', async (req: NextRequest) => {
   const token = req.nextUrl.searchParams.get('token')
@@ -24,6 +25,11 @@ export const POST = withRoute('/api/v1/auth/reset-password', async (req: NextReq
   await prisma.user.update({
     where: { id: user.id },
     data: { passwordHash, resetTokenHash: null, resetTokenExpiry: null },
+  })
+
+  await notify(user.id, {
+    title: 'Password reset',
+    message: "Your password was reset. If this wasn't you, contact support immediately.",
   })
 
   return ok(undefined, 'Password reset successfully')

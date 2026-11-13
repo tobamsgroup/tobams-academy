@@ -1,0 +1,422 @@
+{
+  "course": "time-intelligence-masterclass",
+  "answerKeyStatus": "APPROVED 2026-11-13 by content owner",
+  "weeks": [
+    {
+      "week": 1,
+      "title": "Week 1 Assessment: Time Awareness",
+      "timeLimitMinutes": 25,
+      "passingScore": 70,
+      "questions": [
+        {
+          "text": "What is the most important starting point for developing personal Time Intelligence?",
+          "options": [
+            "Creating a strict timetable for every hour",
+            "Understanding how beliefs, choices and constraints shape time use",
+            "Downloading a productivity application",
+            "Increasing the number of tasks completed daily"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "Someone believes they must respond immediately to every request, even when it disrupts important activities. Which factor is most directly influencing their time use?",
+          "options": [
+            "Their available weekly hours",
+            "Their personal belief about availability",
+            "Their technical productivity skills",
+            "Their physical working environment"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "Which example best illustrates a realistic constraint rather than an avoidable time habit?",
+          "options": [
+            "Repeatedly checking notifications without a purpose",
+            "Attending a scheduled medical appointment for a dependent",
+            "Opening social media whenever a task feels difficult",
+            "Revisiting the same email without taking action"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "How many hours are available in a standard seven-day week?",
+          "options": [
+            "144 hours",
+            "160 hours",
+            "168 hours",
+            "176 hours"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "A person spends 56 hours sleeping, 45 working and commuting, 30 on care and household duties, and 17 on personal care. How many hours remain?",
+          "options": [
+            "15 hours",
+            "20 hours",
+            "25 hours",
+            "30 hours"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "Why is it misleading to assume that all hours remaining after fixed commitments are freely usable?",
+          "options": [
+            "Because every remaining hour must be assigned to work",
+            "Because available time may still contain recovery, unpredictable needs and other responsibilities",
+            "Because discretionary time cannot be measured",
+            "Because personal planning is only useful during working hours"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "Which statement most accurately distinguishes being busy, productive and effective?",
+          "options": [
+            "Busy means producing outcomes, while effective means working longer",
+            "Productive means completing the largest number of tasks regardless of value",
+            "Busy refers to activity, productive to useful outputs, and effective to meaningful outcomes",
+            "All three terms measure the same aspect of time utilisation"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "A learner spends two hours reading and can now explain a difficult concept accurately. Which is the clearest example of an outcome?",
+          "options": [
+            "Opening the textbook",
+            "Spending two hours reading",
+            "Completing the assigned chapters",
+            "Demonstrating improved understanding"
+          ],
+          "answer": "D"
+        },
+        {
+          "text": "A project manager attends six meetings, sends 40 emails and updates a tracker, but a critical decision remains unresolved. What is the strongest conclusion?",
+          "options": [
+            "The manager has been effective because many activities were completed",
+            "The manager was active and produced an output, but the intended outcome remains incomplete",
+            "The manager was unproductive because no work was performed",
+            "The manager should eliminate all meetings immediately"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "Which example is most clearly a recurring time leak?",
+          "options": [
+            "Taking a necessary rest break",
+            "Providing essential care to a family member",
+            "Repeatedly searching for misplaced files because no consistent storage method exists",
+            "Attending a required appointment"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "An avoidable interruption takes 12 minutes and happens three times daily over five working days. What is the weekly time cost?",
+          "options": [
+            "60 minutes",
+            "120 minutes",
+            "180 minutes",
+            "240 minutes"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "What is the main purpose of using a Five Whys investigation on recurring time losses?",
+          "options": [
+            "To identify who should be blamed for delays",
+            "To establish a deeper cause behind the recurring problem",
+            "To calculate the total number of hours in a week",
+            "To ensure that every task is completed more quickly"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "Which sequence best represents the habit loop described in Week 1?",
+          "options": [
+            "Outcome → deadline → schedule → reward",
+            "Cue → response → short-term effect → long-term pattern",
+            "Priority → delegation → performance → promotion",
+            "Planning → measurement → reporting → evaluation"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A notification arrives while someone is completing an important personal task. What is the best application of the 30-second decision filter?",
+          "options": [
+            "Open the notification automatically",
+            "Ignore every notification without considering its importance",
+            "Check whether the interruption is essential or genuinely time-sensitive before deciding",
+            "Abandon the current task and reorganise the entire day"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "Which approach is most appropriate when trying to replace an unhelpful daily habit?",
+          "options": [
+            "Remove the habit without identifying what triggers it",
+            "Set an unrealistic target to create pressure",
+            "Identify the trigger, choose a useful replacement and monitor the change",
+            "Depend entirely on motivation to avoid the behaviour"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "Why should personal roles and responsibilities be considered when planning time?",
+          "options": [
+            "Because professional tasks should always take priority",
+            "Because realistic plans must account for care, health, relationships, work and other commitments",
+            "Because every role should receive exactly the same number of hours",
+            "Because responsibilities can always be removed through better planning"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A person faces a client deadline, a fixed school collection time and an optional social event. Which response best reflects Time Intelligence?",
+          "options": [
+            "Accept every commitment and compensate by removing sleep",
+            "Protect essential responsibilities, assess consequences and negotiate or reschedule flexible commitments",
+            "Cancel school collection because work is always more important",
+            "Choose whichever activity feels easiest"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "Which statement is the most effective way to communicate limited capacity?",
+          "options": [
+            "I will try to do everything, although I cannot promise any result",
+            "Your request is unreasonable, so I will not consider it",
+            "I can complete the first task by Friday; the second would need Monday",
+            "I am too busy to discuss priorities"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "The Week 1 Time Intelligence Diagnostic contains 24 statements across six dimensions, scored from 1 to 5. What is the possible total score range?",
+          "options": [
+            "6–30",
+            "20–100",
+            "24–120",
+            "30–150"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "What is the most appropriate action after completing the Week 1 diagnostic?",
+          "options": [
+            "Treat the score as a permanent measure of personal ability",
+            "Compare scores competitively with other participants",
+            "Identify patterns, choose one realistic improvement and review progress",
+            "Immediately attempt to change every aspect of time use"
+          ],
+          "answer": "C"
+        }
+      ]
+    },
+    {
+      "week": 2,
+      "title": "Week 2 Assessment: Priority Intelligence",
+      "timeLimitMinutes": 30,
+      "passingScore": 70,
+      "questions": [
+        {
+          "text": "Amara says improving her health is a major personal priority, but she repeatedly schedules optional activities during her planned exercise time. What should she do first?",
+          "options": [
+            "Stop accepting all invitations indefinitely",
+            "Review whether her calendar choices reflect her stated values",
+            "Increase exercise intensity to compensate for missed sessions",
+            "Wait until she has a less demanding month"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "Daniel has four goals: maintaining his health, supporting his children, developing a professional qualification and attending optional networking events. Which is the strongest basis for deciding how to allocate his limited time?",
+          "options": [
+            "Choose whichever activity has the earliest invitation",
+            "Give equal time to all four goals regardless of circumstances",
+            "Consider personal values, consequences, deadlines and available capacity",
+            "Prioritise the goal that other people praise most"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "A person has only one free hour this evening. They can either complete a course assignment due tomorrow or reorganise a cupboard that is already functional. What is the best choice?",
+          "options": [
+            "Complete the assignment because it has a meaningful deadline and consequence",
+            "Reorganise the cupboard because it is easier to finish",
+            "Spend half an hour planning each task without starting either",
+            "Postpone both until the weekend"
+          ],
+          "answer": "A"
+        },
+        {
+          "text": "Which task belongs in the ‘important but not urgent’ quadrant of the Eisenhower Matrix?",
+          "options": [
+            "Responding to a time-critical safety concern",
+            "Completing a long-term savings plan before any immediate deadline",
+            "Responding to an unsolicited promotional message",
+            "Fixing an essential payment error due today"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A professional has a certification examination in six weeks. They repeatedly delay studying because no assignment is due this week. What is the main prioritisation mistake?",
+          "options": [
+            "Confusing low urgency with low importance",
+            "Treating the examination as an emergency",
+            "Delegating too much preparation",
+            "Overestimating the value of daily breaks"
+          ],
+          "answer": "A"
+        },
+        {
+          "text": "A participant has a medical appointment, a nonessential social invitation and a personal project milestone on the same afternoon. What is the most appropriate first step?",
+          "options": [
+            "Cancel the medical appointment automatically",
+            "Accept all three and rely on multitasking",
+            "Assess which commitments are fixed, flexible and consequential",
+            "Choose the invitation received most recently"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "Rita spends her mornings answering low-priority messages, leaving no time for a meaningful personal learning goal. Which change is most useful?",
+          "options": [
+            "Check messages more frequently to clear them faster",
+            "Reserve a realistic learning period before routine message checking",
+            "Stop responding to all messages permanently",
+            "Extend every day by working late into the night"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A friend asks you to help organise an event during the only evening you have reserved for an important family commitment. What is the most constructive response?",
+          "options": [
+            "Agree immediately to avoid disappointing your friend",
+            "Decline without any explanation or alternative",
+            "Explain your existing commitment and offer another realistic form of support if possible",
+            "Cancel the family commitment because helping others is always more important"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "You are considering an optional weekend course that costs £200 and requires 12 hours. What is its opportunity cost?",
+          "options": [
+            "Only the £200 course fee",
+            "Only the 12 hours spent attending",
+            "The value of the best alternative use of the money and time",
+            "The number of people who do not attend the course"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "A participant accepts a new volunteer role despite already struggling with work, care responsibilities and recovery time. What is the most likely prioritisation risk?",
+          "options": [
+            "The new role automatically becomes the highest priority",
+            "Adding a commitment without considering what it displaces may undermine existing priorities",
+            "Volunteering can never support personal values",
+            "Personal responsibilities should always be delegated"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A learner must choose between two valuable activities. One supports a long-term qualification; the other supports a short-term personal goal. Neither has an immediate deadline. What is the best decision method?",
+          "options": [
+            "Always choose the shorter activity",
+            "Compare alignment with values, expected impact and realistic timing",
+            "Always choose the more expensive activity",
+            "Avoid making a decision until one becomes urgent"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A participant repeatedly says yes to requests because they fear appearing unhelpful. Which underlying issue should they examine?",
+          "options": [
+            "Whether every request is objectively urgent",
+            "Whether approval-seeking is overriding their personal priorities and boundaries",
+            "Whether they should remove every personal commitment",
+            "Whether other people have more free time"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "Which statement best demonstrates an effective personal boundary?",
+          "options": [
+            "I will do everything you ask, but I may be exhausted",
+            "I cannot review this today; I can give it proper attention on Thursday",
+            "Your priorities are not important to me",
+            "I will respond whenever you remind me repeatedly"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "Someone has committed to three optional evening activities but needs more time for rest and an important personal goal. Which strategy is most appropriate?",
+          "options": [
+            "Reduce or decline one lower-value activity after reviewing the commitments",
+            "Keep every activity and reduce sleep",
+            "Assume the problem will disappear without making changes",
+            "Replace the personal goal with more social activities"
+          ],
+          "answer": "A"
+        },
+        {
+          "text": "A person spends 40 minutes each day reviewing promotional emails they rarely use. Which action best fits the ‘eliminate’ decision?",
+          "options": [
+            "Move the activity to a different time of day",
+            "Ask someone else to review every message",
+            "Unsubscribe from unnecessary promotional lists",
+            "Extend the activity to one hour"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "A participant has a task that matters but does not require their personal involvement. Another capable person has agreed to handle it. Which decision is most suitable?",
+          "options": [
+            "Eliminate the task regardless of its importance",
+            "Delegate the task with a clear expected result and deadline",
+            "Defer the task indefinitely",
+            "Continue doing the task personally to retain control"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A planned home improvement is useful but not time-sensitive, and the person is currently managing an unusually demanding month. Which action is most appropriate?",
+          "options": [
+            "Treat it as an emergency",
+            "Defer it to a specific later review date",
+            "Remove essential rest to complete it immediately",
+            "Ignore the task permanently"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A person has to choose between an urgent request from someone else and a previously scheduled important personal commitment. What should they assess before changing plans?",
+          "options": [
+            "Whether the requester sounds confident",
+            "The actual urgency, consequences and available alternatives",
+            "Whether the request arrived by phone or email",
+            "Whether the personal commitment is enjoyable"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "Which approach best describes a useful personal priority hierarchy?",
+          "options": [
+            "A permanent ranking that can never change",
+            "A list based entirely on what other people expect",
+            "An ordered guide reflecting values, essential responsibilities and current circumstances",
+            "A timetable that allocates identical hours to every role"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "At the end of Week 2, which result would best demonstrate improved Priority Intelligence?",
+          "options": [
+            "Having a calendar filled with activities",
+            "Being able to justify choices, protect meaningful commitments and adjust lower-value demands",
+            "Completing every request received from other people",
+            "Avoiding all unplanned situations"
+          ],
+          "answer": "B"
+        }
+      ]
+    }
+  ]
+}

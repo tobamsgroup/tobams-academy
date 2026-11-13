@@ -5,6 +5,8 @@ import { paymentDb, prisma } from '@/lib/prisma'
 import { getAuthUser } from '@/lib/with-auth'
 import { created, err, ok } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
+import { notify } from '@/lib/notifications'
+import { chargeAmount } from '@/lib/pricing'
 import { decimalToNumber, uiDateRangeToApiRange, uiStatusToApiStatus } from '@/lib/payment-utils'
 
 export const POST = withRoute('/api/v1/payments', async (req: NextRequest) => {
@@ -12,13 +14,12 @@ export const POST = withRoute('/api/v1/payments', async (req: NextRequest) => {
   if (!authUser) return err('Unauthorized', 401)
 
   const body = (await req.json()) as Record<string, unknown>
-  const { courseId, paymentMethod, transactionId } = body ?? {}
+  const { courseId } = body ?? {}
 
   if (!courseId || typeof courseId !== 'string') return err('courseId is required')
 
   const course = await prisma.course.findFirst({
     where: { id: courseId, status: 'PUBLISHED' },
-    include: { modules: { include: { lessons: { select: { id: true } } } } },
   })
   if (!course) return err('Course not found', 404)
 
@@ -27,24 +28,19 @@ export const POST = withRoute('/api/v1/payments', async (req: NextRequest) => {
   })
   if (existingEnrollment) return err('You are already enrolled in this course', 409)
 
-  const amount = decimalToNumber(course.price)
-  const lessonIds = course.modules.flatMap((module) => module.lessons.map((lesson) => lesson.id))
-  const isFree = amount <= 0
+  // Paid courses must go through Stripe checkout (POST /api/v1/checkout); this endpoint
+  // only records free enrollments, otherwise anyone could enroll without paying.
+  if (chargeAmount(course) > 0) return err('This course requires payment. Please use checkout.', 402)
 
   const result = await prisma.$transaction(async (tx) => {
     const payment = await tx.payment.create({
       data: {
         userId: authUser.id,
         courseId,
-        amount,
+        amount: 0,
         status: 'COMPLETED',
-        reference: isFree ? `FREE-${randomUUID()}` : `PAY-${randomUUID()}`,
-        paymentMethod: isFree
-          ? 'Free Enrollment'
-          : typeof paymentMethod === 'string'
-            ? paymentMethod
-            : 'Card',
-        transactionId: typeof transactionId === 'string' ? transactionId : null,
+        reference: `FREE-${randomUUID()}`,
+        paymentMethod: 'Free Enrollment',
       },
     })
 
@@ -56,18 +52,18 @@ export const POST = withRoute('/api/v1/payments', async (req: NextRequest) => {
       },
     })
 
-    if (lessonIds.length > 0) {
-      await tx.lessonProgress.createMany({
-        data: lessonIds.map((lessonId) => ({
-          enrollmentId: enrollment.id,
-          lessonId,
-        })),
-      })
-    }
+    // No LessonProgress rows here: a row means the lesson is completed
+    // (completedAt is non-nullable), so seeding rows would mark the course as done.
 
     return { paymentId: payment.id, courseId: enrollment.courseId }
   })
 
+  await notify(authUser.id, {
+    type: 'ENROLLMENT',
+    title: 'Enrollment confirmed',
+    message: `You're now enrolled in "${course.title}". Head to My Courses to start learning.`,
+    category: 'enrollmentConfirm',
+  })
   return created(result, 'Course enrollment successful')
 })
 

@@ -14,6 +14,7 @@ import { getCourseThumbnail } from '@/lib/dashboard-courses'
 import { learningOutcomesFromCourse, modulesToCurriculumSections } from '@/lib/course-api'
 import { useEnrollments } from '@/hooks/useEnrollments'
 import { usePayments } from '@/hooks/usePayments'
+import { useCart } from '@/hooks/useCart'
 
 interface Props {
   course: CourseDetail
@@ -36,6 +37,9 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
   const { purchaseCourse, getErrorMessage } = usePayments()
   const [enrolling, setEnrolling] = useState(false)
   const [enrollError, setEnrollError] = useState('')
+  const cart = useCart()
+  const inCart = cart.contains(course.id)
+  const [addingToCart, setAddingToCart] = useState(false)
 
   const isEnrolled = isEnrolledIn(course.id)
   const isAuthenticated = status === 'authenticated' && !!session?.accessToken
@@ -71,20 +75,35 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
     document.getElementById(`course-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
+  const handleAddToCart = async () => {
+    setEnrollError('')
+    if (inCart) {
+      router.push('/cart')
+      return
+    }
+    setAddingToCart(true)
+    try {
+      await cart.add(course.id)
+    } catch (error) {
+      setEnrollError(error instanceof Error ? error.message : 'Could not add to cart.')
+    } finally {
+      setAddingToCart(false)
+    }
+  }
+
   const handleEnroll = async () => {
     setEnrollError('')
 
     if (status === 'loading') return
 
-    if (!isAuthenticated) {
-      redirectToLogin()
+    // Paid: Stripe checkout for this course (checkout asks guests to sign in first).
+    if (!isFreeCourse) {
+      router.push(`/checkout?courseId=${encodeURIComponent(course.id)}`)
       return
     }
 
-    if (!isFreeCourse) {
-      router.push(
-        `/checkout?courseId=${encodeURIComponent(course.id)}&slug=${encodeURIComponent(course.slug)}`,
-      )
+    if (!isAuthenticated) {
+      redirectToLogin()
       return
     }
 
@@ -263,9 +282,26 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
                   disabled={enrolling || enrollmentsLoading || status === 'loading'}
                   className="mb-4 w-full rounded-md bg-primary py-3 font-medium text-white hover:translate-y-0 hover:bg-[#232A59] hover:from-[#232A59] hover:to-[#232A59] md:mb-3 md:text-lg disabled:opacity-60"
                 >
-                  {enrolling ? 'Enrolling…' : isAuthenticated ? (isFreeCourse ? 'Enroll Now' : 'Buy Now') : 'Sign in to Enroll'}
+                  {enrolling
+                    ? 'Enrolling…'
+                    : !isFreeCourse
+                      ? 'Buy Now'
+                      : isAuthenticated
+                        ? 'Enroll Now'
+                        : 'Sign in to Enroll'}
                 </Button>
               )}
+
+              {!isEnrolled && !isFreeCourse ? (
+                <Button
+                  type="button"
+                  onClick={() => void handleAddToCart()}
+                  disabled={addingToCart || cart.isLoading}
+                  className="mb-4 w-full rounded-md border border-primary bg-transparent py-3 font-semibold text-primary shadow-none hover:translate-y-0 hover:bg-[#F8F8FA] hover:from-[#F8F8FA] hover:to-[#F8F8FA] md:text-lg disabled:opacity-60"
+                >
+                  {addingToCart ? 'Adding…' : inCart ? 'In cart — view cart' : 'Add to Cart'}
+                </Button>
+              ) : null}
 
               <p className="mb-2 text-sm font-semibold text-heading">This course includes</p>
               <ul className="space-y-2 text-sm text-[#474348]">

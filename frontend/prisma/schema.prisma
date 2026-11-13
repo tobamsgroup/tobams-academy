@@ -8,36 +8,38 @@ datasource db {
 }
 
 model User {
-  id               String         @id @default(uuid())
-  email            String         @unique
-  name             String
-  passwordHash     String
-  role             Role           @default(LEARNER)
-  emailVerified    Boolean        @default(false)
-  verifyTokenHash  String?
-  resetTokenHash   String?
-  resetTokenExpiry DateTime?
-  phone            String?
-  bio              String?
-  avatarUrl        String?
-  linkedinUrl      String?
-  facebookUrl      String?
-  instagramUrl     String?
+  id                 String                  @id @default(uuid())
+  email              String                  @unique
+  name               String
+  passwordHash       String
+  role               Role                    @default(LEARNER)
+  emailVerified      Boolean                 @default(false)
+  verifyTokenHash    String?
+  resetTokenHash     String?
+  resetTokenExpiry   DateTime?
+  phone              String?
+  bio                String?
+  avatarUrl          String?
+  linkedinUrl        String?
+  facebookUrl        String?
+  instagramUrl       String?
   xUrl               String?
-  twoFactorEnabled   Boolean        @default(false)
+  twoFactorEnabled   Boolean                 @default(false)
   twoFactorOtpHash   String?
   twoFactorOtpExpiry DateTime?
-  isActive           Boolean        @default(true)
+  isActive           Boolean                 @default(true)
   deactivatedAt      DateTime?
   deactivationReason String?
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
   courses            Course[]
   notifications      Notification[]
   notificationPref   NotificationPreference?
   enrollments        Enrollment[]
   quizAttempts       QuizAttempt[]
-  payments     Payment[]
+  payments           Payment[]
+  cart               Cart?
+  learningActivity   LearningActivity[]
 
   @@map("users")
 }
@@ -53,25 +55,26 @@ model Category {
 }
 
 model Course {
-  id           String         @id @default(uuid())
-  title        String
-  slug         String         @unique
-  description  String
-  thumbnail    String?
-  level        CourseLevel    @default(BEGINNER)
-  status       CourseStatus   @default(DRAFT)
-  isFeatured   Boolean        @default(false)
+  id             String         @id @default(uuid())
+  title          String
+  slug           String         @unique
+  description    String
+  thumbnail      String?
+  level          CourseLevel    @default(BEGINNER)
+  status         CourseStatus   @default(DRAFT)
+  isFeatured     Boolean        @default(false)
   price          Decimal?       @db.Decimal(10, 2)
   earlyBirdPrice Decimal?       @db.Decimal(10, 2)
-  categoryId   String
-  instructorId String
-  category     Category       @relation(fields: [categoryId], references: [id])
-  instructor   User           @relation(fields: [instructorId], references: [id])
-  modules      CourseModule[]
-  enrollments  Enrollment[]
-  payments     Payment[]
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  categoryId     String
+  instructorId   String
+  category       Category       @relation(fields: [categoryId], references: [id])
+  instructor     User           @relation(fields: [instructorId], references: [id])
+  modules        CourseModule[]
+  enrollments    Enrollment[]
+  payments       Payment[]
+  cartItems      CartItem[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 
   @@index([categoryId])
   @@index([instructorId])
@@ -93,17 +96,21 @@ model CourseModule {
 }
 
 model Lesson {
-  id         String         @id @default(uuid())
+  id         String             @id @default(uuid())
   title      String
   position   Int
   duration   Int?
-  kind       LessonKind     @default(VIDEO)
+  kind       LessonKind         @default(VIDEO)
   contentUrl String?
   contentKey String?
+  /// For PDF lessons: the section of the document this lesson covers (1-based, inclusive).
+  pageStart  Int?
+  pageEnd    Int?
   moduleId   String
-  module     CourseModule   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  module     CourseModule       @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   quiz       Quiz?
   progress   LessonProgress[]
+  activity   LearningActivity[]
 
   @@index([moduleId])
   @@map("lessons")
@@ -116,6 +123,8 @@ model Enrollment {
   enrolledAt     DateTime         @default(now())
   completedAt    DateTime?
   lastAccessedAt DateTime?
+  /// The lesson the learner last had open, so "Resume" returns them to it.
+  lastLessonId   String?
   user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   course         Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
   lessonProgress LessonProgress[]
@@ -232,24 +241,27 @@ model NotificationPreference {
 }
 
 model Payment {
-  id        String        @id @default(uuid())
-  userId    String
-  courseId  String
-  amount    Decimal       @db.Decimal(10, 2)
-  status    PaymentStatus @default(PENDING)
-  reference String?
-  transactionId   String?
-  paymentMethod   String?
+  id                String        @id @default(uuid())
+  userId            String
+  courseId          String
+  amount            Decimal       @db.Decimal(10, 2)
+  status            PaymentStatus @default(PENDING)
+  reference         String?
+  transactionId     String?
+  paymentMethod     String?
+  /// Stripe Checkout Session that paid for this course (several payments can share one session).
+  checkoutSessionId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course    Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([courseId])
   @@index([status])
+  @@index([checkoutSessionId])
   @@map("payments")
 }
 
@@ -291,4 +303,45 @@ enum PaymentStatus {
   COMPLETED
   FAILED
   PENDING
+}
+
+model Cart {
+  id        String     @id @default(uuid())
+  userId    String     @unique
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("carts")
+}
+
+model CartItem {
+  id       String   @id @default(uuid())
+  cartId   String
+  courseId String
+  addedAt  DateTime @default(now())
+  cart     Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  course   Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, courseId])
+  @@map("cart_items")
+}
+
+/// Time a learner actually spent with a lesson open, aggregated per lesson per day.
+model LearningActivity {
+  id       String   @id @default(uuid())
+  userId   String
+  courseId String
+  lessonId String
+  /// UTC calendar day the time was spent on.
+  day      DateTime @db.Date
+  seconds  Int      @default(0)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson   Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId, day])
+  @@index([userId, day])
+  @@index([userId, courseId])
+  @@map("learning_activity")
 }

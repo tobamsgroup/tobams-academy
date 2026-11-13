@@ -1,88 +1,80 @@
 'use client'
 
 import Link from 'next/link'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, Lock } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
+import axios from 'axios'
+import useSWR from 'swr'
 import { Button } from '@/components/ui/Button'
-import { usePayments } from '@/hooks/usePayments'
+import { useCart } from '@/hooks/useCart'
 import { useEnrollments } from '@/hooks/useEnrollments'
-import { formatCoursePrice, parseCoursePrice } from '@/lib/catalogue-courses'
-import { publicFetcher } from '@/lib/fetcher'
-import type { CourseDetail } from '@/types/course'
+import { createAuthedClient } from '@/lib/fetcher'
+import { formatGbp } from '@/lib/format-money'
+import type { CartView, CheckoutResult } from '@/types/cart'
+
+async function previewCourse([, courseId]: [string, string]): Promise<CartView> {
+  const { data } = await axios.post<{ data: CartView }>(`${process.env.NEXT_PUBLIC_API_URL}/cart/preview`, {
+    courseIds: [courseId],
+  })
+  return data.data
+}
 
 export default function CheckoutSection() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { status } = useSession()
-  const { purchaseCourse, getErrorMessage } = usePayments()
+  const { data: session, status } = useSession()
+  const token = session?.accessToken
+  const cart = useCart()
   const { mutate: mutateEnrollments } = useEnrollments()
 
-  const courseId = searchParams.get('courseId')
-  const slug = searchParams.get('slug')
+  // "Buy now" checks out a single course; otherwise the whole cart.
+  const buyNowId = searchParams.get('courseId')
+  const single = useSWR(buyNowId ? ['checkout-course', buyNowId] : null, previewCourse)
+  const view: CartView | undefined = buyNowId ? single.data : { items: cart.items, total: cart.total }
+  const loading = status === 'loading' || (buyNowId ? single.isLoading : cart.isLoading)
 
-  const [course, setCourse] = useState<CourseDetail | null>(null)
-  const [loadingCourse, setLoadingCourse] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      const callback = `/checkout?courseId=${courseId ?? ''}&slug=${slug ?? ''}`
+      const callback = buyNowId ? `/checkout?courseId=${encodeURIComponent(buyNowId)}` : '/checkout'
       router.replace(`/login?callbackUrl=${encodeURIComponent(callback)}`)
     }
-  }, [status, router, courseId, slug])
+  }, [status, router, buyNowId])
 
-  useEffect(() => {
-    if (!slug) {
-      setLoadingCourse(false)
-      return
-    }
-    let cancelled = false
-    setLoadingCourse(true)
-    publicFetcher<CourseDetail>(`/courses/${slug}`)
-      .then((data) => {
-        if (!cancelled) setCourse(data)
-      })
-      .catch(() => {
-        if (!cancelled) setError('Unable to load course details.')
-      })
-      .finally(() => {
-        if (!cancelled) setLoadingCourse(false)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [slug])
+  const items = view?.items ?? []
+  const total = view?.total ?? 0
+  const isFree = total === 0
 
-  const price = course ? parseCoursePrice(course.price) : 0
-  const total = price
-
-  const handlePay = async () => {
+  const handleCheckout = async () => {
     setError('')
-    if (!courseId) {
-      setError('Missing course. Go back and select a course.')
-      return
-    }
-
     setSubmitting(true)
     try {
-      await purchaseCourse({
-        courseId,
-        paymentMethod: 'Card',
-        transactionId: `TXN${Date.now()}`,
-      })
-      await mutateEnrollments()
-      router.push(`/dashboard/courses/${slug ?? course?.slug ?? ''}`)
-    } catch (err) {
-      setError(getErrorMessage(err) ?? 'Payment failed. Please try again.')
-    } finally {
+      const { data } = await createAuthedClient(token).post<{ data: CheckoutResult }>(
+        '/checkout',
+        buyNowId ? { courseIds: [buyNowId] } : {},
+      )
+      const result = data.data
+      if (result.status === 'redirect') {
+        window.location.assign(result.url) // Stripe-hosted payment page
+        return
+      }
+      await Promise.all([mutateEnrollments(), cart.refresh()])
+      router.push(
+        result.courses.length === 1 ? `/dashboard/courses/${result.courses[0].slug}` : '/dashboard/courses',
+      )
+    } catch (e) {
+      setError(
+        axios.isAxiosError(e) ? (e.response?.data?.message ?? 'Checkout failed. Please try again.') : 'Checkout failed. Please try again.',
+      )
       setSubmitting(false)
     }
   }
 
-  if (loadingCourse) {
+  if (loading || status !== 'authenticated') {
     return (
       <section className="mx-auto w-full max-w-[1312px] px-6 py-10">
         <p className="text-[#474348]">Loading checkout…</p>
@@ -90,10 +82,12 @@ export default function CheckoutSection() {
     )
   }
 
-  if (!course || !courseId) {
+  if (items.length === 0) {
     return (
       <section className="mx-auto w-full max-w-[1312px] px-6 py-10">
-        <p className="text-[#474348]">No course selected for checkout.</p>
+        <p className="text-[#474348]">
+          {buyNowId ? 'This course is not available for checkout.' : 'Your cart is empty.'}
+        </p>
         <Link href="/courses" className="mt-4 inline-block text-primary hover:underline">
           Browse courses
         </Link>
@@ -104,9 +98,15 @@ export default function CheckoutSection() {
   return (
     <section className="mx-auto w-full max-w-[1312px] px-6 py-10">
       <nav className="mb-12 flex items-center text-lg">
-        <Link href={`/courses/${course.slug}`} className="text-[#DA55B5] transition-colors hover:text-[#B83092]">
-          {course.title}
-        </Link>
+        {buyNowId ? (
+          <Link href={`/courses/${items[0].slug}`} className="text-[#DA55B5] transition-colors hover:text-[#B83092]">
+            {items[0].title}
+          </Link>
+        ) : (
+          <Link href="/cart" className="text-[#DA55B5] transition-colors hover:text-[#B83092]">
+            Cart
+          </Link>
+        )}
         <span className="mx-4">
           <ChevronRight className="h-4 w-4 text-heading" />
         </span>
@@ -115,110 +115,66 @@ export default function CheckoutSection() {
 
       <div className="grid grid-cols-1 gap-16 lg:grid-cols-[1fr_0.95fr]">
         <div className="order-2 rounded-[16px] border-[2px] border-[#E5E7EB] bg-white p-5 md:px-6 md:py-7 lg:order-1">
-          <h2 className="text-xl font-medium text-heading md:text-[24px]">Payment Details</h2>
+          <h2 className="text-xl font-medium text-heading md:text-[24px]">
+            {isFree ? 'Confirm Enrollment' : 'Payment'}
+          </h2>
           <p className="mt-2 text-lg text-[#474348]">
-            Complete your purchase to enroll in this course
+            {isFree
+              ? 'These courses are free. Confirm to start learning straight away.'
+              : 'You will be taken to a secure payment page. You will be enrolled as soon as payment is confirmed.'}
           </p>
 
-          {error ? <p className="mt-4 text-sm text-secondary">{error}</p> : null}
+          <dl className="mt-6 space-y-2 text-[#474348]">
+            <div className="flex justify-between gap-4">
+              <dt>Account</dt>
+              <dd className="truncate font-medium text-heading">{session?.user?.email}</dd>
+            </div>
+          </dl>
 
-          <form
-            className="mt-7 space-y-5"
-            onSubmit={(e) => {
-              e.preventDefault()
-              void handlePay()
-            }}
+          {error ? <p className="mt-4 rounded-lg bg-secondary/10 p-3 text-sm text-secondary">{error}</p> : null}
+
+          <Button
+            type="button"
+            onClick={() => void handleCheckout()}
+            disabled={submitting}
+            className="mt-7 w-full rounded-lg bg-primary px-6 py-3 text-lg font-medium text-white hover:translate-y-0 hover:bg-[#232A59] hover:from-[#232A59] hover:to-[#232A59] disabled:opacity-60"
           >
-            <div>
-              <label htmlFor="cardHolderName" className="mb-2 block text-lg font-medium text-body">
-                Card Holder Name
-              </label>
-              <input
-                id="cardHolderName"
-                type="text"
-                required
-                className="h-[48px] w-full rounded-lg border-[2px] border-[#E5E7EB] bg-white px-4 text-[#252A64] outline-none"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="emailAddress" className="mb-2 block text-lg font-medium text-body">
-                Email Address
-              </label>
-              <input
-                id="emailAddress"
-                type="email"
-                required
-                className="h-[48px] w-full rounded-lg border-[2px] border-[#E5E7EB] bg-white px-4 text-[#252A64] outline-none"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="cardNumber" className="mb-2 block text-lg font-medium text-body">
-                Card Number
-              </label>
-              <input
-                id="cardNumber"
-                type="text"
-                required
-                className="h-[48px] w-full rounded-lg border-[2px] border-[#E5E7EB] bg-white px-4 text-[#252A64] outline-none"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="expiryDate" className="mb-2 block text-lg font-medium text-body">
-                  Expiry Date
-                </label>
-                <input
-                  id="expiryDate"
-                  type="text"
-                  required
-                  className="h-[48px] w-full rounded-lg border-[2px] border-[#E5E7EB] bg-white px-4 text-[#252A64] outline-none"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="cvv" className="mb-2 block text-lg font-medium text-body">
-                  CVV
-                </label>
-                <input
-                  id="cvv"
-                  type="text"
-                  required
-                  className="h-[48px] w-full rounded-lg border-[2px] border-[#E5E7EB] bg-white px-4 text-[#252A64] outline-none"
-                />
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              disabled={submitting}
-              className="mt-2 w-full rounded-lg bg-primary px-6 py-3 text-lg font-medium text-white hover:translate-y-0 hover:bg-[#232A59] hover:from-[#232A59] hover:to-[#232A59] disabled:opacity-60"
-            >
-              {submitting ? 'Processing…' : `Pay ${formatCoursePrice(course.price)}`}
-            </Button>
-          </form>
+            {submitting
+              ? isFree
+                ? 'Enrolling…'
+                : 'Redirecting to payment…'
+              : isFree
+                ? 'Enroll for free'
+                : `Pay ${formatGbp(total)} securely`}
+          </Button>
+          {!isFree ? (
+            <p className="mt-3 flex items-center justify-center gap-1.5 text-sm text-[#696969]">
+              <Lock className="h-3.5 w-3.5" aria-hidden /> Payments are processed securely. We never see your card details.
+            </p>
+          ) : null}
         </div>
 
         <aside className="order-1 rounded-[16px] border-[2px] border-[#E5E7EB] bg-white p-5 md:p-7 lg:order-2 lg:self-start">
-          <h3 className="text-xl font-medium text-heading md:text-[24px]">Payment Summary</h3>
-          <p className="mt-2 text-lg text-[#474348]">Here is the breakdown of your payment</p>
+          <h3 className="text-xl font-medium text-heading md:text-[24px]">Order Summary</h3>
+          <p className="mt-2 text-lg text-[#474348]">Here is the breakdown of your order</p>
 
-          <div className="mt-7 space-y-5">
-            <div className="flex items-center justify-between text-lg text-body">
-              <span>Course</span>
-              <span className="max-w-[60%] truncate text-right">{course.title}</span>
-            </div>
-            <div className="flex items-center justify-between text-lg text-body">
-              <span>Subtotal</span>
-              <span>{formatCoursePrice(course.price)}</span>
-            </div>
-            <div className="h-px w-full bg-[#E5E7EB]" />
-            <div className="flex items-center justify-between text-lg font-semibold text-heading">
-              <span>Total</span>
-              <span>{formatCoursePrice(String(total))}</span>
-            </div>
+          <ul className="mt-7 space-y-4">
+            {items.map((item) => (
+              <li key={item.id} className="flex items-start justify-between gap-4 text-lg text-body">
+                <span className="min-w-0 truncate">{item.title}</span>
+                <span className="shrink-0 text-right">
+                  {formatGbp(item.amount)}
+                  {item.originalAmount ? (
+                    <span className="ml-2 text-sm text-[#696969] line-through">{formatGbp(item.originalAmount)}</span>
+                  ) : null}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-5 h-px w-full bg-[#E5E7EB]" />
+          <div className="mt-5 flex items-center justify-between text-lg font-semibold text-heading">
+            <span>Total</span>
+            <span>{formatGbp(total)}</span>
           </div>
         </aside>
       </div>

@@ -8,8 +8,11 @@ export type PlayerLesson = {
   title: string;
   durationMin: number;
   kind: LessonKind;
-  /** Maps to a lesson curriculum component in `lesson-content/`. */
+  /** Maps to a lesson curriculum component in `lesson-content/`, or a PDF document path. */
   contentKey?: string;
+  contentUrl?: string;
+  pageStart?: number;
+  pageEnd?: number;
 };
 
 export type PlayerModule = {
@@ -36,6 +39,10 @@ export function mapApiModulesToPlayerModules(modules: CourseModule[]): PlayerMod
       title: lesson.title,
       durationMin: lesson.duration ?? 0,
       kind: mapApiLessonKind(lesson),
+      contentKey: lesson.contentKey ?? undefined,
+      contentUrl: lesson.contentUrl ?? undefined,
+      pageStart: lesson.pageStart ?? undefined,
+      pageEnd: lesson.pageEnd ?? undefined,
     })),
   }))
 }

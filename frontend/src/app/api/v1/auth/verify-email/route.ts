@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { hashToken } from '@/lib/auth-helpers'
 import { ok, err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
+import { notify } from '@/lib/notifications'
 
 export const POST = withRoute('/api/v1/auth/verify-email', async (req: NextRequest) => {
   const token = req.nextUrl.searchParams.get('token')
@@ -15,6 +16,12 @@ export const POST = withRoute('/api/v1/auth/verify-email', async (req: NextReque
   await prisma.user.update({
     where: { id: user.id },
     data: { emailVerified: true, verifyTokenHash: null },
+  })
+
+  await notify(user.id, {
+    title: 'Email verified',
+    message: 'Your email address has been verified. Your account is ready to use.',
+    category: 'registrationSetup',
   })
 
   return ok(undefined, 'Email verified successfully')

@@ -11,6 +11,7 @@
     "db:push": "node scripts/prisma-with-env.mjs db push",
     "db:generate": "node scripts/prisma-with-env.mjs generate",
     "seed:quizzes": "npx tsx scripts/seed-quizzes.ts",
+    "seed:time-intelligence": "npx tsx scripts/seed-time-intelligence.ts",
     "test": "jest"
   },
   "prisma": {
@@ -30,7 +31,9 @@
     "nodemailer": "^8.0.11",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-pdf": "9.2.1",
     "react-redux": "^9.2.0",
+    "stripe": "23.0.1",
     "swr": "^2.4.1",
     "tailwind-merge": "^3.5.0"
   },

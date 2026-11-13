@@ -1,6 +1,7 @@
 import { POST, GET } from "./route";
 import { prisma } from "@/lib/prisma";
 import { getAuthUser } from "@/lib/with-auth";
+import { notify } from "@/lib/notifications";
 import { NextRequest } from "next/server";
 
 jest.mock("@/lib/prisma", () => {
@@ -28,6 +29,10 @@ jest.mock("@/lib/prisma", () => {
     paymentDb: payment,
   };
 });
+
+jest.mock("@/lib/notifications", () => ({
+  notify: jest.fn(),
+}));
 
 jest.mock("@/lib/with-auth", () => ({
   getAuthUser: jest.fn(),
@@ -59,9 +64,9 @@ const user = {
 
 const mockCourse = {
   id: "c1",
+  title: "Node Course",
   status: "PUBLISHED",
   price: 0,
-  modules: [{ lessons: [{ id: "l1" }, { id: "l2" }] }],
 };
 
 const createRequest = (
@@ -102,7 +107,7 @@ describe("POST /api/v1/payments", () => {
 
   it("creates payment successfully", async () => {
     mockAuth.mockReturnValue(user);
-    const mockCreateMany = jest.fn().mockResolvedValue({ count: 2 });
+    const mockCreateMany = jest.fn();
 
     mockPrisma.course.findFirst.mockResolvedValue(mockCourse);
 
@@ -147,13 +152,37 @@ describe("POST /api/v1/payments", () => {
 
     expect(body.data.paymentId).toBe("p1");
 
-    // seeds progress rows for every lesson in the course
-    expect(mockCreateMany).toHaveBeenCalledWith({
-      data: [
-        { enrollmentId: "e1", lessonId: "l1" },
-        { enrollmentId: "e1", lessonId: "l2" },
-      ],
-    });
+    // A LessonProgress row means "completed", so enrolling must not create any
+    expect(mockCreateMany).not.toHaveBeenCalled();
+
+    expect(notify).toHaveBeenCalledWith(
+      "u1",
+      expect.objectContaining({ type: "ENROLLMENT", title: "Enrollment confirmed" }),
+    );
+    // Free course: no payment receipt
+    expect(notify).not.toHaveBeenCalledWith("u1", expect.objectContaining({ type: "PAYMENT" }));
+  });
+
+  it("refuses paid courses: they must go through Stripe checkout", async () => {
+    mockAuth.mockReturnValue(user);
+    mockPrisma.course.findFirst.mockResolvedValue({ ...mockCourse, price: 49 });
+    mockPrisma.enrollment.findUnique.mockResolvedValue(null);
+
+    const response = await POST(createRequest("POST", { courseId: "c1" }), {});
+
+    expect(response.status).toBe(402);
+    expect(mockPrisma.$transaction).not.toHaveBeenCalled();
+    expect(notify).not.toHaveBeenCalled();
+  });
+
+  it("uses the early-bird price when deciding whether a course is free", async () => {
+    mockAuth.mockReturnValue(user);
+    mockPrisma.course.findFirst.mockResolvedValue({ ...mockCourse, price: 699, earlyBirdPrice: 299 });
+    mockPrisma.enrollment.findUnique.mockResolvedValue(null);
+
+    const response = await POST(createRequest("POST", { courseId: "c1" }), {});
+
+    expect(response.status).toBe(402);
   });
 
   it("returns 404 if course does not exist", async () => {

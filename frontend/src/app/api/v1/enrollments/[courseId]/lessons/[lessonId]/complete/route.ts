@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { ok, err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
 import { getAuthUser } from '@/lib/with-auth'
+import { notify } from '@/lib/notifications'
 
 async function computeProgress(enrollmentId: string, courseId: string) {
   const [allLessons, lessonProgress] = await Promise.all([
@@ -21,7 +22,7 @@ async function computeProgress(enrollmentId: string, courseId: string) {
   const progress = total > 0 ? Math.round((completed / total) * 100) : 0
   const completedLessonIds = lessonProgress.map((lp) => lp.lessonId)
 
-  return { progress, completedLessonIds }
+  return { progress, completedLessonIds, total }
 }
 
 export const POST = withRoute(
@@ -35,6 +36,7 @@ export const POST = withRoute(
 
     const enrollment = await prisma.enrollment.findUnique({
       where: { userId_courseId: { userId: user.id, courseId } },
+      include: { course: { select: { title: true } } },
     })
     if (!enrollment) return err('Not enrolled in this course', 403)
 
@@ -43,6 +45,11 @@ export const POST = withRoute(
       select: { id: true },
     })
     if (!lesson) return err('Lesson not found in this course', 404)
+
+    const alreadyCompleted = await prisma.lessonProgress.findUnique({
+      where: { enrollmentId_lessonId: { enrollmentId: enrollment.id, lessonId } },
+      select: { id: true },
+    })
 
     await prisma.lessonProgress.upsert({
       where: { enrollmentId_lessonId: { enrollmentId: enrollment.id, lessonId } },
@@ -63,8 +70,25 @@ export const POST = withRoute(
         where: { id: enrollment.id },
         data: { completedAt: new Date() },
       })
+      await notify(user.id, {
+        type: 'COURSE_UPDATE',
+        title: 'Course completed',
+        message: `Congratulations! You've completed "${enrollment.course.title}".`,
+        category: 'progressTracking',
+      })
+    } else if (!alreadyCompleted && result.total > 0) {
+      // Notify once, on the lesson that takes progress past the halfway mark.
+      const before = Math.round(((result.completedLessonIds.length - 1) / result.total) * 100)
+      if (before < 50 && result.progress >= 50) {
+        await notify(user.id, {
+          type: 'COURSE_UPDATE',
+          title: 'Halfway there',
+          message: `You're ${result.progress}% through "${enrollment.course.title}". Keep going!`,
+          category: 'progressTracking',
+        })
+      }
     }
 
-    return ok(result)
+    return ok({ progress: result.progress, completedLessonIds: result.completedLessonIds })
   },
 )

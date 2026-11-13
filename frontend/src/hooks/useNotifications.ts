@@ -13,6 +13,8 @@ export function useNotifications() {
   const { data, error, isLoading, mutate } = useSWR<ApiNotification[]>(
     swrKey,
     createFetcher(accessToken),
+    // Shared by the header bell and the notifications page; poll so new ones appear.
+    { refreshInterval: 60_000, revalidateOnFocus: true },
   )
 
   const markAllRead = useCallback(async () => {

@@ -3,65 +3,66 @@ import { prisma } from '@/lib/prisma'
 import { ok, err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
 import { getAuthUser } from '@/lib/with-auth'
+import { enrollmentInclude, toEnrollmentSummary } from '@/lib/enrollment-utils'
 
+const MAX_LIMIT = 100
+
+/**
+ * GET /api/v1/enrollments/me?search=&tab=all|inProgress|completed&sort=recent|active|az&page=&limit=
+ * The user's enrollments as EnrollmentSummary (with the course summary the dashboard renders).
+ * Returns every enrollment (up to 100) unless `limit` is given, because the dashboard uses
+ * this list to know which courses the user owns.
+ */
 export const GET = withRoute('/api/v1/enrollments/me', async (req: NextRequest) => {
   const user = getAuthUser(req)
   if (!user) return err('Unauthorized', 401)
 
   const { searchParams } = req.nextUrl
-  const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10))
-  const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') ?? '6', 10)))
+  const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10) || 1)
+  const limit = Math.min(MAX_LIMIT, Math.max(1, parseInt(searchParams.get('limit') ?? String(MAX_LIMIT), 10) || MAX_LIMIT))
   const search = searchParams.get('search')?.trim().toLowerCase() ?? ''
   const tab = searchParams.get('tab') ?? 'all'
   const sort = searchParams.get('sort') ?? 'recent'
-  const skip = (page - 1) * limit
 
   const enrollments = await prisma.enrollment.findMany({
     where: { userId: user.id },
-    include: {
-      course: {
-        select: { id: true, title: true, thumbnail: true, modules: { include: { lessons: { select: { id: true, duration: true } } } } },
-      },
-      lessonProgress: { select: { lessonId: true } },
-    },
+    include: enrollmentInclude,
     orderBy: { enrolledAt: 'desc' },
   })
 
-  const enriched = enrollments.map((e) => {
-    const allLessons = e.course.modules.flatMap((m) => m.lessons)
-    const totalLessons = allLessons.length
-    const completedCount = e.lessonProgress.length
-    const progress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0
-
-    return {
-      enrollmentId: e.id,
-      courseId: e.courseId,
-      courseTitle: e.course.title,
-      courseThumbnail: e.course.thumbnail,
-      progress,
-      lastAccessedAt: e.lastAccessedAt,
-      completedAt: e.completedAt,
-    }
+  // Lesson totals per course, counted in the database rather than loading every lesson.
+  const moduleCounts = await prisma.courseModule.findMany({
+    where: { courseId: { in: [...new Set(enrollments.map((e) => e.courseId))] } },
+    select: { courseId: true, _count: { select: { lessons: true } } },
   })
+  const lessonTotals = new Map<string, number>()
+  for (const m of moduleCounts) {
+    lessonTotals.set(m.courseId, (lessonTotals.get(m.courseId) ?? 0) + m._count.lessons)
+  }
 
-  // Filter
-  let filtered = enriched.filter((e) => {
-    if (search && !e.courseTitle.toLowerCase().includes(search)) return false
-    if (tab === 'inProgress') return e.progress < 100
-    if (tab === 'completed') return e.progress >= 100
+  let summaries = enrollments.map((e) => toEnrollmentSummary(e, lessonTotals.get(e.courseId) ?? 0))
+
+  summaries = summaries.filter((s) => {
+    if (search && !s.course.title.toLowerCase().includes(search)) return false
+    if (tab === 'inProgress') return s.progress < 100
+    if (tab === 'completed') return s.progress >= 100
     return true
   })
 
-  // Sort
   if (sort === 'active') {
-    filtered = filtered.sort((a, b) => b.progress - a.progress)
+    summaries.sort((a, b) => b.progress - a.progress)
   } else if (sort === 'az') {
-    filtered = filtered.sort((a, b) => a.courseTitle.localeCompare(b.courseTitle))
+    summaries.sort((a, b) => a.course.title.localeCompare(b.course.title))
+  } else {
+    // 'recent': most recently studied first, falling back to enrollment date
+    summaries.sort(
+      (a, b) =>
+        new Date(b.lastAccessedAt ?? b.enrolledAt).getTime() - new Date(a.lastAccessedAt ?? a.enrolledAt).getTime(),
+    )
   }
-  // 'recent' is already sorted by enrolledAt desc from the query
 
-  const total = filtered.length
-  const data = filtered.slice(skip, skip + limit)
+  const total = summaries.length
+  const data = summaries.slice((page - 1) * limit, page * limit)
 
   return ok(data, 'Success', {
     total,

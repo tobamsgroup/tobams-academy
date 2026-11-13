@@ -8,6 +8,9 @@ jest.mock("@/lib/prisma", () => ({
     quiz: {
       findUnique: jest.fn(),
     },
+    enrollment: {
+      findFirst: jest.fn(),
+    },
   },
 }));
 
@@ -18,6 +21,9 @@ jest.mock("@/lib/with-auth", () => ({
 const mockPrisma = prisma as unknown as {
   quiz: {
     findUnique: jest.Mock;
+  };
+  enrollment: {
+    findFirst: jest.Mock;
   };
 };
 
@@ -67,6 +73,19 @@ const createRequest = () => {
 describe("GET /api/v1/quizzes/lesson/[lessonId]", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockPrisma.enrollment.findFirst.mockResolvedValue({ id: "e1" });
+  });
+
+  it("should return 403 if the user is not enrolled in the quiz's course", async () => {
+    mockAuth.mockReturnValue(user);
+    mockPrisma.quiz.findUnique.mockResolvedValue(mockQuiz);
+    mockPrisma.enrollment.findFirst.mockResolvedValue(null);
+
+    const response = await GET(createRequest(), {
+      params: Promise.resolve({ lessonId: "l1" }),
+    });
+
+    expect(response.status).toBe(403);
   });
 
   it("should return the quiz data for an authenticated user with valid credentials", async () => {

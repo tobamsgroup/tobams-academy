@@ -2,6 +2,7 @@ import { POST } from "./route";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { getAuthUser } from "@/lib/with-auth";
+import { notify } from "@/lib/notifications";
 
 jest.mock("@/lib/prisma", () => ({
   prisma: {
@@ -13,7 +14,15 @@ jest.mock("@/lib/prisma", () => ({
       count: jest.fn(),
       create: jest.fn(),
     },
+
+    enrollment: {
+      findFirst: jest.fn(),
+    },
   },
+}));
+
+jest.mock("@/lib/notifications", () => ({
+  notify: jest.fn(),
 }));
 
 jest.mock("@/lib/with-auth", () => ({
@@ -25,6 +34,9 @@ const mockPrisma = prisma as unknown as {
     findUnique: jest.Mock;
   };
 
+  enrollment: {
+    findFirst: jest.Mock;
+  };
   quizAttempt: {
     count: jest.Mock;
     create: jest.Mock;
@@ -41,6 +53,7 @@ const user = {
 
 const mockQuiz = {
   id: "q1",
+  lesson: { title: "Basic Maths" },
   attemptsAllowed: 2,
   passingScore: 70,
   questions: [
@@ -80,6 +93,20 @@ const createRequest = (body?: object) => {
 describe("POST /api/v1/quizzes/[quizId]/attempts", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockPrisma.enrollment.findFirst.mockResolvedValue({ id: "e1" });
+  });
+
+  it("should return 403 if the user is not enrolled in the quiz's course", async () => {
+    mockAuth.mockReturnValue(user);
+    mockPrisma.quiz.findUnique.mockResolvedValue(mockQuiz);
+    mockPrisma.enrollment.findFirst.mockResolvedValue(null);
+
+    const response = await POST(createRequest({ answers: { q1_1: "o2" } }), {
+      params: Promise.resolve({ quizId: "q1" }),
+    });
+
+    expect(response.status).toBe(403);
+    expect(mockPrisma.quizAttempt.create).not.toHaveBeenCalled();
   });
 
   it("should create quiz attempt successfully and calculate score", async () => {
@@ -127,6 +154,11 @@ describe("POST /api/v1/quizzes/[quizId]/attempts", () => {
         },
       },
     });
+
+    expect(notify).toHaveBeenCalledWith(
+      "u1",
+      expect.objectContaining({ title: "Quiz passed: Basic Maths", category: "assessmentReminders" }),
+    );
   });
 
   it("should return 401 if user is not authenticated", async () => {
@@ -285,5 +317,10 @@ describe("POST /api/v1/quizzes/[quizId]/attempts", () => {
     expect(body.data.score).toBe(0);
 
     expect(body.data.isPassed).toBe(false);
+
+    expect(notify).toHaveBeenCalledWith(
+      "u1",
+      expect.objectContaining({ title: "Quiz result: Basic Maths" }),
+    );
   });
 });

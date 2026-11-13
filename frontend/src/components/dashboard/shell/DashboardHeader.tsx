@@ -7,6 +7,7 @@ import { ChevronDown, Menu } from 'lucide-react'
 import { IMAGES } from '@/assets/images'
 import { ICONS } from '@/assets/icons'
 import { getDashboardMeta } from './dashboard-titles'
+import { useNotifications } from '@/hooks/useNotifications'
 
 const iconBtn =
   'flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#D3D2D333] text-[#474348] transition-colors hover:bg-[#F0F0F4] md:h-12 md:w-12'
@@ -22,6 +23,8 @@ export function DashboardHeader({
 }) {
   const pathname = usePathname()
   const { title, subtitle } = getDashboardMeta(pathname)
+  const { notifications } = useNotifications()
+  const unreadCount = notifications.filter((n) => !n.isRead).length
 
   return (
     <header className="shrink-0 border-b border-[#E5E7EB] bg-white">
@@ -44,8 +47,17 @@ export function DashboardHeader({
         </div>
 
         <div className="flex items-center gap-2 md:gap-4">
-          <Link href="/dashboard/notifications" className={iconBtn} aria-label="Notifications">
+          <Link
+            href="/dashboard/notifications"
+            className={`${iconBtn} relative`}
+            aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'}
+          >
             <ICONS.DashboardBell />
+            {unreadCount > 0 ? (
+              <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-secondary px-1 text-[11px] font-semibold leading-none text-white">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            ) : null}
           </Link>
           <button type="button" className={iconBtn} aria-label="Help">
             <ICONS.DashboardQuestion />

@@ -4,6 +4,7 @@ import { comparePassword, hashPassword } from '@/lib/auth-helpers'
 import { getAuthUser } from '@/lib/with-auth'
 import { ok, err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
+import { notify } from '@/lib/notifications'
 
 export const PATCH = withRoute('/api/v1/users/me/change-password', async (req: NextRequest) => {
   const authUser = getAuthUser(req)
@@ -27,6 +28,11 @@ export const PATCH = withRoute('/api/v1/users/me/change-password', async (req: N
 
   const passwordHash = await hashPassword(newPassword)
   await prisma.user.update({ where: { id: user.id }, data: { passwordHash } })
+
+  await notify(user.id, {
+    title: 'Password changed',
+    message: "Your password was changed. If this wasn't you, reset your password immediately.",
+  })
 
   return ok(undefined, 'Password updated successfully')
 })

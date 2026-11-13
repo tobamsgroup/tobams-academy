@@ -34,10 +34,10 @@ export function EnrolledCourseCard({ course, index }: EnrolledCourseCardProps) {
 
         <div className="bg-white p-5">
           <h3 className="mb-1 text-lg font-semibold text-heading group-hover:text-slate-800">
-            {course.title}
+            {course?.title}
           </h3>
           <p className="mb-4 text-sm text-[#6C686C]">
-            {course.category.name} · {formatCourseLevel(course.level)}
+            {course?.category?.name} · {formatCourseLevel(course?.level)}
           </p>
 
           <div className="mb-3 bg-white">

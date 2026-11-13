@@ -17,8 +17,15 @@ import { toPlayerCourse } from "./player-course";
 import { useCourseEnrollment } from "@/hooks/useCourseEnrollment";
 import { useCourseProgress } from "@/hooks/useCourseProgress";
 import { useEnrollments } from "@/hooks/useEnrollments";
+import { useLearningHeartbeat } from "@/hooks/useLearningHeartbeat";
 
-export default function CoursePlayerView({ course }: { course: CourseDetail }) {
+export default function CoursePlayerView({
+  course,
+  initialLessonId,
+}: {
+  course: CourseDetail;
+  initialLessonId?: string;
+}) {
   const modules = useMemo(
     () => mapApiModulesToPlayerModules(course.modules),
     [course.modules],
@@ -39,13 +46,20 @@ export default function CoursePlayerView({ course }: { course: CourseDetail }) {
   const { progress: apiProgress, mutate: mutateProgress } = useCourseProgress(course.id);
   const { mutate: mutateEnrollments, mutateStats } = useEnrollments();
 
+  // Open the requested lesson (e.g. from a "Resume" link) if it belongs to this course.
+  const initial = initialLessonId ? findLesson(modules, initialLessonId) : undefined;
+  const startModule = initial?.module ?? firstModule;
+  const startLesson = initial?.lesson ?? firstLesson;
+
   const [expandedModuleIds, setExpandedModuleIds] = useState<Set<string>>(
-    () => new Set(firstModule ? [firstModule.id] : []),
+    () => new Set(startModule ? [startModule.id] : []),
   );
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileOutlineOpen, setMobileOutlineOpen] = useState(false);
-  const [selectedLessonId, setSelectedLessonId] = useState(firstLesson?.id ?? "");
+  const [selectedLessonId, setSelectedLessonId] = useState(startLesson?.id ?? "");
   const [feedbackOpen, setFeedbackOpen] = useState(false);
+  // Track real time spent on the open lesson (powers the dashboard's time metrics).
+  useLearningHeartbeat(selectedLessonId, Boolean(enrollment));
   const [feedbackSuccessOpen, setFeedbackSuccessOpen] = useState(false);
 
   const totalLessons = useMemo(() => countLessons(modules), [modules]);

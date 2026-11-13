@@ -4,6 +4,7 @@ import { comparePassword } from '@/lib/auth-helpers'
 import { getAuthUser } from '@/lib/with-auth'
 import { ok, err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
+import { notify } from '@/lib/notifications'
 
 export const PATCH = withRoute('/api/v1/users/me/two-factor', async (req: NextRequest) => {
   const authUser = getAuthUser(req)
@@ -35,5 +36,11 @@ export const PATCH = withRoute('/api/v1/users/me/two-factor', async (req: NextRe
   })
 
   const action = enable ? 'enabled' : 'disabled'
+  await notify(user.id, {
+    title: `Two-factor authentication ${action}`,
+    message: enable
+      ? 'You will now be asked for a verification code when you sign in.'
+      : "Two-factor authentication is off. If this wasn't you, change your password immediately.",
+  })
   return ok({ twoFactorEnabled: updated.twoFactorEnabled }, `Two-factor authentication ${action}`)
 })

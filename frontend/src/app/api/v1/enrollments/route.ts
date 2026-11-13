@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { ok, created, err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
 import { getAuthUser } from '@/lib/with-auth'
+import { notify } from '@/lib/notifications'
 
 export const POST = withRoute('/api/v1/enrollments', async (req: NextRequest) => {
   const user = getAuthUser(req)
@@ -28,6 +29,13 @@ export const POST = withRoute('/api/v1/enrollments', async (req: NextRequest) =>
 
   const enrollment = await prisma.enrollment.create({
     data: { userId: user.id, courseId, lastAccessedAt: new Date() },
+  })
+
+  await notify(user.id, {
+    type: 'ENROLLMENT',
+    title: 'Enrollment confirmed',
+    message: `You're now enrolled in "${course.title}". Head to My Courses to start learning.`,
+    category: 'enrollmentConfirm',
   })
 
   return created({ id: enrollment.id, courseId, enrolledAt: enrollment.enrolledAt }, 'Enrolled successfully')

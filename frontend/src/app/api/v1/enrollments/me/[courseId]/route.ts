@@ -6,7 +6,6 @@ import { withRoute } from '@/lib/with-route'
 import {
   enrollmentInclude,
   getCourseLessonCount,
-  syncLessonProgressForEnrollment,
   toEnrollmentDetail,
 } from '@/lib/enrollment-utils'
 
@@ -26,16 +25,8 @@ export const GET = withRoute(
 
     if (!enrollment) return err('Not enrolled in this course', 404)
 
-    await syncLessonProgressForEnrollment(enrollment.id, courseId)
+    const totalLessons = await getCourseLessonCount(courseId)
 
-    const [totalLessons, refreshed] = await Promise.all([
-      getCourseLessonCount(courseId),
-      prisma.enrollment.findUniqueOrThrow({
-        where: { id: enrollment.id },
-        include: enrollmentInclude,
-      }),
-    ])
-
-    return ok(toEnrollmentDetail(refreshed, totalLessons))
+    return ok(toEnrollmentDetail(enrollment, totalLessons))
   },
 )

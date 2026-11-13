@@ -4,7 +4,7 @@ import CoursePlayerView from "@/components/dashboard/courses/course-player/Cours
 import { useCourse } from "@/hooks/useCourse";
 import Link from "next/link";
 
-export default function CoursePlayerPage({ slug }: { slug: string }) {
+export default function CoursePlayerPage({ slug, initialLessonId }: { slug: string; initialLessonId?: string }) {
   const { course, error, isLoading } = useCourse(slug);
 
   if (isLoading) {
@@ -29,5 +29,5 @@ export default function CoursePlayerPage({ slug }: { slug: string }) {
     );
   }
 
-  return <CoursePlayerView key={course.id} course={course} />;
+  return <CoursePlayerView key={course.id} course={course} initialLessonId={initialLessonId} />;
 }

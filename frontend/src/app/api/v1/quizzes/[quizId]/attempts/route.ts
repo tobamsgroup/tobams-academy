@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { ok, err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
 import { getAuthUser } from '@/lib/with-auth'
+import { notify } from '@/lib/notifications'
 
 export const POST = withRoute(
   '/api/v1/quizzes/[quizId]/attempts',
@@ -20,12 +21,19 @@ export const POST = withRoute(
     const quiz = await prisma.quiz.findUnique({
       where: { id: quizId },
       include: {
+        lesson: { select: { title: true } },
         questions: {
           include: { options: { select: { id: true, isCorrect: true } } },
         },
       },
     })
     if (!quiz) return err('Quiz not found', 404)
+
+    const enrolled = await prisma.enrollment.findFirst({
+      where: { userId: user.id, course: { modules: { some: { lessons: { some: { id: quiz.lessonId } } } } } },
+      select: { id: true },
+    })
+    if (!enrolled) return err('Not enrolled in this course', 403)
 
     // Enforce attempt limit
     const attemptCount = await prisma.quizAttempt.count({
@@ -59,6 +67,15 @@ export const POST = withRoute(
         isPassed,
         answers,
       },
+    })
+
+    await notify(user.id, {
+      type: 'COURSE_UPDATE',
+      title: isPassed ? `Quiz passed: ${quiz.lesson.title}` : `Quiz result: ${quiz.lesson.title}`,
+      message: isPassed
+        ? `You scored ${score}% and passed. Great work!`
+        : `You scored ${score}%. The pass mark is ${quiz.passingScore}%, so review the lesson and try again.`,
+      category: 'assessmentReminders',
     })
 
     return ok({ score, isPassed, correctAnswers })

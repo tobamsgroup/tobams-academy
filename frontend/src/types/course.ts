@@ -13,6 +13,11 @@ export interface Lesson {
   position: number
   duration: number | null
   kind?: LessonKind
+  contentKey?: string | null
+  contentUrl?: string | null
+  /** PDF lessons: the page range of the document this lesson covers. */
+  pageStart?: number | null
+  pageEnd?: number | null
 }
 
 export interface CourseModule {
