@@ -4,6 +4,8 @@ import { type FormEvent, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, EyeOff } from 'lucide-react'
 import { ICONS } from '@/assets/icons'
+import { PasswordRequirements } from '@/components/auth/PasswordRequirements'
+import { isStrongPassword, passwordProblem } from '@/lib/password-rules'
 
 const inputClassName =
   'h-10 w-full rounded-[8px] border border-[#474348] bg-[#FFFFFF00] px-3 text-sm text-heading outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15'
@@ -24,6 +26,12 @@ export default function ResetPasswordPage() {
 
     if (!token) {
       setError('This reset link is invalid or has expired.')
+      return
+    }
+
+    const problem = passwordProblem(password)
+    if (problem) {
+      setError(problem)
       return
     }
 
@@ -93,6 +101,7 @@ export default function ResetPasswordPage() {
                   {showPassword ? <EyeOff size={18} /> : <ICONS.EyeFill />}
                 </button>
               </span>
+              <PasswordRequirements password={password} />
             </label>
 
             <label className="mt-5 block text-heading md:text-lg">
@@ -117,11 +126,14 @@ export default function ResetPasswordPage() {
                   {showConfirmPassword ? <EyeOff size={18} /> : <ICONS.EyeFill />}
                 </button>
               </span>
+              {confirmPassword && confirmPassword !== password ? (
+                <span className="mt-2 block text-xs font-medium text-secondary">Passwords do not match.</span>
+              ) : null}
             </label>
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !isStrongPassword(password) || password !== confirmPassword}
               className="mt-7 h-12 w-full rounded-md bg-primary font-medium text-white transition-colors hover:bg-[#252d5d] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? 'Resetting Password...' : 'Reset Password'}

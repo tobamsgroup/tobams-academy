@@ -6,20 +6,11 @@ import Link from 'next/link'
 import { EyeOff, MailCheck } from 'lucide-react'
 import { ICONS } from '@/assets/icons'
 import { IMAGES } from '@/assets/images'
+import { PasswordRequirements } from '@/components/auth/PasswordRequirements'
+import { isStrongPassword, passwordProblem } from '@/lib/password-rules'
 
 const inputClassName =
   'h-10 w-full rounded-[8px] border border-[#474348] bg-[#FFFFFF00] px-3 text-sm text-heading outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15'
-
-function GoogleIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
-      <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62Z" />
-      <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.33-1.58-5.04-3.72H.94v2.33A9 9 0 0 0 9 18Z" />
-      <path fill="#FBBC05" d="M3.96 10.7A5.41 5.41 0 0 1 3.68 9c0-.59.1-1.16.28-1.7V4.97H.94A9 9 0 0 0 0 9c0 1.45.34 2.82.94 4.03l3.02-2.33Z" />
-      <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.9 11.43 0 9 0A9 9 0 0 0 .94 4.97L3.96 7.3C4.67 5.16 6.66 3.58 9 3.58Z" />
-    </svg>
-  )
-}
 
 export default function RegisterPage() {
   const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '', acceptedTerms: true })
@@ -31,6 +22,11 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    const problem = passwordProblem(form.password)
+    if (problem) {
+      setError(problem)
+      return
+    }
     setLoading(true)
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
       method: 'POST',
@@ -157,7 +153,7 @@ export default function RegisterPage() {
                   {showPassword ? <EyeOff size={18} /> : <ICONS.EyeFill />}
                 </button>
               </span>
-              <span className="mt-2 block text-xs font-medium text-secondary">Must be at least 8 characters.</span>
+              <PasswordRequirements password={form.password} />
             </label>
 
             <label className="mt-6 flex items-start gap-3 text-xs md:text-base text-heading">
@@ -178,7 +174,7 @@ export default function RegisterPage() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !isStrongPassword(form.password)}
               className="mt-7 h-12 w-full rounded-md bg-primary font-medium text-white transition-colors hover:bg-[#252d5d] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? 'Signing Up...' : 'Sign Up'}
@@ -192,19 +188,6 @@ export default function RegisterPage() {
             </Link>
           </p>
 
-          <div className="my-8 flex items-center gap-5">
-            <span className="h-px flex-1 bg-[#D8D3D3]" />
-            <span className="text-sm font-medium text-heading">OR</span>
-            <span className="h-px flex-1 bg-[#D8D3D3]" />
-          </div>
-
-          <button
-            type="button"
-            className="flex h-12 w-full items-center justify-center gap-3 rounded-sm md:text-lg border border-[#D3D2D3] text-sm font-bold text-heading transition-colors hover:bg-slate-50"
-          >
-            <GoogleIcon />
-            Continue with Google
-          </button>
           </>
           )}
         </div>

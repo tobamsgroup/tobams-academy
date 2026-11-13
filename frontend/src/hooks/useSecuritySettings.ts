@@ -2,6 +2,7 @@ import { ChangeEvent, useState } from 'react'
 import { signOut } from 'next-auth/react'
 import { useProfile } from '@/hooks/useProfile'
 import type { ChangePasswordForm, DeactivateAccountPayload } from '@/types/settings'
+import { passwordProblem } from '@/lib/password-rules'
 
 function extractApiError(error: unknown): string | undefined {
   if (typeof error === 'object' && error !== null && 'response' in error) {
@@ -51,8 +52,9 @@ export function useSecuritySettings() {
       setPasswordError('All password fields are required.')
       return
     }
-    if (form.newPass.length < 8) {
-      setPasswordError('New password must be at least 8 characters.')
+    const problem = passwordProblem(form.newPass)
+    if (problem) {
+      setPasswordError(problem)
       return
     }
     if (form.newPass !== form.confirm) {

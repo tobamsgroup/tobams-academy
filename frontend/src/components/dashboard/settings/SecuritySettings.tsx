@@ -5,6 +5,8 @@ import DeactivateAccountModal from "@/components/dashboard/settings/DeactivateAc
 import PasswordInput from "@/components/dashboard/settings/PasswordInput";
 import ProfileSuccessModal from "@/components/dashboard/profile/ProfileSuccessModal";
 import { useSecuritySettings } from "@/hooks/useSecuritySettings";
+import { PasswordRequirements } from "@/components/auth/PasswordRequirements";
+import { isStrongPassword } from "@/lib/password-rules";
 
 export default function SecuritySettings() {
   const { twoFactorEnabled, password, twoFactor, deactivate } = useSecuritySettings();
@@ -25,6 +27,7 @@ export default function SecuritySettings() {
 
         <PasswordInput label="Current Password" value={password.form.current} onChange={password.updateField("current")} showToggle={false} />
         <PasswordInput label="New Password" value={password.form.newPass} onChange={password.updateField("newPass")} />
+        <PasswordRequirements password={password.form.newPass} className="-mt-2 mb-4" />
         <PasswordInput label="Confirm Password" value={password.form.confirm} onChange={password.updateField("confirm")} />
 
         <div className="mt-2 flex flex-col-reverse md:flex-row justify-end gap-3 w-full md:w-auto">
@@ -39,7 +42,7 @@ export default function SecuritySettings() {
           <button
             type="button"
             onClick={password.save}
-            disabled={password.loading}
+            disabled={password.loading || !isStrongPassword(password.form.newPass)}
             className="rounded-lg bg-primary px-6 py-3 text-heading font-medium text-white transition-colors hover:bg-[#16234a] w-full md:w-auto disabled:opacity-60"
           >
             {password.loading ? "Saving..." : "Save Changes"}
