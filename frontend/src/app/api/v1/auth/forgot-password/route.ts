@@ -5,6 +5,7 @@ import { hashToken } from '@/lib/auth-helpers'
 import { sendPasswordResetEmail } from '@/lib/mail'
 import { ok, err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
+import { normalizeEmail } from '@/lib/email'
 
 const SAFE_MSG = 'If that email exists, a reset link has been sent'
 
@@ -14,7 +15,7 @@ export const POST = withRoute('/api/v1/auth/forgot-password', async (req: NextRe
 
   if (!email || typeof email !== 'string') return err('Email is required')
 
-  const user = await prisma.user.findUnique({ where: { email } })
+  const user = await prisma.user.findUnique({ where: { email: normalizeEmail(email) } })
   if (!user) return ok(undefined, SAFE_MSG)
 
   const rawToken = crypto.randomBytes(32).toString('hex')

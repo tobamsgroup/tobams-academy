@@ -2,15 +2,14 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, MailCheck } from 'lucide-react'
 
 const inputClassName =
   'h-10 w-full rounded-[8px] border border-[#474348] bg-[#FFFFFF00] px-3 text-sm text-heading outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15'
 
 export default function ForgotPasswordPage() {
-  const router = useRouter()
   const [email, setEmail] = useState('')
+  const [sentTo, setSentTo] = useState<string | null>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -20,15 +19,17 @@ export default function ForgotPasswordPage() {
     setLoading(true)
 
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/forgot-password`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: email.trim() }),
       })
-
-      router.push(`/otp?flow=reset&email=${encodeURIComponent(email)}`)
+      if (!res.ok) throw new Error('request failed')
+      // The email contains a reset link (with a secure token); there is no OTP to enter.
+      setSentTo(email.trim())
     } catch {
-      setError('Unable to send OTP. Please try again.')
+      setError('Unable to send the reset email. Please try again.')
+    } finally {
       setLoading(false)
     }
   }
@@ -45,9 +46,27 @@ export default function ForgotPasswordPage() {
       <section className="mx-auto mt-20 w-full max-w-[634px]">
         <div className="text-center">
           <h1 className="text-[32px] font-semibold leading-tight text-heading md:text-[56px]">Forgot Password?</h1>
-          <p className="mt-3 text-sm text-heading md:text-base">Enter your email below to receive your OTP</p>
+          <p className="mt-3 text-sm text-heading md:text-base">Enter your email and we&apos;ll send you a link to reset your password</p>
         </div>
 
+        {sentTo ? (
+          <div className="mt-10 rounded-[12px] border border-[#E5E7EB] bg-white p-8 text-center">
+            <MailCheck className="mx-auto h-12 w-12 text-primary" aria-hidden />
+            <h2 className="mt-4 text-xl font-semibold text-heading">Check your email</h2>
+            <p className="mt-2 text-sm text-[#474348] md:text-base">
+              If an account exists for <span className="font-semibold text-heading">{sentTo}</span>, we&apos;ve sent a
+              link to reset your password. It expires in 1 hour. Check your spam folder if you don&apos;t see it.
+            </p>
+            <button
+              type="button"
+              onClick={() => setSentTo(null)}
+              className="mt-6 text-sm font-semibold text-primary underline"
+            >
+              Use a different email
+            </button>
+          </div>
+        ) : (
+        <>
         {error && <div className="mt-6 rounded-lg bg-secondary/10 p-3 text-sm text-secondary">{error}</div>}
 
         <form onSubmit={handleSubmit} className="mt-7">
@@ -69,9 +88,11 @@ export default function ForgotPasswordPage() {
             disabled={loading}
             className="mt-7 h-12 w-full rounded-[8px] bg-primary font-medium text-white transition-colors hover:bg-[#252d5d] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading ? 'Sending OTP...' : 'Send OTP'}
+            {loading ? 'Sending link...' : 'Send reset link'}
           </button>
         </form>
+        </>
+        )}
       </section>
     </main>
   )

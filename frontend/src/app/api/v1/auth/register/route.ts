@@ -6,18 +6,20 @@ import { sendVerificationEmail } from '@/lib/mail'
 import { ok, err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
 import { notify } from '@/lib/notifications'
+import { normalizeEmail } from '@/lib/email'
 
 export const POST = withRoute('/api/v1/auth/register', async (req: NextRequest) => {
   const body = await req.json()
-  const { name, email, password } = body ?? {}
+  const { name, email: rawEmail, password } = body ?? {}
 
   if (!name || typeof name !== 'string' || name.trim().length === 0)
     return err('Name is required')
-  if (!email || typeof email !== 'string' || !email.includes('@'))
+  if (!rawEmail || typeof rawEmail !== 'string' || !rawEmail.includes('@'))
     return err('Valid email is required')
   if (!password || typeof password !== 'string' || password.length < 8)
     return err('Password must be at least 8 characters')
 
+  const email = normalizeEmail(rawEmail)
   const existing = await prisma.user.findUnique({ where: { email } })
   if (existing) return err('Email already in use', 409)
 

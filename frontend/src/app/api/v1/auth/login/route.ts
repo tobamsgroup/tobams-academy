@@ -7,6 +7,7 @@ import { signTokens } from "@/lib/jwt";
 import { ok, err } from "@/lib/api-utils";
 import { withRoute } from "@/lib/with-route";
 import { sendTwoFactorOtpEmail } from "@/lib/mail";
+import { normalizeEmail } from '@/lib/email'
 
 export const POST = withRoute(
   "/api/v1/auth/login",
@@ -16,7 +17,8 @@ export const POST = withRoute(
 
     if (!email || !password) return err("Email and password are required");
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    if (typeof email !== "string") return err("Email and password are required");
+    const user = await prisma.user.findUnique({ where: { email: normalizeEmail(email) } });
     if (!user) return err("Invalid credentials", 401);
 
     const match = await comparePassword(password, user.passwordHash);

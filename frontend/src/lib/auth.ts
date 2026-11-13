@@ -2,8 +2,10 @@ import NextAuth, { CredentialsSignin } from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 import { prisma } from './prisma'
 import { comparePassword } from './auth-helpers'
+import { logger } from './logger'
 import { signTokens } from './jwt'
 import { authConfig } from './auth.config'
+import { normalizeEmail } from './email'
 
 class InvalidCredentials extends CredentialsSignin {
   code = 'invalid_credentials'
@@ -22,9 +24,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        const email = credentials?.email as string | undefined
+        const rawEmail = credentials?.email as string | undefined
         const password = credentials?.password as string | undefined
-        if (!email || !password) throw new InvalidCredentials()
+        if (!rawEmail || !password) throw new InvalidCredentials()
+        // Ignore case and stray spaces (phone keyboards capitalise, autofill adds spaces).
+        const email = normalizeEmail(rawEmail)
 
         const user = await prisma.user.findUnique({ where: { email } })
         if (!user) throw new InvalidCredentials()
@@ -36,7 +40,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (user.deactivatedAt) throw new InvalidCredentials()
 
-        const { accessToken, refreshToken } = signTokens(user.id, user.email, user.role)
+        let tokens: ReturnType<typeof signTokens>
+        try {
+          tokens = signTokens(user.id, user.email, user.role)
+        } catch (error) {
+          // e.g. JWT_SECRET / JWT_REFRESH_SECRET missing in this environment
+          logger.error('Sign-in failed: could not create API tokens', {
+            error: error instanceof Error ? error.message : String(error),
+          })
+          throw error
+        }
+        const { accessToken, refreshToken } = tokens
 
         return {
           id: user.id,

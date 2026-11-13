@@ -33,7 +33,14 @@ export default function LoginContent() {
         email_not_verified: 'Please verify your email before logging in',
         invalid_credentials: 'Invalid email or password',
       }
-      setError(messages[result.code ?? ''] ?? 'Invalid email or password')
+      // Anything other than a credentials rejection (e.g. "Configuration") is a server problem;
+      // don't tell the user their password is wrong when it may not be.
+      const serverProblem = result.error !== 'CredentialsSignin'
+      setError(
+        serverProblem
+          ? "We couldn't sign you in because of a problem on our side. Please try again shortly."
+          : (messages[result.code ?? ''] ?? 'Invalid email or password'),
+      )
     } else {
       router.push(callbackUrl)
     }

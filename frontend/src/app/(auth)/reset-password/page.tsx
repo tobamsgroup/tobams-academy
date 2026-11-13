@@ -49,7 +49,7 @@ export default function ResetPasswordPage() {
     setLoading(false)
 
     if (!response.ok) {
-      setError('Unable to reset password. Please request a new OTP and try again.')
+      setError('This reset link is invalid or has expired. Please request a new one from Forgot Password.')
       return
     }
 
