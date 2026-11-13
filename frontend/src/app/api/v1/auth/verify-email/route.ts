@@ -8,7 +8,8 @@ export const POST = withRoute('/api/v1/auth/verify-email', async (req: NextReque
   const token = req.nextUrl.searchParams.get('token')
   if (!token) return err('Token is required')
 
-  const user = await prisma.user.findFirst({ where: { verifyTokenHash: token } })
+  // Registration stores sha256(rawToken); the email link carries the raw token.
+  const user = await prisma.user.findFirst({ where: { verifyTokenHash: hashToken(token) } })
   if (!user) return err('Invalid or expired token', 401)
 
   await prisma.user.update({

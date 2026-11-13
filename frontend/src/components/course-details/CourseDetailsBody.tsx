@@ -174,7 +174,7 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
             )}
           </section>
 
-          <section id="course-feedbacks">
+          {/* <section id="course-feedbacks">
             <h2 className="mb-3 text-2xl font-medium text-heading">Student Feedback</h2>
             <div className="mb-6">
               <div className="grid gap-y-3 md:grid-cols-[100px_1fr_88px] md:items-center md:gap-x-3 md:gap-y-2">
@@ -220,7 +220,7 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
             >
               See all reviews
             </Button>
-          </section>
+          </section> */}
         </div>
 
         <aside className="order-1 lg:order-2">

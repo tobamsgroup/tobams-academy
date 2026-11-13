@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { CheckCircle, XCircle } from 'lucide-react'
@@ -10,8 +10,12 @@ export function VerifyEmailContent() {
   const params = useSearchParams()
   const token = params.get('token')
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
+  // Tokens are single-use; guard against React Strict Mode running the effect twice in dev.
+  const requested = useRef(false)
 
   useEffect(() => {
+    if (requested.current) return
+    requested.current = true
     const verify = async () => {
       if (!token) { setStatus('error'); return }
       try {

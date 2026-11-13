@@ -1,4 +1,61 @@
 import { Client } from 'node-mailjet'
+import nodemailer, { Transporter } from 'nodemailer'
+
+/**
+ * Mail provider is selected with MAIL_PROVIDER: "smtp" (default) or "mailjet".
+ *
+ * SMTP mirrors Tobams-Group-BE (src/utils/emailSystem.utils.ts):
+ *  - Gmail OAuth2 when EMAIL_CLIENT_ID / EMAIL_CLIENT_SECRET / EMAIL_REFRESH_TOKEN are set
+ *    (sender = SEND_MAIL). Nodemailer refreshes the access token itself.
+ *  - Otherwise plain SMTP auth with SMTP_USER / SMTP_PASSWORD (defaults to SEND_MAIL as user).
+ * Host/port come from SMTP_SERVER / SMTP_PORT (port 465 => implicit TLS).
+ */
+const mailProvider = () => (process.env.MAIL_PROVIDER ?? 'smtp').toLowerCase()
+const clientUrl = () => process.env.CLIENT_URL ?? 'http://localhost:3000'
+
+// ---------------------------------------------------------------------------
+// SMTP (nodemailer)
+// ---------------------------------------------------------------------------
+
+let smtpTransporter: Transporter | null = null
+
+function getSmtpTransporter(): Transporter {
+  if (smtpTransporter) return smtpTransporter
+
+  const host = process.env.SMTP_SERVER ?? 'smtp.gmail.com'
+  const port = Number(process.env.SMTP_PORT ?? 465)
+  const user = process.env.SMTP_USER ?? process.env.SEND_MAIL ?? ''
+  const { EMAIL_CLIENT_ID, EMAIL_CLIENT_SECRET, EMAIL_REFRESH_TOKEN, SMTP_PASSWORD } = process.env
+
+  const auth =
+    EMAIL_CLIENT_ID && EMAIL_CLIENT_SECRET && EMAIL_REFRESH_TOKEN
+      ? {
+          type: 'OAuth2' as const,
+          user,
+          clientId: EMAIL_CLIENT_ID,
+          clientSecret: EMAIL_CLIENT_SECRET,
+          refreshToken: EMAIL_REFRESH_TOKEN,
+        }
+      : { user, pass: SMTP_PASSWORD ?? '' }
+
+  smtpTransporter = nodemailer.createTransport({ host, port, secure: port === 465, auth })
+  return smtpTransporter
+}
+
+async function sendViaSmtp(to: string, toName: string, subject: string, html: string) {
+  const fromEmail = process.env.SEND_MAIL ?? process.env.SMTP_USER ?? ''
+  const fromName = process.env.MAIL_FROM_NAME ?? 'Tobams Academy'
+  await getSmtpTransporter().sendMail({
+    from: { name: fromName, address: fromEmail },
+    to: { name: toName, address: to },
+    subject,
+    html,
+  })
+}
+
+// ---------------------------------------------------------------------------
+// Mailjet (kept for fallback; enable with MAIL_PROVIDER=mailjet)
+// ---------------------------------------------------------------------------
 
 function getClient() {
   return new Client({
@@ -9,24 +66,30 @@ function getClient() {
 
 const fromEmail = () => process.env.MAILJET_FROM_EMAIL ?? ''
 const fromName = () => process.env.MAILJET_FROM_NAME ?? ''
-const clientUrl = () => process.env.CLIENT_URL ?? 'http://localhost:3000'
+
+async function sendViaMailjet(to: string, toName: string, subject: string, html: string) {
+  await getClient()
+    .post('send', { version: 'v3.1' })
+    .request({
+      Messages: [
+        {
+          From: { Email: fromEmail(), Name: fromName() },
+          To: [{ Email: to, Name: toName }],
+          Subject: subject,
+          HTMLPart: html,
+        },
+      ],
+    })
+}
+
+// ---------------------------------------------------------------------------
 
 async function send(to: string, toName: string, subject: string, html: string) {
   try {
-    await getClient()
-      .post('send', { version: 'v3.1' })
-      .request({
-        Messages: [
-          {
-            From: { Email: fromEmail(), Name: fromName() },
-            To: [{ Email: to, Name: toName }],
-            Subject: subject,
-            HTMLPart: html,
-          },
-        ],
-      })
+    if (mailProvider() === 'mailjet') await sendViaMailjet(to, toName, subject, html)
+    else await sendViaSmtp(to, toName, subject, html)
   } catch (error) {
-    console.error('[mail] Failed to send email to', to, error instanceof Error ? error.message : error)
+    console.error(`[mail:${mailProvider()}] Failed to send email to`, to, error instanceof Error ? error.message : error)
   }
 }
 
