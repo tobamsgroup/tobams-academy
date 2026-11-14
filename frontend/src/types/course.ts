@@ -5,7 +5,7 @@ export interface Category {
   createdAt: string
 }
 
-export type LessonKind = 'VIDEO' | 'DOC' | 'PDF' | 'SCREEN' | 'QUIZ' | 'ASSESSMENT'
+export type LessonKind = 'VIDEO' | 'DOC' | 'PDF' | 'SLIDES' | 'SCREEN' | 'QUIZ' | 'ASSESSMENT'
 
 export interface Lesson {
   id: string

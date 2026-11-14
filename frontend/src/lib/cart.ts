@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { decimalToNumber } from '@/lib/payment-utils'
 import { chargeAmount } from '@/lib/pricing'
+import { activeEnrollmentWhere } from '@/lib/enrollment-access'
 import type { CartCourse, CartView } from '@/types/cart'
 
 export const CART_COURSE_SELECT = {
@@ -47,11 +48,12 @@ export function toCartView(courses: CartCourseRow[]): CartView {
   return { items, total }
 }
 
-/** Ids of the given courses the user is already enrolled in. */
+/** Ids of the given courses the user currently has access to. */
 export async function enrolledCourseIds(userId: string, courseIds: string[]): Promise<Set<string>> {
   if (courseIds.length === 0) return new Set()
   const rows = await prisma.enrollment.findMany({
-    where: { userId, courseId: { in: courseIds } },
+    // Only active access counts as owned: expired courses can be bought again.
+    where: { userId, courseId: { in: courseIds }, ...activeEnrollmentWhere() },
     select: { courseId: true },
   })
   return new Set(rows.map((r) => r.courseId))

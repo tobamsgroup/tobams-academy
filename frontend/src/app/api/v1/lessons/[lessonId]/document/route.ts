@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma'
 import { err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
 import { getAuthUser } from '@/lib/with-auth'
+import { EXPIRED_MESSAGE, isAccessActive } from '@/lib/enrollment-access'
 
 /** Private course files live outside /public so only enrolled learners can read them. */
 const CONTENT_ROOT = resolve(process.cwd(), 'content', 'courses')
@@ -26,13 +27,16 @@ export const GET = withRoute(
       where: { id: lessonId },
       select: { kind: true, contentKey: true, module: { select: { courseId: true } } },
     })
-    if (!lesson || lesson.kind !== 'PDF' || !lesson.contentKey) return err('Document not found', 404)
+    if (!lesson || (lesson.kind !== 'PDF' && lesson.kind !== 'SLIDES') || !lesson.contentKey) {
+      return err('Document not found', 404)
+    }
 
     const enrollment = await prisma.enrollment.findUnique({
       where: { userId_courseId: { userId: user.id, courseId: lesson.module.courseId } },
-      select: { id: true },
+      select: { id: true, expiresAt: true },
     })
     if (!enrollment) return err('Not enrolled in this course', 403)
+    if (!isAccessActive(enrollment)) return err(EXPIRED_MESSAGE, 403)
 
     // contentKey is a path relative to CONTENT_ROOT; refuse anything that escapes it.
     const filePath = resolve(CONTENT_ROOT, lesson.contentKey)

@@ -4,6 +4,8 @@ import { ok, err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
 import { getAuthUser } from '@/lib/with-auth'
 import { notify } from '@/lib/notifications'
+import { toLessonCompleteResult } from '@/lib/enrollment-utils'
+import { EXPIRED_MESSAGE, isAccessActive } from '@/lib/enrollment-access'
 
 async function computeProgress(enrollmentId: string, courseId: string) {
   const [allLessons, lessonProgress] = await Promise.all([
@@ -39,6 +41,7 @@ export const POST = withRoute(
       include: { course: { select: { title: true } } },
     })
     if (!enrollment) return err('Not enrolled in this course', 403)
+    if (!isAccessActive(enrollment)) return err(EXPIRED_MESSAGE, 403)
 
     const lesson = await prisma.lesson.findFirst({
       where: { id: lessonId, module: { courseId } },
@@ -51,7 +54,7 @@ export const POST = withRoute(
       select: { id: true },
     })
 
-    await prisma.lessonProgress.upsert({
+    const row = await prisma.lessonProgress.upsert({
       where: { enrollmentId_lessonId: { enrollmentId: enrollment.id, lessonId } },
       update: {},
       create: { enrollmentId: enrollment.id, lessonId },
@@ -65,7 +68,8 @@ export const POST = withRoute(
     const result = await computeProgress(enrollment.id, courseId)
 
     // Mark enrollment as completed when progress reaches 100%
-    if (result.progress === 100 && !enrollment.completedAt) {
+    const courseCompleted = result.progress === 100
+    if (courseCompleted && !enrollment.completedAt) {
       await prisma.enrollment.update({
         where: { id: enrollment.id },
         data: { completedAt: new Date() },
@@ -89,6 +93,17 @@ export const POST = withRoute(
       }
     }
 
-    return ok({ progress: result.progress, completedLessonIds: result.completedLessonIds })
+    // The client uses completedAt to keep the lesson ticked; without it the tick vanished
+    // after the server replied (the "flaky" completion).
+    return ok({
+      ...toLessonCompleteResult(
+        lessonId,
+        row?.completedAt ?? new Date(),
+        result.completedLessonIds.length,
+        result.total,
+        courseCompleted,
+      ),
+      completedLessonIds: result.completedLessonIds,
+    })
   },
 )

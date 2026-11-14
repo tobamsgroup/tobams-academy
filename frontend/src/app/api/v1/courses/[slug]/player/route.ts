@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { ok, err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
 import { getAuthUser } from '@/lib/with-auth'
+import { EXPIRED_MESSAGE, isAccessActive } from '@/lib/enrollment-access'
 
 export const GET = withRoute('/api/v1/courses/[slug]/player', async (
   req: NextRequest,
@@ -40,6 +41,7 @@ export const GET = withRoute('/api/v1/courses/[slug]/player', async (
     where: { userId_courseId: { userId: user.id, courseId: course.id } },
   })
   if (!enrollment) return err('Not enrolled in this course', 403)
+  if (!isAccessActive(enrollment)) return err(EXPIRED_MESSAGE, 403)
 
   return ok({ courseId: course.id, courseTitle: course.title, modules: course.modules })
 })

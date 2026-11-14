@@ -6,7 +6,7 @@ import { getStripe } from "@/lib/stripe";
 jest.mock("@/lib/prisma", () => {
   const tx = {
     payment: { create: jest.fn(), updateMany: jest.fn() },
-    enrollment: { createMany: jest.fn() },
+    enrollment: { createMany: jest.fn(), upsert: jest.fn() },
   };
   return {
     prisma: {
@@ -31,7 +31,7 @@ const db = prisma as unknown as {
   enrollment: { findMany: Mock };
   payment: { createMany: Mock; findMany: Mock; findFirst: Mock; updateMany: Mock };
   cartItem: { deleteMany: Mock };
-  __tx: { payment: { create: Mock; updateMany: Mock }; enrollment: { createMany: Mock } };
+  __tx: { payment: { create: Mock; updateMany: Mock }; enrollment: { createMany: Mock; upsert: Mock } };
 };
 const stripe = getStripe() as unknown as { checkout: { sessions: { create: Mock; retrieve: Mock } } };
 
@@ -70,9 +70,13 @@ describe("startCheckout", () => {
       ],
     });
     expect(stripe.checkout.sessions.create).not.toHaveBeenCalled();
-    expect(db.__tx.enrollment.createMany).toHaveBeenCalledWith(
-      expect.objectContaining({ skipDuplicates: true }),
-    );
+    // Each course gets 180 days of access (or renews expired access).
+    expect(db.__tx.enrollment.upsert).toHaveBeenCalledTimes(2);
+    const grant = db.__tx.enrollment.upsert.mock.calls[0][0];
+    const days = (grant.create.expiresAt.getTime() - Date.now()) / 86_400_000;
+    expect(days).toBeGreaterThan(179.9);
+    expect(days).toBeLessThanOrEqual(180);
+    expect(grant.update).toEqual({ expiresAt: grant.create.expiresAt });
     expect(db.cartItem.deleteMany).toHaveBeenCalled();
     expect(notify).toHaveBeenCalledTimes(2);
   });
@@ -133,7 +137,8 @@ describe("syncCheckoutSession", () => {
       where: { checkoutSessionId: "cs_1", status: "PENDING" },
       data: { status: "COMPLETED", transactionId: "pi_1" },
     });
-    expect(db.__tx.enrollment.createMany).toHaveBeenCalledTimes(2); // idempotent
+    // Access is granted once: a webhook retry must not push the expiry further out.
+    expect(db.__tx.enrollment.upsert).toHaveBeenCalledTimes(1);
     // Enrollment confirmation + payment receipt, only from the call that claimed the payments.
     expect(notify).toHaveBeenCalledTimes(2);
     expect(notify).toHaveBeenCalledWith("u1", expect.objectContaining({ type: "PAYMENT" }));
@@ -203,7 +208,7 @@ describe("simulated payments (PAYMENT_PROVIDER=simulated)", () => {
 
     expect(status?.status).toBe("paid");
     expect(stripe.checkout.sessions.retrieve).not.toHaveBeenCalled();
-    expect(db.__tx.enrollment.createMany).toHaveBeenCalled();
+    expect(db.__tx.enrollment.upsert).toHaveBeenCalled();
     expect(notify).toHaveBeenCalledWith("u1", expect.objectContaining({ type: "PAYMENT" }));
   });
 
@@ -224,7 +229,7 @@ describe("simulated payments (PAYMENT_PROVIDER=simulated)", () => {
     db.payment.findFirst.mockResolvedValue(null);
     expect(await completeSimulatedSession("sim_1", "someone-else", "paid")).toBeNull();
     expect(await completeSimulatedSession("cs_live_1", "u1", "paid")).toBeNull();
-    expect(db.__tx.enrollment.createMany).not.toHaveBeenCalled();
+    expect(db.__tx.enrollment.upsert).not.toHaveBeenCalled();
   });
 
   it("reads a simulated session's status from our records, never from Stripe", async () => {

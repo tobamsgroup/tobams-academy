@@ -164,10 +164,10 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
         </div>
       </div>
 
-      {/* Module Completion Tracker */}
+      {/* Week Completion Tracker */}
       <div className="bg-white overflow-hidden">
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-          <h2 className="font-semibold text-heading">Module Completion Tracker</h2>
+          <h2 className="font-semibold text-heading">Week Completion Tracker</h2>
           <Link
             href={`/dashboard/courses/${course.slug}`}
             className="text-sm font-medium text-primary hover:underline"
@@ -179,7 +179,7 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
         <div className="px-4 pt-5 md:px-6">
           <div className="flex items-center justify-between">
             <p className="text-sm text-[#474348]">
-              {course.modulesCompleted} of {course.totalModules} modules completed
+              {course.modulesCompleted} of {course.totalModules} weeks completed
             </p>
             <span className="text-sm font-semibold text-heading">{course.progress}% Done</span>
           </div>
@@ -200,7 +200,7 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
             <div key={mod.id} className="rounded-xl border border-[#D3D2D366] bg-white p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex flex-col gap-1">
-                  <span className="text-xs text-[#6C686C]">Module {i + 1}</span>
+                  <span className="text-xs text-[#6C686C]">Week {i + 1}</span>
                   <span className="text-sm font-semibold text-heading">{mod.title}</span>
                   <span className="text-xs text-[#6C686C]">
                     {mod.lessonsCompleted} of {mod.totalLessons} lessons
@@ -218,7 +218,7 @@ export default function CourseDetailPage({ courseId }: { courseId: string }) {
             <thead>
               <tr className="border-b border-gray-100 bg-[#FAFDFF]">
                 <th className="px-6 py-3 text-sm font-medium text-[#6C686C] uppercase tracking-wider w-16">S/N</th>
-                <th className="px-4 py-3 text-sm font-medium text-[#6C686C] uppercase tracking-wider">Module</th>
+                <th className="px-4 py-3 text-sm font-medium text-[#6C686C] uppercase tracking-wider">Week</th>
                 <th className="px-4 py-3 text-sm font-medium text-[#6C686C] uppercase tracking-wider">Lessons</th>
                 <th className="px-4 py-3 text-sm font-medium text-[#6C686C] uppercase tracking-wider text-right">
                   Status

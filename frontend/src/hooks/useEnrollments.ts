@@ -56,8 +56,15 @@ export function useEnrollments() {
     [accessToken, mutate, mutateStats],
   )
 
+  /** Has current (non-expired) access to the course. */
   const isEnrolledIn = useCallback(
-    (courseId: string) => (data ?? []).some((item) => item.courseId === courseId),
+    (courseId: string) => (data ?? []).some((item) => item.courseId === courseId && !item.isExpired),
+    [data],
+  )
+
+  /** Was enrolled, but access has expired (can renew by buying again). */
+  const isExpiredIn = useCallback(
+    (courseId: string) => (data ?? []).some((item) => item.courseId === courseId && item.isExpired),
     [data],
   )
 
@@ -68,6 +75,7 @@ export function useEnrollments() {
     isLoading: isLoading || statsLoading || status === 'loading',
     enroll,
     isEnrolledIn,
+    isExpiredIn,
     mutate,
     mutateStats,
     getErrorMessage: extractApiError,

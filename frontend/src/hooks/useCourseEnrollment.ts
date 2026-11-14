@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import useSWR from 'swr'
 import { createAuthedClient, createFetcher } from '@/lib/fetcher'
@@ -38,7 +38,10 @@ export function useCourseEnrollment(courseId: string | undefined) {
     createFetcher(accessToken),
   )
 
-  const [isMarkingComplete, setIsMarkingComplete] = useState(false)
+  // Lessons whose completion is being saved (several can be in flight: Next completes in the
+  // background while the learner moves on).
+  const [savingIds, setSavingIds] = useState<ReadonlySet<string>>(() => new Set())
+  const inFlight = useRef(new Set<string>())
   const [markCompleteError, setMarkCompleteError] = useState<string | null>(null)
 
   const completedLessonIds = useMemo(
@@ -55,15 +58,18 @@ export function useCourseEnrollment(courseId: string | undefined) {
     async (lessonId: string): Promise<LessonCompleteResult | null> => {
       if (!accessToken || !courseId) return null
       if (completedLessonIds.has(lessonId)) return null
-
-      setIsMarkingComplete(true)
+      // One request per lesson, even if auto-complete and Next fire together.
+      if (inFlight.current.has(lessonId)) return null
+      inFlight.current.add(lessonId)
+      setSavingIds(new Set(inFlight.current))
       setMarkCompleteError(null)
 
+      const optimisticAt = new Date().toISOString()
       try {
         await mutate(
           (current) => {
             if (!current) return current
-            const completedAt = new Date().toISOString()
+            const completedAt = optimisticAt
             return {
               ...current,
               lessonProgress: markLessonCompleted(current.lessonProgress, lessonId, completedAt),
@@ -77,6 +83,8 @@ export function useCourseEnrollment(courseId: string | undefined) {
           `/enrollments/${courseId}/lessons/${lessonId}/complete`,
         )
         const result = res.data.data
+        // Never let a missing timestamp un-tick the lesson.
+        const completedAt = result.completedAt ?? optimisticAt
 
         await mutate(
           (current) =>
@@ -84,15 +92,9 @@ export function useCourseEnrollment(courseId: string | undefined) {
               ? {
                   ...current,
                   progress: result.progress,
-                  completedAt: result.courseCompleted
-                    ? result.completedAt
-                    : current.completedAt,
-                  lastAccessedAt: result.completedAt,
-                  lessonProgress: markLessonCompleted(
-                    current.lessonProgress,
-                    lessonId,
-                    result.completedAt,
-                  ),
+                  completedAt: result.courseCompleted ? completedAt : current.completedAt,
+                  lastAccessedAt: completedAt,
+                  lessonProgress: markLessonCompleted(current.lessonProgress, lessonId, completedAt),
                 }
               : current,
           { revalidate: false },
@@ -104,15 +106,20 @@ export function useCourseEnrollment(courseId: string | undefined) {
         await mutate()
         return null
       } finally {
-        setIsMarkingComplete(false)
+        inFlight.current.delete(lessonId)
+        setSavingIds(new Set(inFlight.current))
       }
     },
     [accessToken, completedLessonIds, courseId, mutate],
   )
 
+  const isMarkingComplete = savingIds.size > 0
+  const isSavingLesson = useCallback((lessonId: string) => savingIds.has(lessonId), [savingIds])
+
   return {
     enrollment: data,
     completedLessonIds,
+    isSavingLesson,
     completeLesson,
     isMarkingComplete,
     markCompleteError,

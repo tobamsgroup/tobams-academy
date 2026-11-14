@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import type { CourseDetail } from "@/types/course";
 import {
   countLessons,
@@ -38,7 +39,7 @@ export default function CoursePlayerView({
   const {
     completedLessonIds,
     completeLesson,
-    isMarkingComplete,
+    isSavingLesson,
     markCompleteError,
     isLoading: enrollmentLoading,
     error: enrollmentError,
@@ -73,7 +74,7 @@ export default function CoursePlayerView({
   const [mobileOutlineOpen, setMobileOutlineOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   // Track real time spent on the open lesson (powers the dashboard's time metrics).
-  useLearningHeartbeat(selectedLessonId, Boolean(enrollment));
+  useLearningHeartbeat(selectedLessonId, Boolean(enrollment) && !enrollment?.isExpired);
   const [feedbackSuccessOpen, setFeedbackSuccessOpen] = useState(false);
 
   const totalLessons = useMemo(() => countLessons(modules), [modules]);
@@ -104,15 +105,36 @@ export default function CoursePlayerView({
     });
   };
 
+  // Save a lesson as completed and refresh the progress views. Safe to call without awaiting:
+  // the outline tick updates optimistically.
+  const completeAndRefresh = async (lessonId: string) => {
+    if (completedLessonIds.has(lessonId)) return;
+    const result = await completeLesson(lessonId);
+    if (result) {
+      await Promise.all([mutateEnrollments(), mutateStats(), mutateProgress()]);
+    }
+  };
+
   const markComplete = async () => {
     if (!selectedLessonId || completedLessonIds.has(selectedLessonId)) return;
     // Pin the open lesson: completing it changes the resume target, and the page must not jump.
     setChosenLessonId(selectedLessonId);
+    await completeAndRefresh(selectedLessonId);
+  };
 
-    const result = await completeLesson(selectedLessonId);
-    if (result) {
-      await Promise.all([mutateEnrollments(), mutateStats(), mutateProgress()]);
+  /**
+   * Previous/Next from inside a lesson. Moving forward from a lesson with content counts as
+   * finishing it (quizzes complete by being submitted; "coming soon" lessons can't complete).
+   * Navigation happens immediately; the completion is saved in the background.
+   */
+  const goToLesson = (id: string) => {
+    const current = selected?.lesson;
+    const movingForward = id === nextLesson?.id;
+    const hasContent = Boolean(current?.contentKey || current?.contentUrl);
+    if (current && movingForward && current.kind !== "quiz" && hasContent) {
+      void completeAndRefresh(current.id);
     }
+    selectLesson(id);
   };
 
   const sidebarProps = {
@@ -137,10 +159,26 @@ export default function CoursePlayerView({
     );
   }
 
-  if (enrollmentError) {
+  if (enrollmentError || enrollment?.isExpired) {
+    const expiredOn = enrollment?.expiresAt
+      ? new Date(enrollment.expiresAt).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })
+      : null;
     return (
       <div className="flex h-full min-h-[320px] flex-col items-center justify-center gap-4 bg-[#f4f6f9] p-8 text-center">
-        <p className="text-sm text-[#6C686C]">Unable to load enrollment for this course.</p>
+        <h2 className="text-lg font-semibold text-heading">
+          {enrollment?.isExpired ? "Your access to this course has ended" : "You're not enrolled in this course"}
+        </h2>
+        <p className="max-w-md text-sm text-[#6C686C]">
+          {enrollment?.isExpired
+            ? `Course access lasts 180 days${expiredOn ? ` and ended on ${expiredOn}` : ""}. Renew to pick up where you left off; your progress is kept.`
+            : "Enroll in the course to start learning."}
+        </p>
+        <Link
+          href={`/courses/${course.slug}`}
+          className="rounded-lg bg-primary px-6 py-3 text-sm font-medium text-white hover:bg-[#232A59]"
+        >
+          {enrollment?.isExpired ? "Renew access" : "View course"}
+        </Link>
       </div>
     );
   }
@@ -200,11 +238,11 @@ export default function CoursePlayerView({
               moduleTitle={selected.module.title}
               lesson={selected.lesson}
               isCompleted={completedLessonIds.has(selectedLessonId)}
-              isMarkingComplete={isMarkingComplete}
+              isMarkingComplete={isSavingLesson(selectedLessonId)}
               onMarkComplete={markComplete}
               prevLesson={prevLesson}
               nextLesson={nextLesson}
-              onSelectLesson={selectLesson}
+              onSelectLesson={goToLesson}
             />
           ) : (
             <div className="p-8 text-center text-sm text-[#6C686C]">

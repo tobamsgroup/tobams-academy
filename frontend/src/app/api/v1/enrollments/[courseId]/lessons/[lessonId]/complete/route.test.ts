@@ -115,9 +115,14 @@ describe("POST /enrollments/[courseId]/lessons/[lessonId]/complete", () => {
 
     expect(response.status).toBe(200);
 
+    // completedAt must be present: the client keeps the lesson ticked with it.
     expect(body.data).toEqual({
+      lessonId: "l1",
+      completedAt: expect.any(String),
       progress: 50,
-
+      completedLessons: 1,
+      totalLessons: 2,
+      courseCompleted: false,
       completedLessonIds: ["l1"],
     });
 

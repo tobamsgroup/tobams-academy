@@ -136,9 +136,9 @@ export type PaymentSummaryExtras = {
   courseTitleFull: string;
   /** Display for payment row (e.g. Successful when Completed) */
   paymentStatusLabel: string;
-  coursePriceUsd: number;
-  discountUsd: number;
-  totalPaidUsd: number;
+  coursePrice: number;
+  discount: number;
+  totalPaid: number;
 };
 
 export type PaymentSummary = Payment & PaymentSummaryExtras;
@@ -169,9 +169,9 @@ const SUMMARY_OVERRIDES: Partial<
         | "duration"
         | "accessPeriod"
         | "courseTitleFull"
-        | "coursePriceUsd"
-        | "discountUsd"
-        | "totalPaidUsd"
+        | "coursePrice"
+        | "discount"
+        | "totalPaid"
       >
     >
   >
@@ -183,9 +183,9 @@ const SUMMARY_OVERRIDES: Partial<
     instructor: "Dr. Sarah Johnson",
     duration: "12hrs",
     accessPeriod: "Lifetime",
-    coursePriceUsd: 200,
-    discountUsd: 20,
-    totalPaidUsd: 35,
+    coursePrice: 200,
+    discount: 20,
+    totalPaid: 35,
   },
   "2": {
     paymentMethod: "VISA ending with 4325",
@@ -194,9 +194,9 @@ const SUMMARY_OVERRIDES: Partial<
     instructor: "Dr. Sarah Johnson",
     duration: "12hrs",
     accessPeriod: "Lifetime",
-    coursePriceUsd: 200,
-    discountUsd: 20,
-    totalPaidUsd: 400,
+    coursePrice: 200,
+    discount: 20,
+    totalPaid: 400,
   },
 };
 
@@ -211,9 +211,9 @@ export function getPaymentSummary(id: string): PaymentSummary | null {
   const defaultDiscount = numericAmount > 0 ? 20 : 0;
   const defaultTotal = numericAmount;
 
-  const coursePriceUsd = override?.coursePriceUsd ?? defaultCoursePrice;
-  const discountUsd = override?.discountUsd ?? defaultDiscount;
-  const totalPaidUsd = override?.totalPaidUsd ?? defaultTotal;
+  const coursePrice = override?.coursePrice ?? defaultCoursePrice;
+  const discount = override?.discount ?? defaultDiscount;
+  const totalPaid = override?.totalPaid ?? defaultTotal;
 
   const base: PaymentSummaryExtras = {
     paymentMethod: override?.paymentMethod ?? "VISA ending with 4325",
@@ -224,19 +224,13 @@ export function getPaymentSummary(id: string): PaymentSummary | null {
     courseTitleFull:
       override?.courseTitleFull ?? p.courseName.replace(/\.\.\.$/, "").trim(),
     paymentStatusLabel: statusToSummaryLabel(p.status),
-    coursePriceUsd,
-    discountUsd,
-    totalPaidUsd,
+    coursePrice,
+    discount,
+    totalPaid,
   };
 
   return { ...p, ...base };
 }
 
-export function formatUsd(amount: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-}
+/** Course prices are in GBP. */
+export { formatGbpExact as formatAmount } from "@/lib/format-money";

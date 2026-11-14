@@ -108,6 +108,7 @@ describe("POST /api/v1/payments", () => {
   it("creates payment successfully", async () => {
     mockAuth.mockReturnValue(user);
     const mockCreateMany = jest.fn();
+    const mockUpsert = jest.fn().mockResolvedValue({ id: "e1", courseId: "c1" });
 
     mockPrisma.course.findFirst.mockResolvedValue(mockCourse);
 
@@ -125,10 +126,7 @@ describe("POST /api/v1/payments", () => {
         },
 
         enrollment: {
-          create: jest.fn().mockResolvedValue({
-            id: "e1",
-            courseId: "c1",
-          }),
+          upsert: mockUpsert,
         },
 
         lessonProgress: {
@@ -154,6 +152,12 @@ describe("POST /api/v1/payments", () => {
 
     // A LessonProgress row means "completed", so enrolling must not create any
     expect(mockCreateMany).not.toHaveBeenCalled();
+    // Access for 180 days
+    expect(mockUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        create: expect.objectContaining({ userId: "u1", courseId: "c1", expiresAt: expect.any(Date) }),
+      }),
+    );
 
     expect(notify).toHaveBeenCalledWith(
       "u1",

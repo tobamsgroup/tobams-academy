@@ -80,6 +80,7 @@ export default function CoursesTable() {
               <div key={course.courseId} className="rounded-[16px] border border-[#EFEFF3] overflow-hidden">
                 <div className="px-[11px] pt-[10px]">
                   <p className="text-sm font-medium text-heading">{course.title}</p>
+                  {course.isExpired ? <p className="mt-1 text-xs font-medium text-secondary">Access expired</p> : null}
                 </div>
 
                 <div className="px-[11px] py-2 flex items-center justify-between">
@@ -88,7 +89,7 @@ export default function CoursesTable() {
                 </div>
 
                 <div className="px-[11px] py-1 flex items-center justify-between">
-                  <span className="text-xs font-medium text-[#474348]">Modules completed</span>
+                  <span className="text-xs font-medium text-[#474348]">Weeks completed</span>
                   <span className="text-xs font-medium text-[#474348]">
                     {course.modulesCompleted} of {course.totalModules}
                   </span>
@@ -127,7 +128,7 @@ export default function CoursesTable() {
                     Progress
                   </th>
                   <th className="px-4 py-3 text-sm font-medium text-[#474348] tracking-wider min-w-[160px]">
-                    Modules completed
+                    Weeks completed
                   </th>
                   <th className="px-4 py-3 text-sm font-medium text-[#474348] tracking-wider min-w-[130px]">
                     Quizzes taken
@@ -154,6 +155,11 @@ export default function CoursesTable() {
                     <td className="px-6 py-4 text-sm text-[#474348] font-medium">{index + 1}</td>
                     <td className="px-4 py-4">
                       <span className="text-sm font-medium text-[#474348]">{course.title}</span>
+                      {course.isExpired ? (
+                        <span className="ml-2 rounded bg-secondary/10 px-1.5 py-0.5 text-xs font-medium text-secondary">
+                          Access expired
+                        </span>
+                      ) : null}
                     </td>
                     <td className="px-4 py-4">
                       <ProgressCell value={course.progress} />

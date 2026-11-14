@@ -10,7 +10,8 @@ jest.mock("@/lib/prisma", () => ({
     },
     enrollment: {
       findUnique: jest.fn(),
-      create: jest.fn(),
+      findUniqueOrThrow: jest.fn(),
+      upsert: jest.fn(),
       update: jest.fn(),
     },
   },
@@ -26,7 +27,8 @@ const mockPrisma = prisma as unknown as {
   };
   enrollment: {
     findUnique: jest.Mock;
-    create: jest.Mock;
+    findUniqueOrThrow: jest.Mock;
+    upsert: jest.Mock;
     update: jest.Mock;
   };
 };
@@ -65,18 +67,35 @@ describe("POST /api/v1/enrollments", () => {
   it("creates an enrollment successfully", async () => {
     mockAuth.mockReturnValue(user);
     mockPrisma.course.findUnique.mockResolvedValue(mockCourse);
-    mockPrisma.enrollment.create.mockResolvedValue(mockEnrollment);
+    mockPrisma.enrollment.findUniqueOrThrow.mockResolvedValue(mockEnrollment);
     const response = await POST(createRequest({ courseId: "c1" }), {});
     const body = await response.json();
     expect(response.status).toBe(201);
-    expect(mockPrisma.enrollment.create).toHaveBeenCalledWith({
-      data: {
-        userId: "u1",
-        courseId: "c1",
-        lastAccessedAt: expect.any(Date),
-      },
-    });
+    expect(mockPrisma.enrollment.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        create: expect.objectContaining({ userId: "u1", courseId: "c1", expiresAt: expect.any(Date) }),
+      }),
+    );
     expect(body.data.courseId).toBe("c1");
+  });
+
+  it("refuses paid courses (they're unlocked by checkout)", async () => {
+    mockAuth.mockReturnValue(user);
+    mockPrisma.course.findUnique.mockResolvedValue({ ...mockCourse, price: 299 });
+    mockPrisma.enrollment.findUnique.mockResolvedValue(null);
+    const response = await POST(createRequest({ courseId: "c1" }), {});
+    expect(response.status).toBe(402);
+    expect(mockPrisma.enrollment.upsert).not.toHaveBeenCalled();
+  });
+
+  it("renews expired access instead of reporting 'already enrolled'", async () => {
+    mockAuth.mockReturnValue(user);
+    mockPrisma.course.findUnique.mockResolvedValue(mockCourse);
+    mockPrisma.enrollment.findUnique.mockResolvedValue({ ...mockEnrollment, expiresAt: new Date("2020-01-01") });
+    mockPrisma.enrollment.findUniqueOrThrow.mockResolvedValue(mockEnrollment);
+    const response = await POST(createRequest({ courseId: "c1" }), {});
+    expect(response.status).toBe(201);
+    expect(mockPrisma.enrollment.upsert).toHaveBeenCalled();
   });
   it("returns 401 when user is not authenticated", async () => {
     mockAuth.mockReturnValue(null);

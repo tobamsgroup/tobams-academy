@@ -1,5 +1,6 @@
 import type { Course } from '@/types/course'
 import { prisma } from '@/lib/prisma'
+import { isAccessActive } from '@/lib/enrollment-access'
 import {
   computeEnrollmentProgress,
   isEnrollmentCompleted,
@@ -77,6 +78,7 @@ export function toEnrollmentSummary(
     completedAt: Date | null
     lastAccessedAt: Date | null
     lastLessonId?: string | null
+    expiresAt?: Date | null
     course: unknown
     lessonProgress: ReadonlyArray<{ lessonId?: string; completedAt: Date | null }>
   },
@@ -90,6 +92,8 @@ export function toEnrollmentSummary(
     completedAt: enrollment.completedAt?.toISOString() ?? null,
     lastAccessedAt: enrollment.lastAccessedAt?.toISOString() ?? null,
     lastLessonId: enrollment.lastLessonId ?? null,
+    expiresAt: enrollment.expiresAt?.toISOString() ?? null,
+    isExpired: !isAccessActive(enrollment),
     progress: computeEnrollmentProgress(
       enrollment.lessonProgress,
       enrollment.completedAt,
@@ -108,6 +112,7 @@ export function toEnrollmentDetail(
     completedAt: Date | null
     lastAccessedAt: Date | null
     lastLessonId?: string | null
+    expiresAt?: Date | null
     course: unknown
     lessonProgress: ReadonlyArray<{ lessonId: string; completedAt: Date | null }>
   },

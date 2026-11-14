@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { isAccessActive } from '@/lib/enrollment-access'
 import type {
   CourseLearningProgress,
   ModuleProgressStatus,
@@ -124,6 +125,8 @@ export async function getLearningProgress(
       enrolledAt: enrollment.enrolledAt.toISOString(),
       lastAccessedAt: enrollment.lastAccessedAt?.toISOString() ?? null,
       completedAt: enrollment.completedAt?.toISOString() ?? null,
+      expiresAt: enrollment.expiresAt?.toISOString() ?? null,
+      isExpired: !isAccessActive(enrollment),
       progress,
       lessonsCompleted,
       totalLessons,

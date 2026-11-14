@@ -4,6 +4,7 @@ import { ok, err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
 import { getAuthUser } from '@/lib/with-auth'
 import { notify } from '@/lib/notifications'
+import { activeEnrollmentWhere } from '@/lib/enrollment-access'
 
 export const POST = withRoute(
   '/api/v1/quizzes/[quizId]/attempts',
@@ -30,10 +31,10 @@ export const POST = withRoute(
     if (!quiz) return err('Quiz not found', 404)
 
     const enrolled = await prisma.enrollment.findFirst({
-      where: { userId: user.id, course: { modules: { some: { lessons: { some: { id: quiz.lessonId } } } } } },
+      where: { userId: user.id, ...activeEnrollmentWhere(), course: { modules: { some: { lessons: { some: { id: quiz.lessonId } } } } } },
       select: { id: true },
     })
-    if (!enrolled) return err('Not enrolled in this course', 403)
+    if (!enrolled) return err('You need active access to this course to take this quiz', 403)
 
     // Enforce attempt limit
     const attemptCount = await prisma.quizAttempt.count({

@@ -6,6 +6,9 @@ import { ICONS } from "@/assets/icons";
 /** Short description under a lesson title in the outline. */
 function lessonMeta(lesson: PlayerLesson): string {
   if (lesson.kind === "quiz") return lesson.durationMin > 0 ? `Quiz · ${lesson.durationMin} min` : "Quiz";
+  if (lesson.kind === "slides" && lesson.contentKey) {
+    return lesson.pageEnd ? `Slides · ${lesson.pageEnd - (lesson.pageStart ?? 1) + 1} slides` : "Slides";
+  }
   if (lesson.kind === "pdf" && lesson.contentKey) {
     return lesson.pageStart && lesson.pageEnd ? `Reading · pages ${lesson.pageStart}–${lesson.pageEnd}` : "Reading";
   }
@@ -22,6 +25,8 @@ function LessonKindIcon({ kind, className }: { kind: PlayerLesson["kind"]; class
       return <ICONS.ManageCancelVideo className={c}/>;
     case "pdf":
       return <ICONS.ManagePdf className={c}/>;
+    case "slides":
+      return <MonitorPlay className={cn("h-5 w-5", c)} strokeWidth={1.75} />;
     case "quiz":
       return <ICONS.ManageFileSearch className={c}/>;
     case "assessment":

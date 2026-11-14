@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { ICONS } from "@/assets/icons";
-import { formatPaymentDateUs, formatUsd, type PaymentSummary } from "./payments-data";
+import { formatAmount, formatPaymentDateUs, type PaymentSummary } from "./payments-data";
 import { ChevronRight } from "lucide-react";
 
 function summaryStatusBadgeClass(label: string) {
@@ -81,17 +81,17 @@ export default function PaymentSummaryView({ summary }: { summary: PaymentSummar
             <div className="mt-4">
               <div className="flex items-center justify-between gap-4  py-2">
                 <span className="text-[#6C686C]">Course Price</span>
-                <span className="text-[#221D23]">{formatUsd(summary.coursePriceUsd)}</span>
+                <span className="text-[#221D23]">{formatAmount(summary.coursePrice)}</span>
               </div>
               <div className="flex items-center justify-between gap-4  py-3">
                 <span className="text-[#099137]">Discount Applied</span>
                 <span className="text-[#099137]">
-                  {summary.discountUsd > 0 ? `-${formatUsd(summary.discountUsd)}` : formatUsd(0)}
+                  {summary.discount > 0 ? `-${formatAmount(summary.discount)}` : formatAmount(0)}
                 </span>
               </div>
               <div className="flex items-center justify-between gap-4 pt-10">
                 <span className="text-lg font-medium text-[#221D23]">Total Paid</span>
-                <span className="text-lg font-medium text-[#221D23]">{formatUsd(summary.totalPaidUsd)}</span>
+                <span className="text-lg font-medium text-[#221D23]">{formatAmount(summary.totalPaid)}</span>
               </div>
             </div>
           </section>

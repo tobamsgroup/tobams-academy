@@ -33,7 +33,7 @@ type TabId = (typeof TABS)[number]['id']
 export function CourseDetailsBody({ course, relatedCourses }: Props) {
   const router = useRouter()
   const { data: session, status } = useSession()
-  const { isEnrolledIn, isLoading: enrollmentsLoading, mutate: mutateEnrollments } = useEnrollments()
+  const { isEnrolledIn, isExpiredIn, isLoading: enrollmentsLoading, mutate: mutateEnrollments } = useEnrollments()
   const { purchaseCourse, getErrorMessage } = usePayments()
   const [enrolling, setEnrolling] = useState(false)
   const [enrollError, setEnrollError] = useState('')
@@ -42,6 +42,8 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
   const [addingToCart, setAddingToCart] = useState(false)
 
   const isEnrolled = isEnrolledIn(course.id)
+  // Previously enrolled but the 180-day access period has ended: offer to renew.
+  const isExpired = !isEnrolled && isExpiredIn(course.id)
   const isAuthenticated = status === 'authenticated' && !!session?.accessToken
   const isFreeCourse = parseCoursePrice(course.price) <= 0
   const loginCallbackUrl = `/courses/${course.slug}`
@@ -268,6 +270,12 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
                 <p className="mb-3 text-sm text-secondary">{enrollError}</p>
               ) : null}
 
+              {isExpired ? (
+                <p className="mb-3 rounded-md bg-[#FFF7CC] p-3 text-sm text-[#5C4B00]">
+                  Your 180-day access to this course has ended. Renew to continue; your progress is kept.
+                </p>
+              ) : null}
+
               {isEnrolled ? (
                 <Link
                   href={`/dashboard/courses/${course.slug}`}
@@ -285,7 +293,9 @@ export function CourseDetailsBody({ course, relatedCourses }: Props) {
                   {enrolling
                     ? 'Enrolling…'
                     : !isFreeCourse
-                      ? 'Buy Now'
+                      ? isExpired
+                        ? 'Renew access'
+                        : 'Buy Now'
                       : isAuthenticated
                         ? 'Enroll Now'
                         : 'Sign in to Enroll'}

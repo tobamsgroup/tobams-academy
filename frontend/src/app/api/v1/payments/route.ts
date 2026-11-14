@@ -8,6 +8,7 @@ import { withRoute } from '@/lib/with-route'
 import { notify } from '@/lib/notifications'
 import { chargeAmount } from '@/lib/pricing'
 import { decimalToNumber, uiDateRangeToApiRange, uiStatusToApiStatus } from '@/lib/payment-utils'
+import { grantAccess, isAccessActive } from '@/lib/enrollment-access'
 
 export const POST = withRoute('/api/v1/payments', async (req: NextRequest) => {
   const authUser = getAuthUser(req)
@@ -26,7 +27,7 @@ export const POST = withRoute('/api/v1/payments', async (req: NextRequest) => {
   const existingEnrollment = await prisma.enrollment.findUnique({
     where: { userId_courseId: { userId: authUser.id, courseId } },
   })
-  if (existingEnrollment) return err('You are already enrolled in this course', 409)
+  if (isAccessActive(existingEnrollment)) return err('You are already enrolled in this course', 409)
 
   // Paid courses must go through Stripe checkout (POST /api/v1/checkout); this endpoint
   // only records free enrollments, otherwise anyone could enroll without paying.
@@ -44,18 +45,13 @@ export const POST = withRoute('/api/v1/payments', async (req: NextRequest) => {
       },
     })
 
-    const enrollment = await tx.enrollment.create({
-      data: {
-        userId: authUser.id,
-        courseId,
-        lastAccessedAt: new Date(),
-      },
-    })
+    // Enroll, or renew expired access (progress is kept).
+    await grantAccess(tx, authUser.id, [courseId])
 
     // No LessonProgress rows here: a row means the lesson is completed
     // (completedAt is non-nullable), so seeding rows would mark the course as done.
 
-    return { paymentId: payment.id, courseId: enrollment.courseId }
+    return { paymentId: payment.id, courseId }
   })
 
   await notify(authUser.id, {

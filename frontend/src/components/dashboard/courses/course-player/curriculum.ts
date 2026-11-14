@@ -1,7 +1,7 @@
 import type { CourseModule, Lesson } from '@/types/course'
 import { isQuizLesson } from '@/lib/quiz-utils'
 
-export type LessonKind = "video" | "doc" | "pdf" | "screen" | "quiz" | "assessment";
+export type LessonKind = "video" | "doc" | "pdf" | "slides" | "screen" | "quiz" | "assessment";
 
 export type PlayerLesson = {
   id: string;
@@ -25,6 +25,7 @@ function mapApiLessonKind(lesson: Lesson): LessonKind {
   if (isQuizLesson(lesson)) return 'quiz'
   if (lesson.kind === 'ASSESSMENT') return 'assessment'
   if (lesson.kind === 'PDF') return 'pdf'
+  if (lesson.kind === 'SLIDES') return 'slides'
   if (lesson.kind === 'DOC') return 'doc'
   if (lesson.kind === 'SCREEN') return 'screen'
   return 'video'

@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import type { DashboardOverview } from '@/types/dashboard'
 import { resumeLessonId } from '@/lib/resume-lesson'
+import { isAccessActive } from '@/lib/enrollment-access'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 
@@ -92,6 +93,7 @@ export async function getDashboardOverview(userId: string, now = new Date()): Pr
       slug: enrollment.course.slug,
       progress: isCompleted ? 100 : lessons.length ? Math.round((completed / lessons.length) * 100) : 0,
       isCompleted,
+      isExpired: !isAccessActive(enrollment, now),
       lastAccessedAt: (enrollment.lastAccessedAt ?? enrollment.enrolledAt).toISOString(),
       timeSpentSeconds: tracked.byCourse.get(enrollment.course.id) ?? 0,
       nextLesson: next
@@ -100,7 +102,8 @@ export async function getDashboardOverview(userId: string, now = new Date()): Pr
     }
   })
 
-  const inProgress = courses.filter((c) => !c.isCompleted)
+  // Expired access isn't "in progress": it can't be continued until renewed.
+  const inProgress = courses.filter((c) => !c.isCompleted && !c.isExpired)
 
   return {
     continueLearning: inProgress.slice(0, 4),
@@ -110,7 +113,8 @@ export async function getDashboardOverview(userId: string, now = new Date()): Pr
       totalSeconds: tracked.total,
       coursesInProgress: inProgress.length,
       coursesEnrolled: courses.length,
-      coursesCompleted: courses.length - inProgress.length,
+      coursesCompleted: courses.filter((c) => c.isCompleted).length,
+      coursesExpired: courses.filter((c) => c.isExpired && !c.isCompleted).length,
     },
     engagement: { year: now.getUTCFullYear(), monthlySeconds },
   }

@@ -69,8 +69,8 @@ export function paymentDetailToSummary(paymentId: string, detail: PaymentDetail)
     accessPeriod: 'Lifetime',
     courseTitleFull: detail.courseDetails.courseTitle,
     paymentStatusLabel: statusToSummaryLabel(detail.paymentDetails.status),
-    coursePriceUsd: coursePrice,
-    discountUsd: discount,
-    totalPaidUsd: totalPaid,
+    coursePrice: coursePrice,
+    discount: discount,
+    totalPaid: totalPaid,
   }
 }

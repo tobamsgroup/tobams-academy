@@ -4,6 +4,8 @@ export interface ContinueLearningCourse {
   slug: string
   progress: number
   isCompleted: boolean
+  /** Access has ended (180 days after purchase). */
+  isExpired: boolean
   /** When the learner last opened the course (falls back to the enrollment date). */
   lastAccessedAt: string
   timeSpentSeconds: number
@@ -18,6 +20,8 @@ export interface DashboardInsights {
   coursesInProgress: number
   coursesEnrolled: number
   coursesCompleted: number
+  /** Unfinished courses whose access has expired. */
+  coursesExpired: number
 }
 
 export interface DashboardOverview {

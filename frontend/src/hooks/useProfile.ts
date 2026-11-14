@@ -57,10 +57,18 @@ export function useProfile() {
     async (payload: TwoFactorPayload): Promise<UserProfile> => {
       if (!accessToken) throw new Error('Not authenticated')
       const client = createAuthedClient(accessToken)
-      const res = await client.patch<{ data: UserProfile }>('/users/me/two-factor', payload)
-      const next = res.data.data
-      await mutate(next, { revalidate: false })
-      return next
+      // The endpoint returns only { twoFactorEnabled }; merge it into the cached profile
+      // (replacing the profile with it would wipe name, email, etc. until a reload).
+      const res = await client.patch<{ data: Pick<UserProfile, 'twoFactorEnabled'> }>(
+        '/users/me/two-factor',
+        payload,
+      )
+      const { twoFactorEnabled } = res.data.data
+      const next = await mutate(
+        (current) => (current ? { ...current, twoFactorEnabled } : current),
+        { revalidate: true },
+      )
+      return next as UserProfile
     },
     [accessToken, mutate],
   )

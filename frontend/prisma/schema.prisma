@@ -8,38 +8,40 @@ datasource db {
 }
 
 model User {
-  id                 String                  @id @default(uuid())
-  email              String                  @unique
-  name               String
-  passwordHash       String
-  role               Role                    @default(LEARNER)
-  emailVerified      Boolean                 @default(false)
-  verifyTokenHash    String?
-  resetTokenHash     String?
-  resetTokenExpiry   DateTime?
-  phone              String?
-  bio                String?
-  avatarUrl          String?
-  linkedinUrl        String?
-  facebookUrl        String?
-  instagramUrl       String?
-  xUrl               String?
-  twoFactorEnabled   Boolean                 @default(false)
-  twoFactorOtpHash   String?
-  twoFactorOtpExpiry DateTime?
-  isActive           Boolean                 @default(true)
-  deactivatedAt      DateTime?
-  deactivationReason String?
-  createdAt          DateTime                @default(now())
-  updatedAt          DateTime                @updatedAt
-  courses            Course[]
-  notifications      Notification[]
-  notificationPref   NotificationPreference?
-  enrollments        Enrollment[]
-  quizAttempts       QuizAttempt[]
-  payments           Payment[]
-  cart               Cart?
-  learningActivity   LearningActivity[]
+  id                   String                  @id @default(uuid())
+  email                String                  @unique
+  name                 String
+  passwordHash         String
+  role                 Role                    @default(LEARNER)
+  emailVerified        Boolean                 @default(false)
+  verifyTokenHash      String?
+  resetTokenHash       String?
+  resetTokenExpiry     DateTime?
+  phone                String?
+  bio                  String?
+  avatarUrl            String?
+  linkedinUrl          String?
+  facebookUrl          String?
+  instagramUrl         String?
+  xUrl                 String?
+  twoFactorEnabled     Boolean                 @default(false)
+  twoFactorOtpHash     String?
+  twoFactorOtpExpiry   DateTime?
+  /// Wrong codes entered for the current 2FA code; it is invalidated after too many.
+  twoFactorOtpAttempts Int                     @default(0)
+  isActive             Boolean                 @default(true)
+  deactivatedAt        DateTime?
+  deactivationReason   String?
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
+  courses              Course[]
+  notifications        Notification[]
+  notificationPref     NotificationPreference?
+  enrollments          Enrollment[]
+  quizAttempts         QuizAttempt[]
+  payments             Payment[]
+  cart                 Cart?
+  learningActivity     LearningActivity[]
 
   @@map("users")
 }
@@ -125,6 +127,8 @@ model Enrollment {
   lastAccessedAt DateTime?
   /// The lesson the learner last had open, so "Resume" returns them to it.
   lastLessonId   String?
+  /// Access ends at this moment (180 days after purchase/enrollment). Null = no expiry.
+  expiresAt      DateTime?
   user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   course         Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
   lessonProgress LessonProgress[]
@@ -294,6 +298,7 @@ enum LessonKind {
   VIDEO
   DOC
   PDF
+  SLIDES
   SCREEN
   QUIZ
   ASSESSMENT

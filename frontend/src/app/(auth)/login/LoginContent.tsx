@@ -5,7 +5,7 @@ import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Eye, EyeOff } from 'lucide-react'
+import { EyeOff, ShieldCheck } from 'lucide-react'
 import { ICONS } from '@/assets/icons'
 import { IMAGES } from '@/assets/images'
 
@@ -21,29 +21,52 @@ export default function LoginContent() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  // Two-factor step: shown after the password is accepted for an account with 2FA on.
+  const [needsCode, setNeedsCode] = useState(false)
+  const [code, setCode] = useState('')
+  const [notice, setNotice] = useState('')
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const attemptSignIn = async (otp?: string) => {
     setError('')
+    setNotice('')
     setLoading(true)
-    const result = await signIn('credentials', { email, password, redirect: false })
+    const result = await signIn('credentials', { email, password, otp: otp ?? '', redirect: false })
     setLoading(false)
-    if (result?.error) {
-      const messages: Record<string, string> = {
-        email_not_verified: 'Please verify your email before logging in',
-        invalid_credentials: 'Invalid email or password',
-      }
-      // Anything other than a credentials rejection (e.g. "Configuration") is a server problem;
-      // don't tell the user their password is wrong when it may not be.
-      const serverProblem = result.error !== 'CredentialsSignin'
-      setError(
-        serverProblem
-          ? "We couldn't sign you in because of a problem on our side. Please try again shortly."
-          : (messages[result.code ?? ''] ?? 'Invalid email or password'),
-      )
-    } else {
+    if (!result?.error) {
       router.push(callbackUrl)
+      return
     }
+    // Anything other than a credentials rejection (e.g. "Configuration") is a server problem;
+    // don't tell the user their password is wrong when it may not be.
+    if (result.error !== 'CredentialsSignin') {
+      setError("We couldn't sign you in because of a problem on our side. Please try again shortly.")
+      return
+    }
+    switch (result.code) {
+      case 'two_factor_required':
+        setNeedsCode(true)
+        setCode('')
+        setNotice(`We emailed a 6-digit code to ${email.trim()}. It expires in 10 minutes.`)
+        return
+      case 'invalid_otp':
+        setError('That code is incorrect. Check the email and try again.')
+        return
+      case 'otp_expired':
+        setCode('')
+        setError('That code has expired or was entered wrongly too many times. Request a new code.')
+        return
+      case 'email_not_verified':
+        setError('Please verify your email before logging in')
+        return
+      default:
+        setNeedsCode(false)
+        setError('Invalid email or password')
+    }
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    void attemptSignIn(needsCode ? code : undefined)
   }
 
   return (
@@ -87,7 +110,59 @@ export default function LoginContent() {
           <p className="mt-4 text-sm text-heading md:text-lg">Enter your details below</p>
 
           {error && <div className="mt-5 rounded-lg bg-secondary/10 p-3 text-sm text-secondary">{error}</div>}
+          {notice && <div className="mt-5 rounded-lg bg-[#EEF0F6] p-3 text-sm text-primary">{notice}</div>}
 
+          {needsCode ? (
+            <form onSubmit={handleSubmit} className="mt-6" autoComplete="off">
+              <div className="mb-4 flex items-center gap-2 text-heading">
+                <ShieldCheck className="h-5 w-5 text-primary" aria-hidden />
+                <span className="font-medium">Two-factor verification</span>
+              </div>
+              <label className="block text-heading md:text-lg">
+                Verification code
+                <input
+                  className={`${inputClassName} mt-2 tracking-[0.4em]`}
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  pattern="[0-9]{6}"
+                  maxLength={6}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  autoFocus
+                  required
+                />
+              </label>
+              <button
+                type="submit"
+                disabled={loading || code.length !== 6}
+                className="mt-7 h-12 w-full rounded-md bg-primary font-medium text-white transition-colors hover:bg-[#252d5d] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {loading ? 'Verifying...' : 'Verify and log in'}
+              </button>
+              <div className="mt-4 flex items-center justify-between text-sm">
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={() => void attemptSignIn()}
+                  className="font-medium text-primary underline disabled:opacity-50"
+                >
+                  Resend code
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNeedsCode(false)
+                    setCode('')
+                    setNotice('')
+                    setError('')
+                  }}
+                  className="text-heading underline"
+                >
+                  Use a different account
+                </button>
+              </div>
+            </form>
+          ) : (
           <form onSubmit={handleSubmit} className="mt-6" autoComplete="off">
             <label className="block text-heading md:text-lg">
               Email Address
@@ -139,6 +214,7 @@ export default function LoginContent() {
               {loading ? 'Logging In...' : 'Log In'}
             </button>
           </form>
+          )}
 
           <p className="mt-4 text-center text-sm text-heading md:text-base">
             Don&apos;t have an account?{' '}

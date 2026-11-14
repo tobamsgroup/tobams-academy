@@ -102,6 +102,24 @@ describe("getDashboardOverview", () => {
     expect(overview.continueLearning[0].nextLesson).toMatchObject({ id: "a4", moduleNumber: 2 });
   });
 
+  it("leaves expired courses out of Continue Learning and the in-progress count", async () => {
+    mockPrisma.enrollment.findMany.mockResolvedValueOnce([
+      {
+        enrolledAt: new Date("2026-01-01"),
+        lastAccessedAt: new Date("2026-03-01"),
+        completedAt: null,
+        expiresAt: new Date("2026-07-01"), // before `now`
+        lessonProgress: [],
+        course: course("a", ["a1", "a2"]),
+      },
+    ]);
+
+    const overview = await getDashboardOverview("u1", now);
+
+    expect(overview.continueLearning).toHaveLength(0);
+    expect(overview.insights).toMatchObject({ coursesInProgress: 0, coursesExpired: 1, coursesEnrolled: 1 });
+  });
+
   it("computes insights from real data", async () => {
     const { insights } = await getDashboardOverview("u1", now);
 
@@ -112,6 +130,7 @@ describe("getDashboardOverview", () => {
       coursesInProgress: 1,
       coursesEnrolled: 2,
       coursesCompleted: 1,
+      coursesExpired: 0,
     });
   });
 

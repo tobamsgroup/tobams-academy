@@ -19,10 +19,20 @@ type Props = {
   onPageCount?: (total: number) => void;
   /** Called once the last page of the range is mostly on screen (the learner reached the end). */
   onReachedEnd?: () => void;
+  /** Height ÷ width of a page, for loading placeholders (A4 portrait ≈ 1.414, 16:9 slide = 0.5625). */
+  aspectRatio?: number;
 };
 
 /** Renders a page range of a PDF. Loaded with next/dynamic (ssr: false): pdf.js needs the DOM. */
-export default function PdfPages({ data, pageStart, pageEnd, width, onPageCount, onReachedEnd }: Props) {
+export default function PdfPages({
+  data,
+  pageStart,
+  pageEnd,
+  width,
+  onPageCount,
+  onReachedEnd,
+  aspectRatio = 1.414,
+}: Props) {
   const file = useMemo(() => ({ data: new Uint8Array(data.slice(0)) }), [data]);
   const [numPages, setNumPages] = useState<number | null>(null);
   const [failed, setFailed] = useState(false);
@@ -76,7 +86,7 @@ export default function PdfPages({ data, pageStart, pageEnd, width, onPageCount,
               pageNumber={n}
               width={width}
               renderAnnotationLayer={false}
-              loading={<div style={{ width, height: width * 1.414 }} className="animate-pulse bg-[#F3F4F6]" />}
+              loading={<div style={{ width, height: width * aspectRatio }} className="animate-pulse bg-[#F3F4F6]" />}
             />
           </div>
         ))}

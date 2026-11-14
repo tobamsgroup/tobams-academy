@@ -27,6 +27,9 @@ export interface CourseLearningProgress {
   enrolledAt: string
   lastAccessedAt: string | null
   completedAt: string | null
+  /** When access ends; null = no limit. */
+  expiresAt: string | null
+  isExpired: boolean
   progress: number
   lessonsCompleted: number
   totalLessons: number

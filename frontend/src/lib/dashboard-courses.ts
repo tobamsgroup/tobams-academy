@@ -17,6 +17,9 @@ export type DashboardCourse = Course & {
   progress: number
   lastAccessed: string | null
   completedAt: string | null
+  /** Access ended (180 days after purchase). */
+  isExpired: boolean
+  expiresAt: string | null
 }
 
 export function toDashboardCourse(course: Course): DashboardCourse {
@@ -25,6 +28,8 @@ export function toDashboardCourse(course: Course): DashboardCourse {
     progress: 0,
     lastAccessed: null,
     completedAt: null,
+    isExpired: false,
+    expiresAt: null,
   }
 }
 
@@ -36,6 +41,8 @@ export function toDashboardCourseFromEnrollment(
     progress: enrollment.progress,
     lastAccessed: enrollment.lastAccessedAt ?? enrollment.enrolledAt,
     completedAt: enrollment.completedAt,
+    isExpired: enrollment.isExpired,
+    expiresAt: enrollment.expiresAt,
   }
 }
 

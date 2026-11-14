@@ -49,7 +49,7 @@ export function ContinueLearningSection() {
               durationLabel={formatDuration(c.timeSpentSeconds)}
               title={c.title}
               moduleLabel={
-                c.nextLesson ? `Module ${c.nextLesson.moduleNumber} · ${c.progress}% done` : `${c.progress}% done`
+                c.nextLesson ? `Week ${c.nextLesson.moduleNumber} · ${c.progress}% done` : `${c.progress}% done`
               }
               resumeHref={
                 c.nextLesson

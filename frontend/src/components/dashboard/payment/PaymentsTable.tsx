@@ -3,6 +3,7 @@
 import type { MouseEvent } from "react";
 import { ExternalLink, Trash2 } from "lucide-react";
 import type { Payment } from "./payments-data";
+import { formatGbpExact } from "@/lib/format-money";
 import { ICONS } from "@/assets/icons";
 
 export type ActionMenuPosition = {
@@ -25,8 +26,8 @@ function getStatusColor(status: string) {
 }
 
 function formatAmount(amount: number | "Free") {
-  if (amount === "Free") return "Free";
-  return amount.toLocaleString();
+  if (amount === "Free" || amount === 0) return "Free";
+  return formatGbpExact(amount);
 }
 
 /** DD-MM-YY for mobile cards */

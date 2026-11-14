@@ -9,6 +9,10 @@ export interface EnrollmentSummary {
   lastAccessedAt: string | null
   /** Lesson the learner last had open (used to resume). */
   lastLessonId: string | null
+  /** When access ends (180 days after purchase); null = no limit. */
+  expiresAt: string | null
+  /** Access has ended: content is locked until renewed. */
+  isExpired: boolean
   progress: number
   course: Course
 }

@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { ok, err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
 import { getAuthUser } from '@/lib/with-auth'
+import { EXPIRED_MESSAGE, isAccessActive } from '@/lib/enrollment-access'
 
 export const GET = withRoute(
   '/api/v1/enrollments/[courseId]/progress',
@@ -18,6 +19,7 @@ export const GET = withRoute(
       include: { lessonProgress: { select: { lessonId: true } } },
     })
     if (!enrollment) return err('Not enrolled in this course', 403)
+    if (!isAccessActive(enrollment)) return err(EXPIRED_MESSAGE, 403)
 
     const allLessons = await prisma.lesson.findMany({
       where: { module: { courseId } },

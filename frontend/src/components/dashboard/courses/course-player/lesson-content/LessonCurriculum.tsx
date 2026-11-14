@@ -8,6 +8,7 @@ import { BasicsOfInterestPdfLessonContent } from "./BasicsOfInterestPdfLessonCon
 import { InterestLiveHaulLessonContent } from "./InterestLiveHaulLessonContent";
 import { WantsVsNeedsArticleLessonContent } from "./WantsVsNeedsArticleLessonContent";
 import { PdfLessonContent } from "./PdfLessonContent";
+import { SlideLessonContent } from "./SlideLessonContent";
 import { ComingSoonLessonContent } from "./ComingSoonLessonContent";
 
 export function LessonCurriculum(props: LessonContentCommonProps) {
@@ -26,6 +27,11 @@ export function LessonCurriculum(props: LessonContentCommonProps) {
         onSelectLesson={props.onSelectLesson}
       />
     );
+  }
+
+  // A week's slide deck (contentKey is the deck's PDF path).
+  if (props.lesson.kind === "slides" && props.lesson.contentKey?.endsWith(".pdf")) {
+    return <SlideLessonContent key={props.lesson.id} {...props} />;
   }
 
   // Reading lessons backed by a PDF document (contentKey is the document path).

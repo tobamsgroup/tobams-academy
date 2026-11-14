@@ -2,8 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
-import { useSession } from "next-auth/react";
-import useSWR from "swr";
+import { useLessonDocument } from "./useLessonDocument";
 import { ChevronLeft, ChevronRight, Minus, Plus } from "lucide-react";
 import type { LessonContentCommonProps } from "./types";
 
@@ -19,14 +18,6 @@ const ZOOM_MAX = 160;
 const ZOOM_STEP = 15;
 const MAX_PAGE_WIDTH = 900;
 
-async function fetchDocument(lessonId: string, token: string): Promise<ArrayBuffer> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/lessons/${lessonId}/document`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!res.ok) throw new Error(res.status === 403 ? "not-enrolled" : "failed");
-  return res.arrayBuffer();
-}
-
 /** A reading lesson: shows this lesson's section of the week's PDF. */
 export function PdfLessonContent({
   moduleTitle,
@@ -38,16 +29,7 @@ export function PdfLessonContent({
   nextLesson,
   onSelectLesson,
 }: LessonContentCommonProps) {
-  const { data: session } = useSession();
-  const token = session?.accessToken;
-
-  // Keyed by document (not lesson) so the week's PDF downloads once for all its lessons;
-  // the request goes through whichever lesson asked first (they all serve the same file).
-  const { data, error } = useSWR(
-    token && lesson.contentKey ? ["lesson-document", lesson.contentKey] : null,
-    () => fetchDocument(lesson.id, token as string),
-    { revalidateOnFocus: false, revalidateIfStale: false },
-  );
+  const { data, error } = useLessonDocument(lesson);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);

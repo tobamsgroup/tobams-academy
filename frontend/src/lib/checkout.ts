@@ -7,6 +7,7 @@ import { getPaymentProvider, isSimulatedSession, SIMULATED_SESSION_PREFIX } from
 import { toMinorUnits } from '@/lib/pricing'
 import { CART_COURSE_SELECT, enrolledCourseIds, removeFromCart, toCartView } from '@/lib/cart'
 import type { CheckoutResult, CheckoutSessionStatus } from '@/types/cart'
+import { grantAccess } from '@/lib/enrollment-access'
 
 export class CheckoutError extends Error {
   constructor(message: string, readonly status: number) {
@@ -72,10 +73,7 @@ export async function startCheckout(
           },
         })
       }
-      await tx.enrollment.createMany({
-        data: items.map((item) => ({ userId: user.id, courseId: item.id, lastAccessedAt: new Date() })),
-        skipDuplicates: true,
-      })
+      await grantAccess(tx, user.id, items.map((item) => item.id))
     })
     await removeFromCart(user.id, courseIds)
     await notifyEnrolled(user.id, items)
@@ -180,10 +178,9 @@ export async function syncCheckoutSession(
         where: { checkoutSessionId: sessionId, status: 'PENDING' },
         data: { status: 'COMPLETED', transactionId },
       })
-      await tx.enrollment.createMany({
-        data: courses.map((c) => ({ userId, courseId: c.id, lastAccessedAt: new Date() })),
-        skipDuplicates: true,
-      })
+      // Grant (or renew) access only when this call claimed the payments, so webhook retries
+      // don't keep pushing the expiry date forward.
+      if (count > 0) await grantAccess(tx, userId, courses.map((c) => c.id))
       return count
     })
 
