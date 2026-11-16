@@ -3,6 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCourseProgress } from "@/hooks/useCourseProgress";
+import type { LearnerCertificate } from "@/hooks/useCertificates";
+import { CertificateButton } from "./CertificateButton";
 import {
   formatCourseLevel,
   formatLastAccessed,
@@ -13,9 +15,11 @@ import {
 type EnrolledCourseCardProps = {
   course: DashboardCourse;
   index: number;
+  certificate?: LearnerCertificate;
+  onDownloadCertificate?: (cert: LearnerCertificate) => Promise<void>;
 };
 
-export function EnrolledCourseCard({ course, index }: EnrolledCourseCardProps) {
+export function EnrolledCourseCard({ course, index, certificate, onDownloadCertificate }: EnrolledCourseCardProps) {
   // Expired access can't load live progress (403); show what was saved.
   const { progress: apiProgress, isLoading: progressLoading } = useCourseProgress(
     course.isExpired ? undefined : course.id,
@@ -76,6 +80,9 @@ export function EnrolledCourseCard({ course, index }: EnrolledCourseCardProps) {
         >
           {course.isExpired ? "Renew access" : course.completedAt != null ? "Review Course" : "Continue Learning"}
         </Link>
+        {certificate && onDownloadCertificate ? (
+          <CertificateButton certificate={certificate} onDownload={onDownloadCertificate} className="mt-2" />
+        ) : null}
       </div>
     </article>
   );

@@ -32,7 +32,15 @@ const ASSIGNMENT_WEEKS = [1, 2, 3, 4, 5, 6]
 const SLIDE_DECKS: Record<number, number> = { 1: 24, 2: 24, 3: 23, 4: 23, 5: 23, 6: 23 }
 
 /** Section page ranges per week, from each PDF's table of contents (lesson position → pages). */
-const READINGS: Record<number, { file: string; sections: Array<[number, number]> }> = {
+const READINGS: Record<
+  number,
+  {
+    file: string
+    sections: Array<[number, number]>
+    /** Lesson titles from the reading's sections, where the original outline differs. */
+    titles?: string[]
+  }
+> = {
   1: {
     file: 'time-intelligence/week-1.pdf',
     // Lesson 1 includes the cover and contents; lesson 7 includes the closing reflection.
@@ -43,6 +51,51 @@ const READINGS: Record<number, { file: string; sections: Array<[number, number]>
     // Lesson 1 includes cover, contents and introduction; lesson 7 includes the integrated
     // practical application and closing reflection.
     sections: [[1, 10], [11, 15], [16, 20], [21, 26], [27, 31], [32, 36], [37, 46]],
+  },
+  // Weeks 3–6: lesson 1 includes the cover, contents and introduction; lesson 7 runs to the
+  // end (integrated practical application and closing reflection). Page numbers are PDF pages.
+  3: {
+    file: 'time-intelligence/week-3.pdf',
+    sections: [[1, 11], [12, 16], [17, 21], [22, 27], [28, 33], [34, 39], [40, 49]],
+  },
+  4: {
+    file: 'time-intelligence/week-4.pdf',
+    sections: [[1, 11], [12, 17], [18, 24], [25, 31], [32, 37], [38, 43], [44, 55]],
+    titles: [
+      'Understanding the relationship between attention, concentration and effective time utilisation',
+      'Identifying internal and external distractions that affect personal focus',
+      'Understanding the impact of multitasking, task-switching and fragmented attention',
+      'Managing digital distractions, notifications and constant connectivity',
+      'Developing sustained concentration and effective focus habits',
+      'Establishing focus boundaries and designing environments that support attention',
+      'Developing a personal Focus Intelligence system for meaningful progress',
+    ],
+  },
+  5: {
+    file: 'time-intelligence/week-5.pdf',
+    sections: [[1, 11], [12, 16], [17, 22], [23, 28], [29, 34], [35, 39], [40, 49]],
+    titles: [
+      'Understanding the difference between intentions, planning, action and execution',
+      'Identifying the causes and consequences of procrastination',
+      'Applying practical strategies for overcoming delays and initiating important activities',
+      'Breaking complex goals and responsibilities into manageable actions',
+      'Developing consistency, momentum and effective follow-through',
+      'Strengthening personal accountability and measuring meaningful progress',
+      'Designing a personal Execution Intelligence system for sustainable results',
+    ],
+  },
+  6: {
+    file: 'time-intelligence/week-6.pdf',
+    sections: [[1, 13], [14, 20], [21, 26], [27, 33], [34, 39], [40, 46], [47, 62]],
+    titles: [
+      'Understanding Time Architecture and integrating the six dimensions of Time Intelligence',
+      'Designing a personal time management framework around priorities and responsibilities',
+      'Establishing daily, weekly and monthly planning routines',
+      'Building sustainable habits, boundaries and contingency arrangements',
+      'Establishing review, reflection and continuous improvement practices',
+      'Evaluating your progress through the final Time Intelligence diagnostic',
+      'Developing your personal 30-, 60- and 90-day Time Intelligence implementation plan',
+    ],
   },
 }
 
@@ -77,7 +130,14 @@ async function seedReadings(courseId: string) {
       const [pageStart, pageEnd] = reading.sections[i]
       await prisma.lesson.update({
         where: { id: lesson.id },
-        data: { kind: 'PDF', contentKey: reading.file, contentUrl: null, pageStart, pageEnd },
+        data: {
+          kind: 'PDF',
+          contentKey: reading.file,
+          contentUrl: null,
+          pageStart,
+          pageEnd,
+          ...(reading.titles ? { title: reading.titles[i] } : {}),
+        },
       })
     }
     console.log(`Week ${week}: ${topicLessons.length} lessons now open ${reading.file}`)

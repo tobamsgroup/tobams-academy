@@ -53,7 +53,15 @@ function getSmtpTransporter(): Transporter {
   return smtpTransporter
 }
 
-async function sendViaSmtp(to: string, toName: string, subject: string, html: string) {
+export type MailAttachment = { filename: string; content: Uint8Array; contentType: string }
+
+async function sendViaSmtp(
+  to: string,
+  toName: string,
+  subject: string,
+  html: string,
+  attachments: MailAttachment[] = [],
+) {
   const fromEmail = process.env.SEND_MAIL ?? process.env.SMTP_USER ?? ''
   const fromName = process.env.MAIL_FROM_NAME ?? 'Tobams Academy'
   await getSmtpTransporter().sendMail({
@@ -61,6 +69,11 @@ async function sendViaSmtp(to: string, toName: string, subject: string, html: st
     to: { name: toName, address: to },
     subject,
     html,
+    attachments: attachments.map((a) => ({
+      filename: a.filename,
+      content: Buffer.from(a.content),
+      contentType: a.contentType,
+    })),
   })
 }
 
@@ -78,7 +91,13 @@ function getClient() {
 const fromEmail = () => process.env.MAILJET_FROM_EMAIL ?? ''
 const fromName = () => process.env.MAILJET_FROM_NAME ?? ''
 
-async function sendViaMailjet(to: string, toName: string, subject: string, html: string) {
+async function sendViaMailjet(
+  to: string,
+  toName: string,
+  subject: string,
+  html: string,
+  attachments: MailAttachment[] = [],
+) {
   await getClient()
     .post('send', { version: 'v3.1' })
     .request({
@@ -88,6 +107,15 @@ async function sendViaMailjet(to: string, toName: string, subject: string, html:
           To: [{ Email: to, Name: toName }],
           Subject: subject,
           HTMLPart: html,
+          ...(attachments.length
+            ? {
+                Attachments: attachments.map((a) => ({
+                  ContentType: a.contentType,
+                  Filename: a.filename,
+                  Base64Content: Buffer.from(a.content).toString('base64'),
+                })),
+              }
+            : {}),
         },
       ],
     })
@@ -95,20 +123,30 @@ async function sendViaMailjet(to: string, toName: string, subject: string, html:
 
 // ---------------------------------------------------------------------------
 
-async function send(to: string, toName: string, subject: string, html: string) {
+/** Sends an email. Returns false when sending failed (failures are logged, never thrown). */
+async function send(
+  to: string,
+  toName: string,
+  subject: string,
+  html: string,
+  attachments: MailAttachment[] = [],
+): Promise<boolean> {
   // MAIL_PROVIDER=log: record the send without emailing (local testing only). The body is not
   // logged because it can contain temporary passwords and sign-in codes.
   const logAllowed =
     process.env.NODE_ENV !== 'production' || process.env.ALLOW_MAIL_LOG_IN_PRODUCTION === 'true'
   if (mailProvider() === 'log' && logAllowed) {
-    console.info(`[mail:log] would send "${subject}" to ${to} (${html.length} chars)`)
-    return
+    const files = attachments.length ? ` with ${attachments.map((a) => a.filename).join(', ')}` : ''
+    console.info(`[mail:log] would send "${subject}" to ${to} (${html.length} chars)${files}`)
+    return true
   }
   try {
-    if (mailProvider() === 'mailjet') await sendViaMailjet(to, toName, subject, html)
-    else await sendViaSmtp(to, toName, subject, html)
+    if (mailProvider() === 'mailjet') await sendViaMailjet(to, toName, subject, html, attachments)
+    else await sendViaSmtp(to, toName, subject, html, attachments)
+    return true
   } catch (error) {
     console.error(`[mail:${mailProvider()}] Failed to send email to`, to, error instanceof Error ? error.message : error)
+    return false
   }
 }
 
@@ -190,4 +228,32 @@ export async function sendCourseEnrollmentEmail(params: {
     <p>Your access runs until <strong>${until}</strong>.</p>
   `
   await send(to, name, `You're enrolled in ${courseTitle}`, html)
+}
+
+export async function sendCertificateEmail(params: {
+  to: string
+  name: string
+  courseTitle: string
+  certificateNumber: string
+  verifyUrl: string
+  pdf: Uint8Array
+  fileName: string
+}): Promise<boolean> {
+  const { to, name, courseTitle, certificateNumber, verifyUrl, pdf } = params
+  const dashboardLink = `${clientUrl()}/dashboard/courses`
+  const html = `
+    <h2>Congratulations, ${escapeHtml(name)}!</h2>
+    <p>You've completed <strong>${escapeHtml(courseTitle)}</strong> on Tobams Academy. Your certificate of completion is attached to this email as a PDF.</p>
+    <table style="margin:12px 0;border-collapse:collapse;">
+      <tr><td style="padding:4px 12px 4px 0;color:#6C686C;">Certificate no.</td><td style="padding:4px 0;font-weight:bold;font-family:monospace;">${escapeHtml(certificateNumber)}</td></tr>
+    </table>
+    <p>Anyone can confirm it's genuine at <a href="${verifyUrl}">${escapeHtml(verifyUrl)}</a>, which makes it easy to share with employers or add to your LinkedIn profile.</p>
+    <a href="${dashboardLink}" style="background:#571244;color:white;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;margin:12px 0;">
+      View my courses
+    </a>
+    <p>You can download your certificate again at any time from your dashboard.</p>
+  `
+  return send(to, name, `Your certificate: ${courseTitle}`, html, [
+    { filename: params.fileName, content: pdf, contentType: 'application/pdf' },
+  ])
 }

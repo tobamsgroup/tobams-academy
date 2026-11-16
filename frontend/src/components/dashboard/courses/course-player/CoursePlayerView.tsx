@@ -16,6 +16,8 @@ import { CoursePlayerSidebar } from "./CoursePlayerSidebar";
 import { LessonCurriculum } from "./lesson-content/LessonCurriculum";
 import { toPlayerCourse } from "./player-course";
 import { useCourseEnrollment } from "@/hooks/useCourseEnrollment";
+import { useCertificates } from "@/hooks/useCertificates";
+import { CertificateButton } from "../CertificateButton";
 import type { LessonCompleteResult } from "@/types/enrollment";
 import { useCourseProgress } from "@/hooks/useCourseProgress";
 import { useEnrollments } from "@/hooks/useEnrollments";
@@ -49,6 +51,8 @@ export default function CoursePlayerView({
   } = useCourseEnrollment(course.id);
   const { progress: apiProgress, mutate: mutateProgress } = useCourseProgress(course.id);
   const { mutate: mutateEnrollments, mutateStats } = useEnrollments();
+  const { byCourseId: certificates, download: downloadCertificate, mutate: mutateCertificates } = useCertificates();
+  const certificate = certificates.get(course.id);
 
   // Which lesson is open: the learner's own choice once they pick one; before that, the lesson
   // from a ?lesson= link, or where they left off (last lesson opened / next unfinished one).
@@ -113,14 +117,24 @@ export default function CoursePlayerView({
     if (completedLessonIds.has(lessonId)) return;
     const result = await completeLesson(lessonId);
     if (result) {
-      await Promise.all([mutateEnrollments(), mutateStats(), mutateProgress()]);
+      await Promise.all([
+        mutateEnrollments(),
+        mutateStats(),
+        mutateProgress(),
+        result.courseCompleted ? mutateCertificates() : null,
+      ]);
     }
   };
 
   // An assignment upload completes the lesson server-side; mirror it in the outline and stats.
   const completedByUpload = async (result: LessonCompleteResult) => {
     await applyCompletion(result);
-    await Promise.all([mutateEnrollments(), mutateStats(), mutateProgress()]);
+    await Promise.all([
+      mutateEnrollments(),
+      mutateStats(),
+      mutateProgress(),
+      result.courseCompleted ? mutateCertificates() : null,
+    ]);
   };
 
   const markComplete = async () => {
@@ -235,6 +249,21 @@ export default function CoursePlayerView({
         </div>
 
         <main className="min-w-0 flex-1 overflow-y-auto bg-[#FAFDFF] md:pb-[141px]">
+          {certificate ? (
+            <div className="mx-6 mt-4 flex flex-col gap-3 rounded-lg border border-[#CDEBD8] bg-[#F3FBF6] px-4 py-3 sm:flex-row sm:items-center sm:justify-between md:mx-[45px]">
+              <div>
+                <p className="text-sm font-semibold text-[#0F7B3F]">Course completed. Congratulations!</p>
+                <p className="text-xs text-[#474348]">
+                  Your certificate ({certificate.certificateNumber}) has been emailed to you.
+                </p>
+              </div>
+              <CertificateButton
+                certificate={certificate}
+                onDownload={downloadCertificate}
+                className="sm:w-56"
+              />
+            </div>
+          ) : null}
           {markCompleteError ? (
             <div className="mx-6 mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
               {markCompleteError}

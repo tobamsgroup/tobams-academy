@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { notify } from '@/lib/notifications'
 import { toLessonCompleteResult } from '@/lib/enrollment-utils'
+import { issueCertificate } from '@/lib/certificates'
 
 /** Assignments complete only through an upload, never through "Mark as complete" or Next. */
 export const ASSIGNMENT_COMPLETION_MESSAGE = 'Upload your assignment to complete this lesson'
@@ -68,6 +69,10 @@ export async function recordLessonCompletion({ userId, courseId, lessonId, enrol
       message: `Congratulations! You've completed "${enrollment.course.title}".`,
       category: 'progressTracking',
     })
+  }
+  if (courseCompleted) {
+    // Idempotent: issues and emails the certificate the first time the course is completed.
+    await issueCertificate(enrollment.id)
   } else if (!alreadyCompleted && result.total > 0) {
     // Notify once, on the lesson that takes progress past the halfway mark.
     const before = Math.round(((result.completedLessonIds.length - 1) / result.total) * 100)

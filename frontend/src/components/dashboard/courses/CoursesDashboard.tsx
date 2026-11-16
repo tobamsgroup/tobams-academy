@@ -6,6 +6,7 @@ import CourseSortDropdown, { type CourseSortKey } from "./CourseSortDropdown";
 import { EnrolledCourseCard } from "./EnrolledCourseCard";
 import { ICONS } from "@/assets/icons";
 import { useEnrollments } from "@/hooks/useEnrollments";
+import { useCertificates } from "@/hooks/useCertificates";
 import {
   DASHBOARD_COURSES_PAGE_SIZE,
   countCoursesInTab,
@@ -52,6 +53,7 @@ export default function CoursesDashboard() {
   const deferredSearch = useDeferredValue(searchQuery.trim());
 
   const { enrollments, stats: enrollmentStats, isLoading, error, mutate } = useEnrollments();
+  const { byCourseId: certificatesByCourse, download: downloadCertificate } = useCertificates();
 
   useEffect(() => {
     void mutate();
@@ -264,7 +266,13 @@ export default function CoursesDashboard() {
       ) : (
         <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {visibleCourses.map((course, index) => (
-            <EnrolledCourseCard key={course.id} course={course} index={index} />
+            <EnrolledCourseCard
+              key={course.id}
+              course={course}
+              index={index}
+              certificate={certificatesByCourse.get(course.id)}
+              onDownloadCertificate={downloadCertificate}
+            />
           ))}
         </div>
       )}

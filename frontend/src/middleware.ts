@@ -5,7 +5,7 @@ import { authConfig } from '@/lib/auth.config'
 const { auth } = NextAuth(authConfig)
 
 const PUBLIC_EXACT = new Set(['/', '/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/otp'])
-const PUBLIC_PREFIXES = ['/courses']
+const PUBLIC_PREFIXES = ['/courses', '/certificates/verify']
 const AUTH_PAGES = new Set(['/login', '/register', '/forgot-password', '/reset-password', '/otp'])
 const ADMIN_PREFIX = '/admin'
 

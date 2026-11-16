@@ -38,6 +38,7 @@ model User {
   notifications        Notification[]
   notificationPref     NotificationPreference?
   enrollments          Enrollment[]
+  certificates         Certificate[]
   quizAttempts         QuizAttempt[]
   payments             Payment[]
   cart                 Cart?
@@ -74,6 +75,7 @@ model Course {
   modules        CourseModule[]
   enrollments    Enrollment[]
   payments       Payment[]
+  certificates   Certificate[]
   cartItems      CartItem[]
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
@@ -134,6 +136,7 @@ model Enrollment {
   course         Course                 @relation(fields: [courseId], references: [id], onDelete: Cascade)
   lessonProgress LessonProgress[]
   submissions    AssignmentSubmission[]
+  certificate    Certificate?
 
   @@unique([userId, courseId])
   @@index([userId])
@@ -171,6 +174,28 @@ model AssignmentSubmission {
   @@unique([enrollmentId, lessonId])
   @@index([lessonId])
   @@map("assignment_submissions")
+}
+
+/// Issued once when a learner completes every lesson of a course. The name and course title
+/// are kept as they were at issue time, so the certificate never changes afterwards.
+model Certificate {
+  id                String     @id @default(uuid())
+  /// Public reference printed on the certificate, e.g. TGA-2026-7K3QX9PD (used to verify it).
+  certificateNumber String     @unique
+  userId            String
+  courseId          String
+  enrollmentId      String     @unique
+  learnerName       String
+  courseTitle       String
+  issuedAt          DateTime   @default(now())
+  /// When the certificate email was sent (null if sending failed or is pending).
+  emailedAt         DateTime?
+  user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course            Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  enrollment        Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("certificates")
 }
 
 model Quiz {

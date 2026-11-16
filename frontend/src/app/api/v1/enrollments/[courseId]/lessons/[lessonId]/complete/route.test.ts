@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { getAuthUser } from "@/lib/with-auth";
 import { notify } from "@/lib/notifications";
+import { issueCertificate } from "@/lib/certificates";
 
 jest.mock("@/lib/prisma", () => ({
   prisma: {
@@ -26,6 +27,10 @@ jest.mock("@/lib/prisma", () => ({
 
 jest.mock("@/lib/notifications", () => ({
   notify: jest.fn(),
+}));
+
+jest.mock("@/lib/certificates", () => ({
+  issueCertificate: jest.fn(),
 }));
 
 jest.mock("@/lib/with-auth", () => ({
@@ -143,6 +148,8 @@ describe("POST /enrollments/[courseId]/lessons/[lessonId]/complete", () => {
         lessonId: "l1",
       },
     });
+
+    expect(issueCertificate).not.toHaveBeenCalled();
 
     // 1 of 2 lessons: crossing 50% sends the halfway notification
     expect(notify).toHaveBeenCalledWith(
@@ -290,5 +297,8 @@ describe("POST /enrollments/[courseId]/lessons/[lessonId]/complete", () => {
       "u1",
       expect.objectContaining({ title: "Course completed", category: "progressTracking" }),
     );
+
+    // Completing the course issues (and emails) the certificate.
+    expect(issueCertificate).toHaveBeenCalledWith("e1");
   });
 });
