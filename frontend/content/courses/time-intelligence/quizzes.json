@@ -417,6 +417,842 @@
           "answer": "B"
         }
       ]
+    },
+    {
+      "week": 3,
+      "title": "Week 3 Assessment: Capacity Intelligence",
+      "timeLimitMinutes": 30,
+      "passingScore": 70,
+      "answerKeyStatus": "APPROVED 2026-11-16 by content owner",
+      "questions": [
+        {
+          "text": "A person has six hours available on Saturday but feels mentally exhausted after a demanding week. What is the most accurate assessment of their capacity?",
+          "options": [
+            "They have six hours of fully productive capacity",
+            "They should use all six hours for unfinished work",
+            "Their available time exceeds their current usable energy and attention",
+            "Their exhaustion proves they have managed time poorly"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "Nadia notices she can think clearly in the morning but struggles with demanding tasks late in the evening. What should she do?",
+          "options": [
+            "Reserve cognitively demanding personal tasks for suitable high-energy periods",
+            "Force herself to complete every difficult task at night",
+            "Avoid planning because energy varies",
+            "Use her best hours exclusively for routine chores"
+          ],
+          "answer": "A"
+        },
+        {
+          "text": "A parent works full-time, supports an elderly relative and is studying for a qualification. They feel unable to meet every commitment. What should they examine first?",
+          "options": [
+            "How to eliminate sleep",
+            "Whether their combined commitments exceed realistic personal capacity",
+            "How to become constantly available",
+            "Whether they should abandon all personal goals"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "Someone regularly schedules four demanding activities immediately after work but completes only one or two. What is the strongest conclusion?",
+          "options": [
+            "Their plan may be based on unrealistic assumptions about available energy",
+            "They must lack ambition",
+            "They should double their schedule to increase motivation",
+            "Their unfinished activities have no value"
+          ],
+          "answer": "A"
+        },
+        {
+          "text": "A participant feels physically energetic but mentally unable to concentrate after several hours of difficult decision-making. Which dimension is most likely depleted?",
+          "options": [
+            "Financial capacity",
+            "Mental or cognitive capacity",
+            "Social capacity alone",
+            "Calendar availability"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A person has spent an emotionally demanding day supporting a family member. They still have two free evening hours. Which response best demonstrates Capacity Intelligence?",
+          "options": [
+            "Assume emotional strain has no effect on performance",
+            "Schedule the most demanding tasks because the hours are available",
+            "Assess emotional energy and select a manageable activity or recovery",
+            "Cancel every future commitment permanently"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "A learner has three important tasks but only enough capacity to complete one well today. What is the most appropriate action?",
+          "options": [
+            "Begin all three simultaneously",
+            "Select the most consequential task and reschedule the others realistically",
+            "Work continuously until all three are finished",
+            "Choose whichever task is most enjoyable regardless of consequences"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "Why is repeatedly accepting commitments without reviewing existing responsibilities risky?",
+          "options": [
+            "It guarantees higher personal productivity",
+            "It may create capacity overload and undermine important commitments",
+            "It automatically improves time awareness",
+            "It eliminates the need for prioritisation"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A person consistently underestimates how long household and care responsibilities take. Which change would most improve their planning?",
+          "options": [
+            "Stop recording these activities because they are not paid work",
+            "Use realistic time estimates based on previous experience",
+            "Assume future responsibilities will always take less time",
+            "Schedule personal development activities over every responsibility"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "David has a major personal deadline tomorrow but has been sleeping poorly for several nights. What is the best immediate approach?",
+          "options": [
+            "Ignore fatigue because the deadline is important",
+            "Assess essential work, reduce avoidable demands and protect necessary rest",
+            "Accept additional optional commitments",
+            "Continue without breaks until every task is finished"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A participant wants to exercise, study, spend time with family and maintain a demanding job. Which planning principle is most appropriate?",
+          "options": [
+            "Allocate identical hours to each role every day",
+            "Build a realistic schedule that reflects essential duties, energy and changing needs",
+            "Treat personal wellbeing as optional",
+            "Assume every goal can progress at maximum intensity simultaneously"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A person says, ‘If I were more disciplined, I would never need a break.’ What is the most useful response?",
+          "options": [
+            "Rest is evidence of weak motivation",
+            "Rest should be postponed until all responsibilities disappear",
+            "Recovery is a legitimate part of maintaining sustainable personal capacity",
+            "Discipline eliminates physical and mental limitations"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "Someone notices that their concentration declines after a long period of focused work. Which action is most appropriate?",
+          "options": [
+            "Introduce a suitable break and reassess their ability to continue",
+            "Ignore the decline and increase the workload",
+            "Add unrelated tasks to stimulate attention",
+            "Measure success only by the number of hours spent sitting"
+          ],
+          "answer": "A"
+        },
+        {
+          "text": "A person is asked to take on a new voluntary responsibility during an already demanding month. Which response best protects personal capacity?",
+          "options": [
+            "Agree immediately and decide later what to sacrifice",
+            "Explain current commitments and negotiate a smaller role or later start",
+            "Assume declining means they are selfish",
+            "Remove essential recovery time to accommodate the request"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "Which example best demonstrates the difference between a boundary and avoidance?",
+          "options": [
+            "Declining a nonessential request to protect an existing important commitment",
+            "Ignoring every difficult responsibility indefinitely",
+            "Refusing to discuss deadlines with anyone",
+            "Cancelling a necessary appointment because it feels inconvenient"
+          ],
+          "answer": "A"
+        },
+        {
+          "text": "A participant plans three hours of study every evening but repeatedly manages only 45 focused minutes. What is the best adjustment?",
+          "options": [
+            "Treat the entire week as a failure",
+            "Replace the plan with a sustainable study period and review progress",
+            "Increase the target to five hours to create pressure",
+            "Stop studying because the original target was missed"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A person has unpredictable caring responsibilities. Which strategy is most suitable for maintaining a personal learning goal?",
+          "options": [
+            "Use only a rigid timetable with no alternatives",
+            "Create a primary study window and a smaller backup activity",
+            "Assume interruptions can always be prevented",
+            "Schedule every available minute without flexibility"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "Someone feels guilty whenever they rest, even after completing essential responsibilities. Which belief would be most helpful to challenge?",
+          "options": [
+            "Rest has value only when it produces immediate measurable output",
+            "Personal capacity is finite and recovery supports sustainable achievement",
+            "All free time should be used for additional commitments",
+            "Taking breaks means important goals are being abandoned"
+          ],
+          "answer": "A"
+        },
+        {
+          "text": "A person is reviewing their week and discovers they completed important activities but experienced persistent exhaustion. Which conclusion is most appropriate?",
+          "options": [
+            "The week was successful, so no changes are necessary",
+            "Exhaustion should be ignored when tasks are completed",
+            "They should evaluate both outcomes and the sustainability of the effort required",
+            "They should increase next week’s workload automatically"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "At the end of Week 3, which outcome best demonstrates improved personal Capacity Intelligence?",
+          "options": [
+            "Accepting every opportunity presented",
+            "Completing more activities by reducing recovery time",
+            "Recognising personal limits, matching commitments to capacity and making sustainable adjustments",
+            "Maintaining a completely full calendar every day"
+          ],
+          "answer": "C"
+        }
+      ]
+    },
+    {
+      "week": 4,
+      "title": "Week 4 Assessment: Focus Intelligence",
+      "timeLimitMinutes": 30,
+      "passingScore": 70,
+      "answerKeyStatus": "APPROVED 2026-11-16 by content owner",
+      "questions": [
+        {
+          "text": "A learner has reserved an hour for an important personal qualification, but repeatedly checks messages whenever a difficult concept appears. What is the most likely underlying problem?",
+          "options": [
+            "The qualification is no longer important",
+            "Mental discomfort is triggering an avoidable distraction",
+            "The learner needs to extend every study session",
+            "Messages are always more urgent than studying"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "Which statement best distinguishes attention from sustained concentration?",
+          "options": [
+            "Attention selects what to engage with; sustained concentration maintains engagement over time",
+            "Attention and concentration both mean working quickly",
+            "Attention concerns only digital activities; concentration concerns reading",
+            "Concentration is determined entirely by the number of available hours"
+          ],
+          "answer": "A"
+        },
+        {
+          "text": "A person is reading an important document when they suddenly remember an unrelated household task. What is the most effective response if the task is not urgent?",
+          "options": [
+            "Immediately abandon the document",
+            "Try to remember the task while continuing to read",
+            "Record the task briefly and return to the document",
+            "Start several other tasks to clear their mind"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "Someone is working in a noisy home environment and cannot concentrate. Which response best demonstrates personal Focus Intelligence?",
+          "options": [
+            "Assume effective concentration is impossible at home",
+            "Identify controllable distractions and arrange a quieter or more suitable focus period",
+            "Increase the number of simultaneous tasks",
+            "Ignore every personal responsibility for the rest of the day"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A participant switches between writing an application, checking social media and responding to messages every few minutes. What is the main risk?",
+          "options": [
+            "Switching automatically increases the quality of every task",
+            "Frequent switching creates reorientation demands and can reduce sustained attention",
+            "The participant will necessarily finish all tasks earlier",
+            "Task-switching has no effect unless the activities are professional"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A person believes that watching an educational video while writing a complex assignment is always an efficient use of time. What should they consider?",
+          "options": [
+            "Whether both tasks require competing attention and reduce comprehension or writing quality",
+            "Whether they can increase the video’s volume",
+            "Whether the assignment can be completed without any review",
+            "Whether every minute contains at least two activities"
+          ],
+          "answer": "A"
+        },
+        {
+          "text": "A learner takes 40 minutes to complete a task when uninterrupted, but repeatedly takes much longer while checking notifications. Which action would best test the impact of interruptions?",
+          "options": [
+            "Stop measuring time altogether",
+            "Compare similar tasks completed with and without notifications under reasonably comparable conditions",
+            "Assume every notification causes exactly the same delay",
+            "Increase notification frequency during the next session"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A participant receives frequent nonessential notifications during personal study time. Which change is most suitable?",
+          "options": [
+            "Disable or silence nonessential notifications during a defined study period",
+            "Delete every communication application permanently",
+            "Respond to every alert immediately to prevent a backlog",
+            "Leave all notifications active to build discipline"
+          ],
+          "answer": "A"
+        },
+        {
+          "text": "A person reaches for their phone automatically whenever they feel bored. Which intervention addresses the habit most directly?",
+          "options": [
+            "Move the phone out of immediate reach and choose a deliberate response to boredom",
+            "Buy a second phone for study periods",
+            "Check the phone more frequently before starting work",
+            "Assume the habit will disappear without changes"
+          ],
+          "answer": "A"
+        },
+        {
+          "text": "Someone needs to remain reachable for an elderly relative while studying. What is the best digital-boundary approach?",
+          "options": [
+            "Turn off every communication channel without exception",
+            "Keep every social-media alert enabled",
+            "Allow essential contacts through while silencing nonessential interruptions",
+            "Abandon studying whenever the relative might need help"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "A participant plans a two-hour focus session but usually loses concentration after 30 minutes. What is the most realistic starting strategy?",
+          "options": [
+            "Use shorter focused intervals with suitable breaks and adjust based on experience",
+            "Force two uninterrupted hours regardless of fatigue",
+            "Stop attempting important tasks",
+            "Measure success only by remaining seated for two hours"
+          ],
+          "answer": "A"
+        },
+        {
+          "text": "Which example best demonstrates a useful pre-focus routine?",
+          "options": [
+            "Open several unrelated applications before beginning",
+            "Define one intended result, prepare materials and remove avoidable interruptions",
+            "Wait until motivation becomes perfect",
+            "Begin without deciding what task matters"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A learner repeatedly rereads the same paragraph without understanding it after a demanding day. What is the most appropriate response?",
+          "options": [
+            "Continue reading indefinitely to prove commitment",
+            "Assess fatigue, take a suitable break or choose a less demanding activity",
+            "Increase background distractions",
+            "Assume the material is impossible to learn"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A person wants to improve concentration but shares a home with young children. Which focus strategy is most realistic?",
+          "options": [
+            "Expect complete silence throughout the day",
+            "Agree on suitable focus windows where possible and create a backup plan for interruptions",
+            "Treat all childcare interruptions as unnecessary",
+            "Schedule all demanding tasks without considering family responsibilities"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A participant keeps agreeing to optional calls during their only available learning period. What is the most effective boundary?",
+          "options": [
+            "Accept every call and study after midnight",
+            "Communicate a reasonable period of unavailability and offer another suitable time",
+            "Ignore all contacts permanently",
+            "Cancel the learning goal because others need attention"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A person frequently interrupts their own focused activity to complete small unrelated tasks. What would be a useful improvement?",
+          "options": [
+            "Create a brief capture list and review the unrelated tasks after the focus period",
+            "Complete every new task immediately",
+            "Avoid recording tasks because this wastes time",
+            "Extend the focus period each time an interruption occurs"
+          ],
+          "answer": "A"
+        },
+        {
+          "text": "A participant wants to evaluate whether a new focus routine is working. Which measure provides the most useful evidence?",
+          "options": [
+            "The number of applications installed on their phone",
+            "The number of hours they intended to concentrate",
+            "Completion and quality of meaningful tasks, alongside interruption patterns and wellbeing",
+            "The total number of messages received each day"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "A learner has followed a focus routine successfully for four days, but a family emergency disrupts the fifth. What should they do next?",
+          "options": [
+            "Consider the routine a failure and abandon it",
+            "Ignore the family emergency to preserve the routine",
+            "Respond to the emergency and restart the routine when realistically possible",
+            "Double the next session regardless of personal capacity"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "Someone is deciding whether to work in a café, library or at home. What is the strongest basis for choosing a focus environment?",
+          "options": [
+            "Choose the location that appears most productive on social media",
+            "Choose whichever location has the most people",
+            "Consider task demands, distractions, accessibility, cost and personal concentration patterns",
+            "Assume the same environment is ideal for every task"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "At the end of Week 4, which outcome best demonstrates improved personal Focus Intelligence?",
+          "options": [
+            "Never experiencing distraction again",
+            "Completing multiple demanding tasks simultaneously",
+            "Recognising attention triggers, reducing avoidable interruptions and returning deliberately to meaningful tasks",
+            "Working continuously without breaks"
+          ],
+          "answer": "C"
+        }
+      ]
+    },
+    {
+      "week": 5,
+      "title": "Week 5 Assessment: Execution Intelligence",
+      "timeLimitMinutes": 30,
+      "passingScore": 70,
+      "answerKeyStatus": "APPROVED 2026-11-16 by content owner",
+      "questions": [
+        {
+          "text": "A person has wanted to improve their financial knowledge for six months but has not started. Which action would best close the gap between intention and execution?",
+          "options": [
+            "Keep reminding themselves that financial knowledge is important",
+            "Choose a specific 20-minute learning activity and schedule when to begin",
+            "Wait until they have enough time to complete an entire course",
+            "Set several additional financial goals before taking action"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A learner writes ‘I will become more productive’ as a weekly goal. What is the main weakness of this intention?",
+          "options": [
+            "It is too focused on personal improvement",
+            "It does not identify a specific, observable action",
+            "It should include more than one outcome",
+            "It requires professional supervision"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "Someone wants to update their CV but repeatedly postpones it because the entire task feels overwhelming. What is the best first step?",
+          "options": [
+            "Wait until they can complete the whole CV in one sitting",
+            "Open the current document and update one recent responsibility",
+            "Start applying for jobs without reviewing the CV",
+            "Create a much longer list of everything that needs improvement"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A participant avoids contacting a training provider because they fear receiving an unfavourable response. Which factor most likely explains the delay?",
+          "options": [
+            "Lack of available technology",
+            "Emotional avoidance linked to uncertainty or fear",
+            "Insufficient calendar space in every situation",
+            "The absence of a long-term goal"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A person repeatedly edits the opening paragraph of a personal statement but never completes a full draft. Which procrastination pattern is most evident?",
+          "options": [
+            "Recovery-related delay",
+            "Perfectionism-related delay",
+            "Delegation-related delay",
+            "Scheduling-related delay"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A learner delays studying after several nights of poor sleep and substantial caring responsibilities. What should they assess before labelling the behaviour procrastination?",
+          "options": [
+            "Whether the task could be made more difficult",
+            "Whether genuine fatigue and limited capacity explain the delay",
+            "Whether other learners are studying longer",
+            "Whether they can eliminate all future responsibilities"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A person notices that whenever an important task becomes uncomfortable, they open social media and feel temporarily relieved. What is the most effective intervention?",
+          "options": [
+            "Recognise the avoidance trigger and begin a small, manageable part of the task",
+            "Increase social media use until the discomfort disappears",
+            "Wait for complete confidence before returning to the task",
+            "Remove the important task from every future plan"
+          ],
+          "answer": "A"
+        },
+        {
+          "text": "Someone has repeatedly postponed writing an important email. Which implementation intention is strongest?",
+          "options": [
+            "I will write the email when I feel ready",
+            "I will try to write more emails this week",
+            "After breakfast tomorrow, I will open my laptop and draft the first three sentences",
+            "I will think positively about sending the email"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "A participant uses the first-15-minutes method to start a difficult task. Which approach best reflects its purpose?",
+          "options": [
+            "Spend the entire period designing a perfect schedule",
+            "Clarify the immediate result, make a rough start, continue briefly and identify the next step",
+            "Complete the whole task regardless of its complexity",
+            "Use the time to compare every possible approach before acting"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A person has to make a difficult enquiry but cannot control whether the answer will be positive. Which measure of execution is most appropriate?",
+          "options": [
+            "Whether the other person agrees with the request",
+            "Whether the person sends a clear, respectful enquiry",
+            "Whether the response arrives immediately",
+            "Whether the outcome exceeds their expectations"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A participant wants to complete an online qualification within three months. Which plan is most actionable?",
+          "options": [
+            "Study whenever time becomes available",
+            "Set a final deadline without identifying intermediate steps",
+            "Identify module milestones, schedule realistic learning sessions and review progress",
+            "Spend the first month researching alternative qualifications"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "Someone wants to improve their physical fitness but has an unpredictable weekly schedule. What is the most sustainable execution plan?",
+          "options": [
+            "Commit to an identical demanding workout every day",
+            "Create a realistic primary activity and a smaller alternative for disrupted days",
+            "Avoid planning any physical activity",
+            "Increase the target whenever a session is missed"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A learner has three personal goals but continually switches between them without completing meaningful steps. What should they do?",
+          "options": [
+            "Add two more goals to increase motivation",
+            "Define a next action and realistic milestone for each goal, then choose what to pursue first",
+            "Spend equal time on all goals regardless of importance",
+            "Stop recording progress until all goals are completed"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A participant successfully studies for four days but misses the fifth because of a family emergency. Which response best supports consistency?",
+          "options": [
+            "Consider the entire routine unsuccessful",
+            "Double the next session regardless of fatigue",
+            "Resume with a realistic next action when circumstances allow",
+            "Abandon the learning goal until the following year"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "Someone has set a daily 45-minute reading target but repeatedly manages only 10 focused minutes. Which adjustment is most appropriate?",
+          "options": [
+            "Treat every shorter session as worthless",
+            "Define a realistic minimum reading action and gradually review what is sustainable",
+            "Increase the target to 90 minutes",
+            "Stop reading until a completely free day appears"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A participant wants to establish a regular personal reflection habit. Which approach is most likely to support follow-through?",
+          "options": [
+            "Depend entirely on remembering the activity",
+            "Connect a brief reflection to an existing routine and establish a backup option",
+            "Change the reflection time randomly every day",
+            "Make the activity compulsory even during genuine emergencies"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A person submits three applications but receives no positive response. Which interpretation best reflects healthy personal accountability?",
+          "options": [
+            "The effort has no value because the outcomes were unfavourable",
+            "They should examine the quality of their applications, recognise completed actions and refine their approach",
+            "They must submit applications continuously without reviewing them",
+            "The result proves they cannot achieve their goal"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "During a weekly execution review, someone notices that a planned activity was repeatedly postponed. What is the most useful question?",
+          "options": [
+            "Why am I incapable of following plans?",
+            "Which barrier affected the activity, and what adjustment would make the next action realistic?",
+            "How can I schedule more activities next week?",
+            "How can I avoid reviewing this commitment again?"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "Which set of measures gives the clearest picture of personal execution?",
+          "options": [
+            "Hours spent planning and number of reminders received",
+            "Actions completed, useful outputs, meaningful outcomes and learning",
+            "Number of activities listed in a diary",
+            "Total time spent thinking about goals"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "At the end of Week 5, which outcome best demonstrates improved Execution Intelligence?",
+          "options": [
+            "Having ambitious intentions for every area of life",
+            "Completing every task without experiencing discomfort",
+            "Turning meaningful goals into manageable actions, beginning consistently and adapting when circumstances change",
+            "Maintaining a completely full daily schedule"
+          ],
+          "answer": "C"
+        }
+      ]
+    },
+    {
+      "week": 6,
+      "title": "Week 6 Assessment: Time Architecture",
+      "timeLimitMinutes": 30,
+      "passingScore": 70,
+      "answerKeyStatus": "APPROVED 2026-11-16 by content owner",
+      "questions": [
+        {
+          "text": "After completing five weeks of Time Intelligence training, a participant wants to create a sustainable personal system. What should they do first?",
+          "options": [
+            "Copy a successful person’s daily timetable",
+            "Combine their insights about time, priorities, capacity, focus and execution into a realistic personal approach",
+            "Schedule every available hour with an activity",
+            "Concentrate exclusively on completing more tasks"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A participant has improved their planning but continues to accept commitments that exceed their available energy. Which dimension requires particular attention?",
+          "options": [
+            "Time awareness alone",
+            "Personal capacity and commitment management",
+            "Digital focus settings only",
+            "The number of calendar applications used"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A person knows which activities matter most but repeatedly becomes distracted when trying to complete them. Which combination of skills would be most useful?",
+          "options": [
+            "Priority Intelligence and Focus Intelligence",
+            "Time awareness and financial planning",
+            "Calendar design and longer working hours",
+            "Delegation and social networking"
+          ],
+          "answer": "A"
+        },
+        {
+          "text": "A parent works irregular shifts, has caring responsibilities and wants to study for a qualification. Which weekly planning method is most appropriate?",
+          "options": [
+            "Use an identical timetable every week regardless of shift patterns",
+            "Plan around fixed commitments, realistic energy levels and flexible study windows",
+            "Study only when every other responsibility has disappeared",
+            "Schedule all free hours for study without recovery"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A participant creates a weekly plan containing 168 hours of activities, leaving no unallocated time. What is the main weakness?",
+          "options": [
+            "The plan does not include enough productive tasks",
+            "The plan assumes that unexpected needs, transitions and recovery require no flexibility",
+            "The plan contains too many personal goals",
+            "The participant has not selected a calendar colour"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "Someone wants to protect time for an important personal goal while maintaining essential family responsibilities. What is the strongest planning approach?",
+          "options": [
+            "Give the personal goal priority over every family obligation",
+            "Identify essential commitments and reserve achievable periods for the goal",
+            "Wait until all family responsibilities end",
+            "Allocate the same number of hours to every responsibility"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A participant discovers that they regularly underestimate travel, preparation and transition time. What should they change?",
+          "options": [
+            "Remove travel and preparation from the calendar",
+            "Add realistic estimates and suitable buffers based on previous experience",
+            "Schedule more activities to increase efficiency",
+            "Assume transitions will become faster automatically"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "Which daily planning routine best supports personal Time Intelligence?",
+          "options": [
+            "Create a long task list without ranking anything",
+            "Identify one meaningful outcome, choose a clear next action and allow for essential responsibilities",
+            "Begin with whichever task appears easiest and continue randomly",
+            "Spend the entire morning planning without starting"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A participant has maintained a useful daily routine for two weeks but finds that their weekly goals are drifting. What additional practice would help?",
+          "options": [
+            "A brief weekly review of progress, priorities and capacity",
+            "A longer daily task list",
+            "Eliminating every leisure activity",
+            "Changing all goals every morning"
+          ],
+          "answer": "A"
+        },
+        {
+          "text": "What is the most useful purpose of a monthly Time Intelligence review?",
+          "options": [
+            "To judge personal worth based on the number of completed tasks",
+            "To identify patterns, evaluate meaningful progress and adjust the personal system",
+            "To create a completely new system every month",
+            "To compare working hours competitively with others"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A person consistently checks social media during a scheduled learning period. Which architectural change would most directly support better focus?",
+          "options": [
+            "Increase the duration of the learning period",
+            "Place the phone away, silence nonessential alerts and establish a clear starting routine",
+            "Add more applications to monitor screen time",
+            "Wait until distractions stop feeling attractive"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A participant frequently misses planned activities because of unpredictable caring responsibilities. Which approach is most sustainable?",
+          "options": [
+            "Remove every personal development goal",
+            "Use a primary plan with smaller backup actions and flexible review points",
+            "Treat each interruption as a personal failure",
+            "Ignore caring responsibilities when planning"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A person has completed all planned activities for several weeks but feels persistently exhausted. What should their review prioritise?",
+          "options": [
+            "Increasing next week’s commitments",
+            "Evaluating whether the current level of activity is sustainable and whether sufficient recovery is protected",
+            "Adding more detailed productivity tracking",
+            "Reducing every break to save time"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "Which example best demonstrates continuous improvement in personal time management?",
+          "options": [
+            "Following an ineffective routine because it was originally planned",
+            "Making one evidence-based adjustment, observing its effect and refining the routine",
+            "Replacing every habit simultaneously",
+            "Changing routines without recording what happened"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A participant used a 24-item Time Intelligence Diagnostic in Week 1. Each statement was scored from 1 to 5. What is the maximum possible total score?",
+          "options": [
+            "100",
+            "120",
+            "125",
+            "144"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "Why should participants use the same diagnostic questions and scoring method in Week 6 as in Week 1?",
+          "options": [
+            "To guarantee a higher final score",
+            "To make the two sets of responses more directly comparable",
+            "To eliminate every form of self-reporting bias",
+            "To produce a clinical assessment of time management ability"
+          ],
+          "answer": "B"
+        },
+        {
+          "text": "A participant’s diagnostic total increases from 72 in Week 1 to 91 in Week 6. What is the numerical improvement?",
+          "options": [
+            "15 points",
+            "17 points",
+            "19 points",
+            "21 points"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "A participant improves their diagnostic score but notices that important personal goals remain unfinished. What is the best interpretation?",
+          "options": [
+            "The higher score proves that no further improvement is needed",
+            "The diagnostic should replace evidence of real-life progress",
+            "The score reflects self-reported development, but actual execution and outcomes also need review",
+            "The participant must have completed the diagnostic incorrectly"
+          ],
+          "answer": "C"
+        },
+        {
+          "text": "Which approach best reflects a realistic 30-, 60- and 90-day personal Time Intelligence plan?",
+          "options": [
+            "Days 1–30: establish a few habits; days 31–60: refine consistency; days 61–90: review and strengthen the system",
+            "Days 1–30: transform every habit; days 31–60: eliminate all rest; days 61–90: stop reviewing",
+            "Days 1–30: plan only; days 31–60: add goals; days 61–90: begin the first action",
+            "Days 1–30: copy another person’s schedule; days 31–90: follow it without adjustment"
+          ],
+          "answer": "A"
+        },
+        {
+          "text": "At the end of the six-week masterclass, which outcome best demonstrates that someone has developed sustainable personal Time Intelligence?",
+          "options": [
+            "They complete every task and never experience disruption",
+            "They maintain a full schedule with minimal unallocated time",
+            "They understand their time, make deliberate choices, respect capacity, protect attention, take meaningful action and regularly adapt their system",
+            "They use several productivity applications to monitor every minute"
+          ],
+          "answer": "C"
+        }
+      ]
     }
   ]
 }

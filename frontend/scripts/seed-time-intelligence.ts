@@ -104,6 +104,8 @@ interface QuizFile {
   weeks: Array<{
     week: number
     title: string
+    /** Overrides the file-level status for this week (e.g. a newly drafted key). */
+    answerKeyStatus?: string
     timeLimitMinutes: number
     passingScore: number
     questions: Array<{ text: string; options: string[]; answer: 'A' | 'B' | 'C' | 'D' }>
@@ -152,6 +154,11 @@ async function seedQuizzes(courseId: string) {
   }
 
   for (const week of data.weeks) {
+    const status = week.answerKeyStatus ?? data.answerKeyStatus
+    if (status.startsWith('DRAFT')) {
+      console.warn(`Skipping Week ${week.week} quiz: answer key is "${status}". Approve it first.`)
+      continue
+    }
     if (!READINGS[week.week]) {
       console.warn(`Skipping Week ${week.week} quiz: no reading for that week yet`)
       continue
@@ -163,10 +170,16 @@ async function seedQuizzes(courseId: string) {
 
     let lesson = weekModule.lessons.find((l) => l.kind === 'QUIZ')
     if (!lesson) {
-      const position = Math.max(0, ...weekModule.lessons.map((l) => l.position)) + 1
+      // After the readings, before the week's assignment (which always comes last).
+      const others = weekModule.lessons.filter((l) => l.kind !== 'ASSIGNMENT')
+      const position = Math.max(0, ...others.map((l) => l.position)) + 1
       lesson = await prisma.lesson.create({
         data: { moduleId: weekModule.id, title: week.title, position, kind: 'QUIZ', duration: week.timeLimitMinutes },
       })
+      const assignment = weekModule.lessons.find((l) => l.kind === 'ASSIGNMENT')
+      if (assignment && assignment.position <= position) {
+        await prisma.lesson.update({ where: { id: assignment.id }, data: { position: position + 1 } })
+      }
     } else {
       await prisma.lesson.update({ where: { id: lesson.id }, data: { title: week.title } })
     }
