@@ -6,13 +6,16 @@ import { err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
 import { getAuthUser } from '@/lib/with-auth'
 import { EXPIRED_MESSAGE, isAccessActive } from '@/lib/enrollment-access'
+import { attachmentDisposition } from '@/lib/assignments'
 
 /** Private course files live outside /public so only enrolled learners can read them. */
 const CONTENT_ROOT = resolve(process.cwd(), 'content', 'courses')
+const DOCUMENT_KINDS = new Set(['PDF', 'SLIDES', 'ASSIGNMENT'])
 
 /**
  * GET /api/v1/lessons/:lessonId/document
- * Streams the PDF behind a PDF lesson, for learners enrolled in the lesson's course.
+ * Streams the PDF behind a reading, slides or assignment lesson, for learners enrolled in the
+ * lesson's course. `?download=1` sends it as a file download (used for assignment briefs).
  */
 export const GET = withRoute(
   '/api/v1/lessons/[lessonId]/document',
@@ -25,9 +28,9 @@ export const GET = withRoute(
 
     const lesson = await prisma.lesson.findUnique({
       where: { id: lessonId },
-      select: { kind: true, contentKey: true, module: { select: { courseId: true } } },
+      select: { kind: true, title: true, contentKey: true, module: { select: { courseId: true } } },
     })
-    if (!lesson || (lesson.kind !== 'PDF' && lesson.kind !== 'SLIDES') || !lesson.contentKey) {
+    if (!lesson || !DOCUMENT_KINDS.has(lesson.kind) || !lesson.contentKey) {
       return err('Document not found', 404)
     }
 
@@ -54,7 +57,10 @@ export const GET = withRoute(
     return new NextResponse(new Uint8Array(file), {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': 'inline',
+        'Content-Disposition':
+          req.nextUrl.searchParams.get('download') === '1'
+            ? attachmentDisposition(`${lesson.title}.pdf`)
+            : 'inline',
         // Private: per-user authorised content must not be cached by shared caches.
         'Cache-Control': 'private, max-age=3600',
         'X-Content-Type-Options': 'nosniff',

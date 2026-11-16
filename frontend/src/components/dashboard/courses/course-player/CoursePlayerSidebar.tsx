@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight, FileText, MonitorPlay, PanelLeftClose, PanelLeftOpen, CheckCircle2 } from "lucide-react";
+import { ChevronDown, ChevronRight, ClipboardCheck, FileText, MonitorPlay, PanelLeftClose, PanelLeftOpen, CheckCircle2 } from "lucide-react";
 import type { PlayerLesson, PlayerModule } from "./curriculum";
 import { cn } from "@/lib/utils";
 import { ICONS } from "@/assets/icons";
@@ -6,6 +6,7 @@ import { ICONS } from "@/assets/icons";
 /** Short description under a lesson title in the outline. */
 function lessonMeta(lesson: PlayerLesson): string {
   if (lesson.kind === "quiz") return lesson.durationMin > 0 ? `Quiz · ${lesson.durationMin} min` : "Quiz";
+  if (lesson.kind === "assignment") return "Assignment · upload to complete";
   if (lesson.kind === "slides" && lesson.contentKey) {
     return lesson.pageEnd ? `Slides · ${lesson.pageEnd - (lesson.pageStart ?? 1) + 1} slides` : "Slides";
   }
@@ -29,6 +30,8 @@ function LessonKindIcon({ kind, className }: { kind: PlayerLesson["kind"]; class
       return <MonitorPlay className={cn("h-5 w-5", c)} strokeWidth={1.75} />;
     case "quiz":
       return <ICONS.ManageFileSearch className={c}/>;
+    case "assignment":
+      return <ClipboardCheck className={cn("h-5 w-5", c)} strokeWidth={1.75} />;
     case "assessment":
       return <ICONS.ManageFilePencil className={c}/>;
     default:

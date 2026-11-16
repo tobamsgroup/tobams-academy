@@ -3,10 +3,11 @@
  *
  *   npx tsx scripts/seed-time-intelligence.ts                 # weeks, readings, quizzes
  *   npx tsx scripts/seed-time-intelligence.ts --with-slides   # also the weekly slide decks
+ *   npx tsx scripts/seed-time-intelligence.ts --with-assignments   # also the weekly assignments
  *
- * Each week runs: Slides → readings (one lesson per section) → Week N Assessment.
- * Only use --with-slides once the deployed app knows the SLIDES lesson kind (older builds
- * fail to read lessons of an unknown kind).
+ * Each week runs: Slides → readings (one lesson per section) → Week N Assessment → Week N Assignment.
+ * Only use --with-slides / --with-assignments once the deployed app knows the SLIDES and
+ * ASSIGNMENT lesson kinds (older builds fail to read lessons of an unknown kind).
  *
  * - Turns the 7 topic lessons of each available week into PDF lessons that open the
  *   week's reading (content/courses/time-intelligence/week-N.pdf) at their own section.
@@ -23,6 +24,9 @@ import { prisma } from './prisma'
 
 const COURSE_SLUG = 'time-intelligence-masterclass'
 const CONTENT_DIR = resolve(__dirname, '../content/courses/time-intelligence')
+
+/** Weeks with an assignment brief (content/courses/time-intelligence/assignments/week-N.pdf). */
+const ASSIGNMENT_WEEKS = [1, 2, 3, 4, 5, 6]
 
 /** Slide decks per week (content/courses/time-intelligence/slides/week-N.pdf) and their slide counts. */
 const SLIDE_DECKS: Record<number, number> = { 1: 24, 2: 24, 3: 23, 4: 23, 5: 23, 6: 23 }
@@ -62,7 +66,7 @@ async function seedReadings(courseId: string) {
     })
     if (!weekModule) throw new Error(`Module for week ${week} not found`)
 
-    const topicLessons = weekModule.lessons.filter((l) => l.kind !== 'QUIZ' && l.kind !== 'SLIDES')
+    const topicLessons = weekModule.lessons.filter((l) => !['QUIZ', 'SLIDES', 'ASSIGNMENT'].includes(l.kind))
     if (topicLessons.length !== reading.sections.length) {
       throw new Error(
         `Week ${week}: expected ${reading.sections.length} topic lessons, found ${topicLessons.length}`,
@@ -171,6 +175,34 @@ async function seedSlides(courseId: string) {
   console.log(`Slides: added to weeks ${Object.keys(SLIDE_DECKS).join(', ')}`)
 }
 
+/**
+ * A "Week N Assignment" lesson last in each week. Learners download the brief and complete
+ * the lesson by uploading their work. Runs after the quizzes so it stays at the end.
+ */
+async function seedAssignments(courseId: string) {
+  for (const week of ASSIGNMENT_WEEKS) {
+    const weekModule = await prisma.courseModule.findFirst({
+      where: { courseId, position: week },
+      include: { lessons: { orderBy: { position: 'asc' } } },
+    })
+    if (!weekModule) throw new Error(`Module for week ${week} not found`)
+    const existing = weekModule.lessons.find((l) => l.kind === 'ASSIGNMENT')
+    const others = weekModule.lessons.filter((l) => l.id !== existing?.id)
+    const data = {
+      title: `Week ${week} Assignment`,
+      kind: 'ASSIGNMENT' as const,
+      contentKey: `time-intelligence/assignments/week-${week}.pdf`,
+      contentUrl: null,
+      pageStart: null,
+      pageEnd: null,
+      position: Math.max(0, ...others.map((l) => l.position)) + 1,
+    }
+    if (existing) await prisma.lesson.update({ where: { id: existing.id }, data })
+    else await prisma.lesson.create({ data: { ...data, moduleId: weekModule.id } })
+  }
+  console.log(`Assignments: added to the end of weeks ${ASSIGNMENT_WEEKS.join(', ')}`)
+}
+
 async function main() {
   const course = await prisma.course.findUniqueOrThrow({ where: { slug: COURSE_SLUG } })
   await renameModulesToWeeks(course.id)
@@ -178,6 +210,8 @@ async function main() {
   else console.log('Slides: skipped (run with --with-slides once the new build is deployed)')
   await seedReadings(course.id)
   await seedQuizzes(course.id)
+  if (process.argv.includes('--with-assignments')) await seedAssignments(course.id)
+  else console.log('Assignments: skipped (run with --with-assignments once the new build is deployed)')
 }
 
 main()

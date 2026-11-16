@@ -151,6 +151,19 @@ describe("POST /enrollments/[courseId]/lessons/[lessonId]/complete", () => {
     );
   });
 
+  it("refuses to complete an assignment without an upload", async () => {
+    mockAuth.mockReturnValue(user);
+    mockPrisma.enrollment.findUnique.mockResolvedValue({ id: "e1", completedAt: null, course: { title: "T" } });
+    mockPrisma.lesson.findFirst.mockResolvedValue({ id: "l1", kind: "ASSIGNMENT" });
+
+    const response = await POST(createRequest(), {
+      params: Promise.resolve({ courseId: "c1", lessonId: "l1" }),
+    });
+
+    expect(response.status).toBe(409);
+    expect(mockPrisma.lessonProgress.upsert).not.toHaveBeenCalled();
+  });
+
   it("returns 401 when user is not authenticated", async () => {
     mockAuth.mockReturnValue(null);
 

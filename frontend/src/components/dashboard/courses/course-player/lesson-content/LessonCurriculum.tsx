@@ -10,6 +10,7 @@ import { WantsVsNeedsArticleLessonContent } from "./WantsVsNeedsArticleLessonCon
 import { PdfLessonContent } from "./PdfLessonContent";
 import { SlideLessonContent } from "./SlideLessonContent";
 import { ComingSoonLessonContent } from "./ComingSoonLessonContent";
+import { AssignmentLessonContent } from "./AssignmentLessonContent";
 
 export function LessonCurriculum(props: LessonContentCommonProps) {
   if (props.lesson.kind === "quiz") {
@@ -27,6 +28,11 @@ export function LessonCurriculum(props: LessonContentCommonProps) {
         onSelectLesson={props.onSelectLesson}
       />
     );
+  }
+
+  // A week's assignment: download the brief, upload the work (completes on upload).
+  if (props.lesson.kind === "assignment") {
+    return <AssignmentLessonContent key={props.lesson.id} {...props} />;
   }
 
   // A week's slide deck (contentKey is the deck's PDF path).

@@ -98,40 +98,42 @@ model CourseModule {
 }
 
 model Lesson {
-  id         String             @id @default(uuid())
-  title      String
-  position   Int
-  duration   Int?
-  kind       LessonKind         @default(VIDEO)
-  contentUrl String?
-  contentKey String?
+  id          String                 @id @default(uuid())
+  title       String
+  position    Int
+  duration    Int?
+  kind        LessonKind             @default(VIDEO)
+  contentUrl  String?
+  contentKey  String?
   /// For PDF lessons: the section of the document this lesson covers (1-based, inclusive).
-  pageStart  Int?
-  pageEnd    Int?
-  moduleId   String
-  module     CourseModule       @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  quiz       Quiz?
-  progress   LessonProgress[]
-  activity   LearningActivity[]
+  pageStart   Int?
+  pageEnd     Int?
+  moduleId    String
+  module      CourseModule           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  quiz        Quiz?
+  progress    LessonProgress[]
+  activity    LearningActivity[]
+  submissions AssignmentSubmission[]
 
   @@index([moduleId])
   @@map("lessons")
 }
 
 model Enrollment {
-  id             String           @id @default(uuid())
+  id             String                 @id @default(uuid())
   userId         String
   courseId       String
-  enrolledAt     DateTime         @default(now())
+  enrolledAt     DateTime               @default(now())
   completedAt    DateTime?
   lastAccessedAt DateTime?
   /// The lesson the learner last had open, so "Resume" returns them to it.
   lastLessonId   String?
   /// Access ends at this moment (180 days after purchase/enrollment). Null = no expiry.
   expiresAt      DateTime?
-  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course         Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user           User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course         Course                 @relation(fields: [courseId], references: [id], onDelete: Cascade)
   lessonProgress LessonProgress[]
+  submissions    AssignmentSubmission[]
 
   @@unique([userId, courseId])
   @@index([userId])
@@ -149,6 +151,26 @@ model LessonProgress {
   @@unique([enrollmentId, lessonId])
   @@index([enrollmentId])
   @@map("lesson_progress")
+}
+
+/// A learner's uploaded work for an ASSIGNMENT lesson. One per learner per assignment;
+/// re-uploading replaces it. The file is stored in the database (assignments are small).
+model AssignmentSubmission {
+  id           String     @id @default(uuid())
+  enrollmentId String
+  lessonId     String
+  fileName     String
+  mimeType     String
+  size         Int
+  data         Bytes
+  submittedAt  DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  lesson       Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([enrollmentId, lessonId])
+  @@index([lessonId])
+  @@map("assignment_submissions")
 }
 
 model Quiz {
@@ -302,6 +324,8 @@ enum LessonKind {
   SCREEN
   QUIZ
   ASSESSMENT
+  /// A downloadable brief; the lesson completes when the learner uploads their work.
+  ASSIGNMENT
 }
 
 enum PaymentStatus {

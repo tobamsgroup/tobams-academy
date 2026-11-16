@@ -16,6 +16,7 @@ import { CoursePlayerSidebar } from "./CoursePlayerSidebar";
 import { LessonCurriculum } from "./lesson-content/LessonCurriculum";
 import { toPlayerCourse } from "./player-course";
 import { useCourseEnrollment } from "@/hooks/useCourseEnrollment";
+import type { LessonCompleteResult } from "@/types/enrollment";
 import { useCourseProgress } from "@/hooks/useCourseProgress";
 import { useEnrollments } from "@/hooks/useEnrollments";
 import { useLearningHeartbeat } from "@/hooks/useLearningHeartbeat";
@@ -39,6 +40,7 @@ export default function CoursePlayerView({
   const {
     completedLessonIds,
     completeLesson,
+    applyCompletion,
     isSavingLesson,
     markCompleteError,
     isLoading: enrollmentLoading,
@@ -115,6 +117,12 @@ export default function CoursePlayerView({
     }
   };
 
+  // An assignment upload completes the lesson server-side; mirror it in the outline and stats.
+  const completedByUpload = async (result: LessonCompleteResult) => {
+    await applyCompletion(result);
+    await Promise.all([mutateEnrollments(), mutateStats(), mutateProgress()]);
+  };
+
   const markComplete = async () => {
     if (!selectedLessonId || completedLessonIds.has(selectedLessonId)) return;
     // Pin the open lesson: completing it changes the resume target, and the page must not jump.
@@ -124,14 +132,15 @@ export default function CoursePlayerView({
 
   /**
    * Previous/Next from inside a lesson. Moving forward from a lesson with content counts as
-   * finishing it (quizzes complete by being submitted; "coming soon" lessons can't complete).
+   * finishing it (quizzes complete by being submitted, assignments by uploading work;
+   * "coming soon" lessons can't complete).
    * Navigation happens immediately; the completion is saved in the background.
    */
   const goToLesson = (id: string) => {
     const current = selected?.lesson;
     const movingForward = id === nextLesson?.id;
     const hasContent = Boolean(current?.contentKey || current?.contentUrl);
-    if (current && movingForward && current.kind !== "quiz" && hasContent) {
+    if (current && movingForward && current.kind !== "quiz" && current.kind !== "assignment" && hasContent) {
       void completeAndRefresh(current.id);
     }
     selectLesson(id);
@@ -243,6 +252,7 @@ export default function CoursePlayerView({
               prevLesson={prevLesson}
               nextLesson={nextLesson}
               onSelectLesson={goToLesson}
+              onCompletedExternally={completedByUpload}
             />
           ) : (
             <div className="p-8 text-center text-sm text-[#6C686C]">

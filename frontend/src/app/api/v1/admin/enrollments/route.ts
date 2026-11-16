@@ -1,25 +1,12 @@
 import { NextRequest } from 'next/server'
-import { timingSafeEqual } from 'node:crypto'
 import { prisma } from '@/lib/prisma'
 import { ok, err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
-import { getAuthUser } from '@/lib/with-auth'
+import { isAdminRequest } from '@/lib/admin-auth'
 import { logger } from '@/lib/logger'
 import { adminEnroll, MAX_ADMIN_ENROLLMENTS, parseTargets } from '@/lib/admin-enroll'
 
 const DEFAULT_COURSE_SLUG = 'time-intelligence-masterclass'
-
-/** Admin access: the ADMIN_API_KEY header (for scripts/back office) or a signed-in ADMIN. */
-function isAuthorised(req: NextRequest): boolean {
-  const expected = process.env.ADMIN_API_KEY
-  const provided = req.headers.get('x-admin-api-key')
-  if (expected && provided) {
-    const a = Buffer.from(provided)
-    const b = Buffer.from(expected)
-    if (a.length === b.length && timingSafeEqual(a, b)) return true
-  }
-  return getAuthUser(req)?.role === 'ADMIN'
-}
 
 /**
  * POST /api/v1/admin/enrollments
@@ -31,7 +18,7 @@ function isAuthorised(req: NextRequest): boolean {
  * enrolled (or have their access renewed) and notified. Returns a result per email.
  */
 export const POST = withRoute('/api/v1/admin/enrollments', async (req: NextRequest) => {
-  if (!isAuthorised(req)) return err('Unauthorized', 401)
+  if (!isAdminRequest(req)) return err('Unauthorized', 401)
 
   const body = await req.json().catch(() => null)
   if (!Array.isArray(body?.emails) || body.emails.length === 0) {

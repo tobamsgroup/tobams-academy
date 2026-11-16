@@ -3,29 +3,8 @@ import { prisma } from '@/lib/prisma'
 import { ok, err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
 import { getAuthUser } from '@/lib/with-auth'
-import { notify } from '@/lib/notifications'
-import { toLessonCompleteResult } from '@/lib/enrollment-utils'
 import { EXPIRED_MESSAGE, isAccessActive } from '@/lib/enrollment-access'
-
-async function computeProgress(enrollmentId: string, courseId: string) {
-  const [allLessons, lessonProgress] = await Promise.all([
-    prisma.lesson.findMany({
-      where: { module: { courseId } },
-      select: { id: true },
-    }),
-    prisma.lessonProgress.findMany({
-      where: { enrollmentId },
-      select: { lessonId: true },
-    }),
-  ])
-
-  const total = allLessons.length
-  const completed = lessonProgress.length
-  const progress = total > 0 ? Math.round((completed / total) * 100) : 0
-  const completedLessonIds = lessonProgress.map((lp) => lp.lessonId)
-
-  return { progress, completedLessonIds, total }
-}
+import { ASSIGNMENT_COMPLETION_MESSAGE, recordLessonCompletion } from '@/lib/lesson-completion'
 
 export const POST = withRoute(
   '/api/v1/enrollments/[courseId]/lessons/[lessonId]/complete',
@@ -45,65 +24,12 @@ export const POST = withRoute(
 
     const lesson = await prisma.lesson.findFirst({
       where: { id: lessonId, module: { courseId } },
-      select: { id: true },
+      select: { id: true, kind: true },
     })
     if (!lesson) return err('Lesson not found in this course', 404)
+    // Assignments complete when the learner uploads their work (POST /lessons/:id/submission).
+    if (lesson.kind === 'ASSIGNMENT') return err(ASSIGNMENT_COMPLETION_MESSAGE, 409)
 
-    const alreadyCompleted = await prisma.lessonProgress.findUnique({
-      where: { enrollmentId_lessonId: { enrollmentId: enrollment.id, lessonId } },
-      select: { id: true },
-    })
-
-    const row = await prisma.lessonProgress.upsert({
-      where: { enrollmentId_lessonId: { enrollmentId: enrollment.id, lessonId } },
-      update: {},
-      create: { enrollmentId: enrollment.id, lessonId },
-    })
-
-    await prisma.enrollment.update({
-      where: { id: enrollment.id },
-      data: { lastAccessedAt: new Date() },
-    })
-
-    const result = await computeProgress(enrollment.id, courseId)
-
-    // Mark enrollment as completed when progress reaches 100%
-    const courseCompleted = result.progress === 100
-    if (courseCompleted && !enrollment.completedAt) {
-      await prisma.enrollment.update({
-        where: { id: enrollment.id },
-        data: { completedAt: new Date() },
-      })
-      await notify(user.id, {
-        type: 'COURSE_UPDATE',
-        title: 'Course completed',
-        message: `Congratulations! You've completed "${enrollment.course.title}".`,
-        category: 'progressTracking',
-      })
-    } else if (!alreadyCompleted && result.total > 0) {
-      // Notify once, on the lesson that takes progress past the halfway mark.
-      const before = Math.round(((result.completedLessonIds.length - 1) / result.total) * 100)
-      if (before < 50 && result.progress >= 50) {
-        await notify(user.id, {
-          type: 'COURSE_UPDATE',
-          title: 'Halfway there',
-          message: `You're ${result.progress}% through "${enrollment.course.title}". Keep going!`,
-          category: 'progressTracking',
-        })
-      }
-    }
-
-    // The client uses completedAt to keep the lesson ticked; without it the tick vanished
-    // after the server replied (the "flaky" completion).
-    return ok({
-      ...toLessonCompleteResult(
-        lessonId,
-        row?.completedAt ?? new Date(),
-        result.completedLessonIds.length,
-        result.total,
-        courseCompleted,
-      ),
-      completedLessonIds: result.completedLessonIds,
-    })
+    return ok(await recordLessonCompletion({ userId: user.id, courseId, lessonId, enrollment }))
   },
 )

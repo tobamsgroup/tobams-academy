@@ -113,6 +113,26 @@ export function useCourseEnrollment(courseId: string | undefined) {
     [accessToken, completedLessonIds, courseId, mutate],
   )
 
+  /** Apply a completion the server already recorded elsewhere (e.g. an assignment upload). */
+  const applyCompletion = useCallback(
+    async (result: LessonCompleteResult) => {
+      await mutate(
+        (current) =>
+          current
+            ? {
+                ...current,
+                progress: result.progress,
+                completedAt: result.courseCompleted ? result.completedAt : current.completedAt,
+                lastAccessedAt: result.completedAt,
+                lessonProgress: markLessonCompleted(current.lessonProgress, result.lessonId, result.completedAt),
+              }
+            : current,
+        { revalidate: false },
+      )
+    },
+    [mutate],
+  )
+
   const isMarkingComplete = savingIds.size > 0
   const isSavingLesson = useCallback((lessonId: string) => savingIds.has(lessonId), [savingIds])
 
@@ -121,6 +141,7 @@ export function useCourseEnrollment(courseId: string | undefined) {
     completedLessonIds,
     isSavingLesson,
     completeLesson,
+    applyCompletion,
     isMarkingComplete,
     markCompleteError,
     error,
