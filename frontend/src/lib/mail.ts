@@ -207,7 +207,7 @@ export async function sendCourseEnrollmentEmail(params: {
   temporaryPassword?: string
 }) {
   const { to, name, courseTitle, courseSlug, expiresAt, temporaryPassword } = params
-  const loginLink = `${clientUrl()}/login?callbackUrl=${encodeURIComponent(`/dashboard/courses/${courseSlug}`)}`
+  const loginLink = `${clientUrl()}/login`
   const until = expiresAt.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
   const credentials = temporaryPassword
     ? `
