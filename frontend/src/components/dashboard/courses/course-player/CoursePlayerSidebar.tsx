@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight, ClipboardCheck, FileText, MonitorPlay, PanelLeftClose, PanelLeftOpen, CheckCircle2 } from "lucide-react";
+import { ChevronDown, ChevronRight, ClipboardCheck, FileText, MonitorPlay, PanelLeftClose, PanelLeftOpen, CheckCircle2, Lock } from "lucide-react";
 import type { PlayerLesson, PlayerModule } from "./curriculum";
 import { cn } from "@/lib/utils";
 import { ICONS } from "@/assets/icons";
@@ -44,6 +44,8 @@ type CoursePlayerSidebarProps = {
   expandedModuleIds: Set<string>;
   selectedLessonId: string;
   completedLessonIds: Set<string>;
+  /** Weeks not yet unlocked (previous week's quiz not passed). */
+  lockedModuleIds?: Set<string>;
   open: boolean;
   onToggleModule: (moduleId: string) => void;
   onSelectLesson: (lessonId: string) => void;
@@ -56,6 +58,7 @@ export function CoursePlayerSidebar({
   expandedModuleIds,
   selectedLessonId,
   completedLessonIds,
+  lockedModuleIds,
   open,
   onToggleModule,
   onSelectLesson,
@@ -96,6 +99,7 @@ export function CoursePlayerSidebar({
       <nav className="min-h-0 flex-1 overflow-y-auto py-3">
         {modules.map((m) => {
           const isExpanded = expandedModuleIds.has(m.id);
+          const isLocked = lockedModuleIds?.has(m.id) ?? false;
           return (
             <div key={m.id} className="mb-1 border-b border-[#F0F0F0] pb-1 last:border-0">
               <button
@@ -108,9 +112,18 @@ export function CoursePlayerSidebar({
                 ) : (
                   <ChevronRight className="h-4 w-4 shrink-0 text-[#6C686C]" strokeWidth={2} />
                 )}
-                <span className="min-w-0 flex-1 truncate">{m.title}</span>
-                <span className="shrink-0 text-xs text-[#6C686C]">{moduleProgress(m)}</span>
+                <span className={cn("min-w-0 flex-1 truncate", isLocked && "text-[#9CA3AF]")}>{m.title}</span>
+                {isLocked ? (
+                  <Lock className="h-4 w-4 shrink-0 text-[#9CA3AF]" strokeWidth={2} aria-label="Locked" />
+                ) : (
+                  <span className="shrink-0 text-xs text-[#6C686C]">{moduleProgress(m)}</span>
+                )}
               </button>
+              {isLocked && isExpanded ? (
+                <p className="px-8 pb-1 text-xs text-[#6C686C]">
+                  Pass the previous week&apos;s quiz to unlock this week.
+                </p>
+              ) : null}
               {isExpanded && (
                 <ul className="mt-0.5 space-y-0.5 pb-2">
                   {m.lessons.map((lesson) => {
@@ -121,11 +134,14 @@ export function CoursePlayerSidebar({
                         <button
                           type="button"
                           onClick={() => onSelectLesson(lesson.id)}
+                          disabled={isLocked}
                           className={cn(
                             "flex w-full items-start gap-2 px-6 py-4 text-left transition-colors",
                             active
                               ? "bg-[#303869] font-medium text-white"
-                              : "text-[#474348] hover:bg-[#F0F4F8]",
+                              : isLocked
+                                ? "cursor-not-allowed text-[#9CA3AF]"
+                                : "text-[#474348] hover:bg-[#F0F4F8]",
                           )}
                         >
                           <LessonKindIcon
@@ -143,7 +159,9 @@ export function CoursePlayerSidebar({
                               {lessonMeta(lesson)}
                             </p>
                           </div>
-                          {done ? (
+                          {isLocked ? (
+                            <Lock className="mt-0.5 h-4 w-4 shrink-0 text-[#9CA3AF]" strokeWidth={2} aria-hidden />
+                          ) : done ? (
                             <CheckCircle2
                               className={cn("mt-0.5 h-5 w-5 shrink-0", active ? "text-white" : "text-[#4CAF50]")}
                               aria-label="Completed"

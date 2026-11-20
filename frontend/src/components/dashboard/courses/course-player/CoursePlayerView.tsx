@@ -41,6 +41,7 @@ export default function CoursePlayerView({
 
   const {
     completedLessonIds,
+    lockedModuleIds,
     completeLesson,
     applyCompletion,
     isSavingLesson,
@@ -48,6 +49,7 @@ export default function CoursePlayerView({
     isLoading: enrollmentLoading,
     error: enrollmentError,
     enrollment,
+    mutate: refreshEnrollment,
   } = useCourseEnrollment(course.id);
   const { progress: apiProgress, mutate: mutateProgress } = useCourseProgress(course.id);
   const { mutate: mutateEnrollments, mutateStats } = useEnrollments();
@@ -67,7 +69,24 @@ export default function CoursePlayerView({
     [modules, completedLessonIds, enrollment?.lastLessonId],
   );
   const linked = initialLessonId ? findLesson(modules, initialLessonId)?.lesson.id : undefined;
-  const selectedLessonId = chosenLessonId ?? linked ?? resumeId ?? firstLesson?.id ?? "";
+
+  // Weeks unlock in order: a week opens once the previous week's quiz has been passed.
+  const isLessonLocked = (id: string) => {
+    const moduleId = findLesson(modules, id)?.module.id;
+    return Boolean(moduleId && lockedModuleIds.has(moduleId));
+  };
+  // Where to send a learner whose target lesson is locked: the quiz holding them back
+  // (in the last open week), or that week's first lesson.
+  const gateLessonId = useMemo(() => {
+    const firstLocked = modules.findIndex((m) => lockedModuleIds.has(m.id));
+    if (firstLocked <= 0) return undefined;
+    const gate = modules[firstLocked - 1];
+    return (gate.lessons.find((l) => l.kind === "quiz") ?? gate.lessons[0])?.id;
+  }, [modules, lockedModuleIds]);
+  const wantedLessonId = chosenLessonId ?? linked ?? resumeId ?? firstLesson?.id ?? "";
+  const selectedLessonId =
+    wantedLessonId && isLessonLocked(wantedLessonId) ? gateLessonId ?? firstLesson?.id ?? "" : wantedLessonId;
+  const [lockNotice, setLockNotice] = useState<string | null>(null);
 
   // Modules start collapsed except the one holding the open lesson, until the learner toggles.
   const [expandedOverride, setExpandedOverride] = useState<Set<string> | null>(null);
@@ -95,6 +114,11 @@ export default function CoursePlayerView({
   const nextLesson = useMemo(() => findAdjacentLesson(modules, selectedLessonId, "next"), [modules, selectedLessonId]);
 
   const selectLesson = (id: string) => {
+    if (isLessonLocked(id)) {
+      setLockNotice("This week is locked. Pass the previous week's quiz to unlock it.");
+      return;
+    }
+    setLockNotice(null);
     setChosenLessonId(id);
     // Keep the newly opened lesson's module visible in the outline.
     const moduleId = findLesson(modules, id)?.module.id;
@@ -165,6 +189,7 @@ export default function CoursePlayerView({
     expandedModuleIds,
     selectedLessonId,
     completedLessonIds,
+    lockedModuleIds,
     onToggleModule: toggleModule,
     onSelectLesson: selectLesson,
     onClose: () => {
@@ -264,6 +289,18 @@ export default function CoursePlayerView({
               />
             </div>
           ) : null}
+          {lockNotice ? (
+            <div className="mx-6 mt-4 flex items-start justify-between gap-3 rounded-lg border border-[#F5D97A] bg-[#FFF7CC] px-4 py-3 text-sm text-[#5C4B00] md:mx-[45px]">
+              <span>{lockNotice}</span>
+              <button
+                type="button"
+                onClick={() => setLockNotice(null)}
+                className="shrink-0 font-medium underline"
+              >
+                Dismiss
+              </button>
+            </div>
+          ) : null}
           {markCompleteError ? (
             <div className="mx-6 mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
               {markCompleteError}
@@ -282,6 +319,7 @@ export default function CoursePlayerView({
               nextLesson={nextLesson}
               onSelectLesson={goToLesson}
               onCompletedExternally={completedByUpload}
+              onQuizAttempted={() => void refreshEnrollment()}
             />
           ) : (
             <div className="p-8 text-center text-sm text-[#6C686C]">

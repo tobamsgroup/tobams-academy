@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { err } from '@/lib/api-utils'
 import { EXPIRED_MESSAGE, isAccessActive } from '@/lib/enrollment-access'
+import { LOCKED_LESSON_MESSAGE, isLessonLocked } from '@/lib/week-locks'
 
 export const MAX_SUBMISSION_BYTES = 10 * 1024 * 1024 // 10 MB
 
@@ -109,6 +110,7 @@ export async function loadAssignmentForLearner(userId: string, lessonId: string)
   })
   if (!enrollment) return { error: err('Not enrolled in this course', 403) }
   if (!isAccessActive(enrollment)) return { error: err(EXPIRED_MESSAGE, 403) }
+  if (await isLessonLocked(userId, lessonId)) return { error: err(LOCKED_LESSON_MESSAGE, 403) }
 
   const courseTitle = lesson.module.course.title
   return {

@@ -9,7 +9,7 @@ export const quizSeeds: Record<string, QuizSeed> = {
   'pm-basics-quiz': {
     timeLimit: 10,
     passingScore: 70,
-    attemptsAllowed: 2,
+    attemptsAllowed: 3,
     questions: [
       {
         text: 'What is the primary responsibility of a Product Manager?',
@@ -77,7 +77,7 @@ export const quizSeeds: Record<string, QuizSeed> = {
   'data-final-quiz': {
     timeLimit: 15,
     passingScore: 70,
-    attemptsAllowed: 2,
+    attemptsAllowed: 3,
     questions: [
       {
         text: 'Which pandas method returns the first 5 rows of a DataFrame?',
@@ -111,7 +111,7 @@ export const quizSeeds: Record<string, QuizSeed> = {
   'leadership-styles-quiz': {
     timeLimit: 10,
     passingScore: 65,
-    attemptsAllowed: 2,
+    attemptsAllowed: 3,
     questions: [
       {
         text: 'Which leadership style involves the leader making decisions without team input?',
@@ -145,7 +145,7 @@ export const quizSeeds: Record<string, QuizSeed> = {
   'html-css-quiz': {
     timeLimit: 10,
     passingScore: 70,
-    attemptsAllowed: 2,
+    attemptsAllowed: 3,
     questions: [
       {
         text: 'Which HTML element is used to define the largest heading?',
@@ -179,7 +179,7 @@ export const quizSeeds: Record<string, QuizSeed> = {
   'fullstack-final-quiz': {
     timeLimit: 15,
     passingScore: 70,
-    attemptsAllowed: 2,
+    attemptsAllowed: 3,
     questions: [
       {
         text: 'Which HTTP method is typically used to create a new resource in a REST API?',

@@ -26,6 +26,7 @@ export function LessonCurriculum(props: LessonContentCommonProps) {
         prevLessonId={props.prevLesson?.id}
         nextLessonId={props.nextLesson?.id}
         onSelectLesson={props.onSelectLesson}
+        onAttempted={props.onQuizAttempted}
       />
     );
   }

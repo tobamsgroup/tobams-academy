@@ -5,6 +5,11 @@ import { getAuthUser } from "@/lib/with-auth";
 import { notify } from "@/lib/notifications";
 import { recordLessonCompletion } from "@/lib/lesson-completion";
 
+jest.mock("@/lib/week-locks", () => ({
+  LOCKED_LESSON_MESSAGE: "Pass the previous week's quiz to unlock this week.",
+  isLessonLocked: jest.fn().mockResolvedValue(false),
+}));
+
 jest.mock("@/lib/prisma", () => ({
   prisma: {
     lesson: { findUnique: jest.fn() },

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Timer } from "lucide-react";
+import { CheckCircle2, ChevronLeft, ChevronRight, Timer, XCircle } from "lucide-react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useQuiz } from "@/hooks/useQuiz";
@@ -20,7 +20,13 @@ export type QuizLessonContentProps = {
   prevLessonId?: string;
   nextLessonId?: string;
   onSelectLesson?: (id: string) => void;
+  /** Called after an attempt is graded (passing can unlock the next week). */
+  onAttempted?: () => void;
 };
+
+function formatAttemptDate(iso: string) {
+  return new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+}
 
 export function QuizLessonContent({
   lessonId,
@@ -32,8 +38,9 @@ export function QuizLessonContent({
   prevLessonId,
   nextLessonId,
   onSelectLesson,
+  onAttempted,
 }: QuizLessonContentProps) {
-  const { quiz, error, isLoading, submitAttempt } = useQuiz(lessonId);
+  const { quiz, error, isLoading, submitAttempt, mutate: refreshQuiz } = useQuiz(lessonId);
   const { data: authSession } = useSession();
   // The attempt in progress (start time + answers) survives reloads and tab switches.
   const attempt = useQuizSession(authSession?.user?.id, quiz?.id, quiz?.timeLimit ?? 0);
@@ -45,6 +52,14 @@ export function QuizLessonContent({
   const autoSubmitted = useRef(false);
 
   const phase = result ? "result" : attempt.isActive ? "active" : "intro";
+  const noAttemptsLeft = quiz ? quiz.attemptsRemaining <= 0 : false;
+
+  // An attempt saved in this browser can't be submitted once every attempt has been used
+  // (e.g. finished in another tab): drop it rather than let the learner answer for nothing.
+  useEffect(() => {
+    if (noAttemptsLeft && attempt.isActive && !isSubmitting && !result) attempt.clear();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [noAttemptsLeft, attempt.isActive, isSubmitting, result]);
 
   const metaItems = useMemo(() => {
     if (!quiz) return [];
@@ -54,6 +69,7 @@ export function QuizLessonContent({
       { label: "Question Type", value: quiz.questionType },
       { label: "Passing Score", value: `${quiz.passingScore}%` },
       { label: "Attempts Allowed", value: String(quiz.attemptsAllowed) },
+      { label: "Attempts Used", value: `${quiz.attempts.length} of ${quiz.attemptsAllowed}` },
     ];
   }, [quiz]);
 
@@ -68,12 +84,15 @@ export function QuizLessonContent({
       if (graded.isPassed && onMarkComplete && !isCompleted) {
         await onMarkComplete();
       }
+      await refreshQuiz();
+      onAttempted?.();
     } catch (e) {
       const status = axios.isAxiosError(e) ? e.response?.status : undefined;
       if (status === 429) {
         // No attempts left: this attempt can't be recorded, so drop it.
         attempt.clear();
         setSubmitError(`You have used all ${quiz.attemptsAllowed} attempts for this quiz.`);
+        void refreshQuiz();
       } else {
         setSubmitError("Unable to submit quiz. Check your connection and try again.");
       }
@@ -129,18 +148,80 @@ export function QuizLessonContent({
               ))}
             </ul>
 
-            <p className="mt-6 text-base text-[#111827]">Ensure you have a stable internet connection.</p>
+            {quiz.attempts.length > 0 ? (
+              <div className="mt-8 rounded-lg border border-[#D3D2D366] bg-[#FAFBFC] p-4 md:p-5">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h4 className="text-base font-semibold text-[#111827]">Your previous attempts</h4>
+                  <span
+                    className={cn(
+                      "rounded-full px-3 py-1 text-xs font-semibold",
+                      quiz.hasPassed ? "bg-[#E7F6EC] text-[#0F7B3F]" : "bg-[#FDECEC] text-[#B42318]",
+                    )}
+                  >
+                    {quiz.hasPassed ? "Passed" : "Not passed yet"}
+                  </span>
+                </div>
+                <p className="mt-2 text-sm text-[#474348]">
+                  Best score: <span className="font-semibold text-[#111827]">{quiz.bestScore ?? 0}%</span>
+                </p>
+                <ul className="mt-3 divide-y divide-[#EEF0F6]">
+                  {quiz.attempts.map((a, i) => (
+                    <li key={a.completedAt} className="flex items-center justify-between gap-3 py-2 text-sm">
+                      <span className="inline-flex items-center gap-2 text-[#474348]">
+                        {a.isPassed ? (
+                          <CheckCircle2 className="h-4 w-4 text-[#0F7B3F]" aria-label="Passed" />
+                        ) : (
+                          <XCircle className="h-4 w-4 text-[#B42318]" aria-label="Not passed" />
+                        )}
+                        Attempt {i + 1} · {formatAttemptDate(a.completedAt)}
+                      </span>
+                      <span className="font-semibold tabular-nums text-[#111827]">{a.score}%</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
 
-            <button
-              type="button"
-              onClick={() => {
-                autoSubmitted.current = false;
-                attempt.start();
-              }}
-              className="mt-8 w-full rounded-lg bg-[#303869] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#252d56] md:w-auto"
-            >
-              Start Quiz
-            </button>
+            {submitError ? (
+              <div className="mt-6 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{submitError}</div>
+            ) : null}
+
+            {noAttemptsLeft ? (
+              <p className="mt-6 rounded-lg bg-[#F3F4F6] px-4 py-3 text-sm text-[#474348]">
+                You have used all {quiz.attemptsAllowed} attempts for this quiz.
+                {quiz.hasPassed ? null : (
+                  <>
+                    {" "}To request another attempt, email{" "}
+                    <a href="mailto:theteam@tobamsgroup.com" className="font-medium text-[#303869] underline">
+                      theteam@tobamsgroup.com
+                    </a>
+                    .
+                  </>
+                )}
+              </p>
+            ) : (
+              <>
+                <p className="mt-6 text-base text-[#111827]">Ensure you have a stable internet connection.</p>
+                {quiz.attempts.length > 0 ? (
+                  <p className="mt-2 text-sm text-[#6C686C]">
+                    {quiz.attemptsRemaining === 1
+                      ? "This is your last attempt."
+                      : `You have ${quiz.attemptsRemaining} attempts left.`}
+                  </p>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={() => {
+                    autoSubmitted.current = false;
+                    setSubmitError(null);
+                    attempt.start();
+                  }}
+                  className="mt-8 w-full rounded-lg bg-[#303869] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#252d56] md:w-auto"
+                >
+                  {quiz.attempts.length > 0 ? "Retake Quiz" : "Start Quiz"}
+                </button>
+              </>
+            )}
           </div>
         ) : phase === "active" ? (
           <>
@@ -199,12 +280,26 @@ export function QuizLessonContent({
               Your score: <span className="font-semibold text-[#111827]">{result?.score ?? 0}%</span>
               {quiz ? ` (passing score: ${quiz.passingScore}%)` : null}
             </p>
+            {quiz ? (
+              <p className="mt-2 text-sm text-[#6C686C]">
+                {quiz.attemptsRemaining > 0
+                  ? `Attempts left: ${quiz.attemptsRemaining} of ${quiz.attemptsAllowed}.`
+                  : `You have used all ${quiz.attemptsAllowed} attempts.`}
+              </p>
+            ) : null}
+            <button
+              type="button"
+              onClick={() => setResult(null)}
+              className="mt-6 mr-3 rounded-lg border border-[#303869] px-6 py-3 text-sm font-medium text-[#303869] transition hover:bg-[#F0F4F8]"
+            >
+              {!result?.isPassed && quiz && quiz.attemptsRemaining > 0 ? "Try Again" : "View Attempts"}
+            </button>
             {!result?.isPassed && onMarkComplete ? (
               <button
                 type="button"
                 onClick={onMarkComplete}
                 disabled={isCompleted || isMarkingComplete}
-                className="mt-8 rounded-lg bg-[#303869] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#252d56] disabled:cursor-default disabled:opacity-60"
+                className="mt-6 rounded-lg bg-[#303869] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#252d56] disabled:cursor-default disabled:opacity-60"
               >
                 {isCompleted ? "Completed" : isMarkingComplete ? "Saving…" : "Mark As Completed"}
               </button>

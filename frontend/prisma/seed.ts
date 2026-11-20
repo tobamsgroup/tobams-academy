@@ -277,7 +277,7 @@ const quizSeeds: Record<string, {
   'pm-basics-quiz': {
     timeLimit: 10,
     passingScore: 70,
-    attemptsAllowed: 2,
+    attemptsAllowed: 3,
     questions: [
       {
         text: 'What is the primary responsibility of a Product Manager?',
@@ -345,7 +345,7 @@ const quizSeeds: Record<string, {
   'leadership-styles-quiz': {
     timeLimit: 10,
     passingScore: 65,
-    attemptsAllowed: 2,
+    attemptsAllowed: 3,
     questions: [
       {
         text: 'Which leadership style involves the leader making decisions without team input?',
@@ -379,7 +379,7 @@ const quizSeeds: Record<string, {
   'html-css-quiz': {
     timeLimit: 10,
     passingScore: 70,
-    attemptsAllowed: 2,
+    attemptsAllowed: 3,
     questions: [
       {
         text: 'Which HTML element is used to define the largest heading?',

@@ -203,7 +203,7 @@ model Quiz {
   lessonId        String         @unique
   timeLimit       Int
   passingScore    Int
-  attemptsAllowed Int            @default(2)
+  attemptsAllowed Int            @default(3)
   questionType    String         @default("Multiple Choice")
   lesson          Lesson         @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   questions       QuizQuestion[]

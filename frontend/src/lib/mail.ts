@@ -206,8 +206,10 @@ export async function sendCourseEnrollmentEmail(params: {
   /** Set only for accounts created for this enrollment. */
   temporaryPassword?: string
 }) {
-  const { to, name, courseTitle, courseSlug, expiresAt, temporaryPassword } = params
-  const loginLink = `${clientUrl()}/login`
+  const { to, name, courseTitle, expiresAt, temporaryPassword } = params
+  // The dashboard, not the course: new learners find their way from there. Signed-out
+  // visitors are sent through login and brought back here.
+  const dashboardLink = `${clientUrl()}/dashboard`
   const until = expiresAt.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
   const credentials = temporaryPassword
     ? `
@@ -222,8 +224,8 @@ export async function sendCourseEnrollmentEmail(params: {
     <h2>You're enrolled in ${escapeHtml(courseTitle)}</h2>
     <p>Hi ${escapeHtml(name)}, you've been enrolled in <strong>${escapeHtml(courseTitle)}</strong> on Tobams Academy.</p>
     ${credentials}
-    <a href="${loginLink}" style="background:#571244;color:white;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;margin:12px 0;">
-      Start learning
+    <a href="${dashboardLink}" style="background:#571244;color:white;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;margin:12px 0;">
+      Go to my dashboard
     </a>
     <p>Your access runs until <strong>${until}</strong>.</p>
   `

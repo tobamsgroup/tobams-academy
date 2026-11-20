@@ -186,12 +186,12 @@ async function seedQuizzes(courseId: string) {
 
     const quiz = await prisma.quiz.upsert({
       where: { lessonId: lesson.id },
-      update: { timeLimit: week.timeLimitMinutes, passingScore: week.passingScore },
+      update: { timeLimit: week.timeLimitMinutes, passingScore: week.passingScore, attemptsAllowed: 3 },
       create: {
         lessonId: lesson.id,
         timeLimit: week.timeLimitMinutes,
         passingScore: week.passingScore,
-        attemptsAllowed: 2,
+        attemptsAllowed: 3,
       },
     })
 

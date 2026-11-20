@@ -6,6 +6,7 @@ import { grantAccess } from '@/lib/enrollment-access'
 import { sendCourseEnrollmentEmail } from '@/lib/mail'
 import { notify } from '@/lib/notifications'
 import { isStrongPassword } from '@/lib/password-rules'
+import { chargeAmount } from '@/lib/pricing'
 
 export const MAX_ADMIN_ENROLLMENTS = 200
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -67,13 +68,17 @@ export function parseTargets(input: unknown): { targets: EnrollTarget[]; invalid
   return { targets, invalid }
 }
 
+/** How admin enrollments appear in payment history: these learners have already paid. */
+export const ADMIN_PAYMENT_METHOD = 'Paid'
+
 /**
- * Enroll people in a course without payment. New emails get an account (verified, with a
+ * Enroll people who have already paid for a course outside the site (recorded at the price the
+ * course currently charges, early-bird included). New emails get an account (verified, with a
  * temporary password in the email); existing accounts keep their password. Access runs for
  * the standard period from now (renewing it if they were already enrolled).
  */
 export async function adminEnroll(
-  course: { id: string; slug: string; title: string },
+  course: { id: string; slug: string; title: string; price?: unknown; earlyBirdPrice?: unknown },
   target: EnrollTarget,
 ): Promise<EnrollOutcome> {
   try {
@@ -105,10 +110,10 @@ export async function adminEnroll(
         data: {
           userId: user.id,
           courseId: course.id,
-          amount: 0,
+          amount: chargeAmount({ price: course.price ?? null, earlyBirdPrice: course.earlyBirdPrice }),
           status: 'COMPLETED',
           reference: `ADMIN-${randomUUID()}`,
-          paymentMethod: 'Complimentary enrollment',
+          paymentMethod: ADMIN_PAYMENT_METHOD,
         },
       })
       return grantAccess(tx, user.id, [course.id])

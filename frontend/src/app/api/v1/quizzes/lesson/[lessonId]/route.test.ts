@@ -2,6 +2,12 @@ import { GET } from "./route";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { getAuthUser } from "@/lib/with-auth";
+import { isLessonLocked } from "@/lib/week-locks";
+
+jest.mock("@/lib/week-locks", () => ({
+  LOCKED_LESSON_MESSAGE: "Pass the previous week's quiz to unlock this week.",
+  isLessonLocked: jest.fn().mockResolvedValue(false),
+}));
 
 jest.mock("@/lib/prisma", () => ({
   prisma: {
@@ -10,6 +16,9 @@ jest.mock("@/lib/prisma", () => ({
     },
     enrollment: {
       findFirst: jest.fn(),
+    },
+    quizAttempt: {
+      findMany: jest.fn(),
     },
   },
 }));
@@ -24,6 +33,9 @@ const mockPrisma = prisma as unknown as {
   };
   enrollment: {
     findFirst: jest.Mock;
+  };
+  quizAttempt: {
+    findMany: jest.Mock;
   };
 };
 
@@ -74,6 +86,46 @@ describe("GET /api/v1/quizzes/lesson/[lessonId]", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockPrisma.enrollment.findFirst.mockResolvedValue({ id: "e1" });
+    mockPrisma.quizAttempt.findMany.mockResolvedValue([]);
+  });
+
+  it("should return 403 when the quiz is in a week that is still locked", async () => {
+    mockAuth.mockReturnValue(user);
+    mockPrisma.quiz.findUnique.mockResolvedValue(mockQuiz);
+    (isLessonLocked as jest.Mock).mockResolvedValueOnce(true);
+
+    const response = await GET(createRequest(), {
+      params: Promise.resolve({ lessonId: "l1" }),
+    });
+
+    expect(response.status).toBe(403);
+  });
+
+  it("should include the learner's previous attempts and remaining attempts", async () => {
+    mockAuth.mockReturnValue(user);
+    mockPrisma.quiz.findUnique.mockResolvedValue({ ...mockQuiz, attemptsAllowed: 2 });
+    mockPrisma.quizAttempt.findMany.mockResolvedValue([
+      { score: 40, isPassed: false, completedAt: new Date("2026-11-10T10:00:00Z") },
+      { score: 80, isPassed: true, completedAt: new Date("2026-11-11T10:00:00Z") },
+    ]);
+
+    const response = await GET(createRequest(), {
+      params: Promise.resolve({ lessonId: "l1" }),
+    });
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.data).toEqual(
+      expect.objectContaining({
+        attempts: [
+          { score: 40, isPassed: false, completedAt: "2026-11-10T10:00:00.000Z" },
+          { score: 80, isPassed: true, completedAt: "2026-11-11T10:00:00.000Z" },
+        ],
+        attemptsRemaining: 0,
+        bestScore: 80,
+        hasPassed: true,
+      }),
+    );
   });
 
   it("should return 403 if the user is not enrolled in the quiz's course", async () => {

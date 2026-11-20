@@ -14,6 +14,8 @@ export type LessonContentCommonProps = {
   onSelectLesson: (id: string) => void;
   /** The server completed this lesson by other means (an assignment upload): refresh progress. */
   onCompletedExternally?: (result: LessonCompleteResult) => void | Promise<void>;
+  /** A quiz attempt was graded: refresh which weeks are unlocked. */
+  onQuizAttempted?: () => void;
 };
 
 export type DefaultLessonContentProps = LessonContentCommonProps & {

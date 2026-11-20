@@ -54,6 +54,8 @@ export function useCourseEnrollment(courseId: string | undefined) {
     [data?.lessonProgress],
   )
 
+  const lockedModuleIds = useMemo(() => new Set(data?.lockedModuleIds ?? []), [data?.lockedModuleIds])
+
   const completeLesson = useCallback(
     async (lessonId: string): Promise<LessonCompleteResult | null> => {
       if (!accessToken || !courseId) return null
@@ -139,6 +141,7 @@ export function useCourseEnrollment(courseId: string | undefined) {
   return {
     enrollment: data,
     completedLessonIds,
+    lockedModuleIds,
     isSavingLesson,
     completeLesson,
     applyCompletion,

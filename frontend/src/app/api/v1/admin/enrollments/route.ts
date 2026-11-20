@@ -13,7 +13,8 @@ const DEFAULT_COURSE_SLUG = 'time-intelligence-masterclass'
  * Headers: x-admin-api-key: <ADMIN_API_KEY>
  * Body:    { "emails": ["a@x.com", { "email": "b@y.com", "name": "Bola Ade" }], "courseSlug"?: "..." }
  *
- * Enrolls each person without payment (default course: Time Intelligence Masterclass).
+ * Enrolls each person who has paid offline, recording what they paid (the course's current
+ * price, early-bird included) in their payment history (default course: Time Intelligence Masterclass).
  * New emails get an account and a temporary password by email; existing accounts are
  * enrolled (or have their access renewed) and notified. Returns a result per email.
  */
@@ -31,7 +32,7 @@ export const POST = withRoute('/api/v1/admin/enrollments', async (req: NextReque
   const courseSlug = typeof body.courseSlug === 'string' && body.courseSlug ? body.courseSlug : DEFAULT_COURSE_SLUG
   const course = await prisma.course.findFirst({
     where: { slug: courseSlug, status: 'PUBLISHED' },
-    select: { id: true, slug: true, title: true },
+    select: { id: true, slug: true, title: true, price: true, earlyBirdPrice: true },
   })
   if (!course) return err(`Course "${courseSlug}" not found`, 404)
 

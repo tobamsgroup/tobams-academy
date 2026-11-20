@@ -8,6 +8,7 @@ import {
   getCourseLessonCount,
   toEnrollmentDetail,
 } from '@/lib/enrollment-utils'
+import { getLockedModuleIds } from '@/lib/week-locks'
 
 export const GET = withRoute(
   '/api/v1/enrollments/me/:courseId',
@@ -25,8 +26,11 @@ export const GET = withRoute(
 
     if (!enrollment) return err('Not enrolled in this course', 404)
 
-    const totalLessons = await getCourseLessonCount(courseId)
+    const [totalLessons, lockedModuleIds] = await Promise.all([
+      getCourseLessonCount(courseId),
+      getLockedModuleIds(authUser.id, courseId),
+    ])
 
-    return ok(toEnrollmentDetail(enrollment, totalLessons))
+    return ok({ ...toEnrollmentDetail(enrollment, totalLessons), lockedModuleIds })
   },
 )

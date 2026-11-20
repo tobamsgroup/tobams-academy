@@ -4,6 +4,7 @@ import { ok, err } from '@/lib/api-utils'
 import { withRoute } from '@/lib/with-route'
 import { getAuthUser } from '@/lib/with-auth'
 import { activeEnrollmentWhere } from '@/lib/enrollment-access'
+import { LOCKED_LESSON_MESSAGE, isLessonLocked } from '@/lib/week-locks'
 
 export const GET = withRoute(
   '/api/v1/quizzes/lesson/[lessonId]',
@@ -37,12 +38,28 @@ export const GET = withRoute(
       select: { id: true },
     })
     if (!enrolled) return err('You need active access to this course to take this quiz', 403)
+    if (await isLessonLocked(user.id, lessonId)) return err(LOCKED_LESSON_MESSAGE, 403)
+
+    // The learner's own history, so the quiz page can show past scores and remaining attempts.
+    const attempts = await prisma.quizAttempt.findMany({
+      where: { quizId: quiz.id, userId: user.id },
+      orderBy: { completedAt: 'asc' },
+      select: { score: true, isPassed: true, completedAt: true },
+    })
 
     return ok({
       id: quiz.id,
       timeLimit: quiz.timeLimit,
       passingScore: quiz.passingScore,
       attemptsAllowed: quiz.attemptsAllowed,
+      attempts: attempts.map((a) => ({
+        score: a.score,
+        isPassed: a.isPassed,
+        completedAt: a.completedAt.toISOString(),
+      })),
+      attemptsRemaining: Math.max(0, quiz.attemptsAllowed - attempts.length),
+      bestScore: attempts.length > 0 ? Math.max(...attempts.map((a) => a.score)) : null,
+      hasPassed: attempts.some((a) => a.isPassed),
       questionType: quiz.questionType,
       totalQuestions: quiz.questions.length,
       questions: quiz.questions.map((q) => ({

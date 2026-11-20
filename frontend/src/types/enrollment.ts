@@ -33,6 +33,8 @@ export interface LessonProgressSummary {
 
 export interface EnrollmentDetail extends EnrollmentSummary {
   lessonProgress: LessonProgressSummary[]
+  /** Weeks (modules) the learner can't open until they pass the previous week's quiz. */
+  lockedModuleIds?: string[]
 }
 
 export interface LessonCompleteResult {

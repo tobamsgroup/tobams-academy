@@ -5,6 +5,7 @@ import { withRoute } from '@/lib/with-route'
 import { getAuthUser } from '@/lib/with-auth'
 import { notify } from '@/lib/notifications'
 import { activeEnrollmentWhere } from '@/lib/enrollment-access'
+import { LOCKED_LESSON_MESSAGE, isLessonLocked } from '@/lib/week-locks'
 
 export const POST = withRoute(
   '/api/v1/quizzes/[quizId]/attempts',
@@ -35,6 +36,7 @@ export const POST = withRoute(
       select: { id: true },
     })
     if (!enrolled) return err('You need active access to this course to take this quiz', 403)
+    if (await isLessonLocked(user.id, quiz.lessonId)) return err(LOCKED_LESSON_MESSAGE, 403)
 
     // Enforce attempt limit
     const attemptCount = await prisma.quizAttempt.count({

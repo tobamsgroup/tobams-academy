@@ -5,6 +5,11 @@ import { getAuthUser } from "@/lib/with-auth";
 import { notify } from "@/lib/notifications";
 import { issueCertificate } from "@/lib/certificates";
 
+jest.mock("@/lib/week-locks", () => ({
+  LOCKED_LESSON_MESSAGE: "Pass the previous week's quiz to unlock this week.",
+  isLessonLocked: jest.fn().mockResolvedValue(false),
+}));
+
 jest.mock("@/lib/prisma", () => ({
   prisma: {
     enrollment: {

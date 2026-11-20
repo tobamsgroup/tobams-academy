@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, Menu, MoreHorizontal } from "lucide-react";
+import { ArrowLeft, ChevronDown, Menu, MoreHorizontal } from "lucide-react";
 import { IMAGES } from "@/assets/images";
 import { cn } from "@/lib/utils";
 
@@ -75,6 +75,14 @@ export function CoursePlayerHeader({
   return (
     <header className="relative z-20 flex shrink-0 items-center justify-between gap-3 bg-[#221D23] px-3 py-2.5 text-white md:px-16 md:py-3">
       <Link
+        href="/dashboard"
+        className="flex h-10 shrink-0 items-center gap-2 rounded-lg px-2 text-sm font-medium text-white hover:bg-white/10 md:px-3"
+        aria-label="Back to dashboard"
+      >
+        <ArrowLeft className="h-5 w-5" strokeWidth={2} />
+        <span className="hidden md:inline">Dashboard</span>
+      </Link>
+      <Link
         href="/dashboard/courses"
         className="flex h-[54px] w-[54px] shrink-0 items-center justify-center gap-2 bg-white opacity-90 hover:opacity-100"
         aria-label="Back to courses"
@@ -87,7 +95,7 @@ export function CoursePlayerHeader({
           className="h-[73px] w-[73px] object-contain md:h-[73px] md:w-[73px]"
         />
       </Link>
-      <h1 className="min-w-0 flex-1 truncate px-2 text-center text-[24px] font-semibold">{courseTitle}</h1>
+      <h1 className="min-w-0 flex-1 truncate px-2 text-center text-base font-semibold md:text-[24px]">{courseTitle}</h1>
       <div className="flex shrink-0 items-center gap-2 md:gap-12">
         <div ref={progressWrapRef} className="relative hidden md:block">
           <button

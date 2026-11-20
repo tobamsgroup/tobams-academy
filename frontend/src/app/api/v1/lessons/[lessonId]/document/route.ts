@@ -7,6 +7,7 @@ import { withRoute } from '@/lib/with-route'
 import { getAuthUser } from '@/lib/with-auth'
 import { EXPIRED_MESSAGE, isAccessActive } from '@/lib/enrollment-access'
 import { attachmentDisposition } from '@/lib/assignments'
+import { LOCKED_LESSON_MESSAGE, isLessonLocked } from '@/lib/week-locks'
 
 /** Private course files live outside /public so only enrolled learners can read them. */
 const CONTENT_ROOT = resolve(process.cwd(), 'content', 'courses')
@@ -40,6 +41,7 @@ export const GET = withRoute(
     })
     if (!enrollment) return err('Not enrolled in this course', 403)
     if (!isAccessActive(enrollment)) return err(EXPIRED_MESSAGE, 403)
+    if (await isLessonLocked(user.id, lessonId)) return err(LOCKED_LESSON_MESSAGE, 403)
 
     // contentKey is a path relative to CONTENT_ROOT; refuse anything that escapes it.
     const filePath = resolve(CONTENT_ROOT, lesson.contentKey)

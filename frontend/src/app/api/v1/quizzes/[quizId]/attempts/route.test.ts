@@ -4,6 +4,11 @@ import { NextRequest } from "next/server";
 import { getAuthUser } from "@/lib/with-auth";
 import { notify } from "@/lib/notifications";
 
+jest.mock("@/lib/week-locks", () => ({
+  LOCKED_LESSON_MESSAGE: "Pass the previous week's quiz to unlock this week.",
+  isLessonLocked: jest.fn().mockResolvedValue(false),
+}));
+
 jest.mock("@/lib/prisma", () => ({
   prisma: {
     quiz: {

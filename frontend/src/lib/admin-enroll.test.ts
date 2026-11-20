@@ -24,7 +24,7 @@ const db = prisma as unknown as {
   enrollment: { findUnique: M };
   __tx: { payment: { create: M }; enrollment: { upsert: M } };
 };
-const course = { id: "c1", slug: "time-intelligence-masterclass", title: "Time Intelligence Masterclass" };
+const course = { id: "c1", slug: "time-intelligence-masterclass", title: "Time Intelligence Masterclass", price: "699.00", earlyBirdPrice: "299.00" };
 
 beforeEach(() => jest.clearAllMocks());
 
@@ -66,9 +66,10 @@ describe("adminEnroll", () => {
     // the stored hash matches the password that was emailed
     expect(await comparePassword(mail.temporaryPassword, created.passwordHash)).toBe(true);
     expect(db.__tx.payment.create.mock.calls[0][0].data).toMatchObject({
-      amount: 0,
+      // They already paid (the early-bird price), so payment history shows it (not "Free").
+      amount: 299,
       status: "COMPLETED",
-      paymentMethod: "Complimentary enrollment",
+      paymentMethod: "Paid",
     });
     expect(db.__tx.enrollment.upsert).toHaveBeenCalled();
   });
